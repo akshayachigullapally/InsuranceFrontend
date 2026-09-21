@@ -1,0 +1,161 @@
+<section class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <div>
+    <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+      Administration
+    </p>
+
+    <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+      Claims
+    </h1>
+
+    <p class="mt-1 text-sm text-gray-500">
+      View submitted claims, review activity and completed claim decisions.
+    </p>
+  </div>
+
+  @if (error$ | async; as error) {
+    <app-error-message [error]="error" />
+  }
+
+  <div class="flex flex-wrap items-center gap-2">
+    @for (filter of filters; track filter.label) {
+      <button
+        type="button"
+        class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
+        [class]="selectedStatus === filter.value
+          ? 'bg-brand-600 text-white shadow-sm'
+          : 'border border-gray-200 bg-white text-gray-600 hover:border-brand-300 hover:text-brand-700'"
+        (click)="applyFilter(filter.value)"
+      >
+        {{ filter.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading$ | async) {
+    <app-loading-spinner label="Loading claims..." />
+  } @else if (claims$ | async; as claims) {
+    @if (claims.length > 0) {
+      <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Claim
+                </th>
+
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Policy
+                </th>
+
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Customer
+                </th>
+
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Incident
+                </th>
+
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Claimed amount
+                </th>
+
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Approved amount
+                </th>
+
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Status
+                </th>
+
+                <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+              @for (claim of claims; track claim.id) {
+                <tr class="transition-colors hover:bg-gray-50">
+                  <td class="whitespace-nowrap px-6 py-4">
+                    <p class="text-sm font-semibold text-gray-900">
+                      {{ claim.claimNumber }}
+                    </p>
+
+                    <p class="text-xs text-gray-400">
+                      Submitted
+                      {{
+                        claim.submittedAt
+                          ? (claim.submittedAt | date:'mediumDate')
+                          : 'Not available'
+                      }}
+                    </p>
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4">
+                    <p class="text-sm font-medium text-gray-900">
+                      {{ claim.policyNumber }}
+                    </p>
+
+                    <p class="text-xs text-gray-400">
+                      Policy #{{ claim.policyId }}
+                    </p>
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                    Customer #{{ claim.customerId }}
+                  </td>
+
+                  <td class="px-6 py-4">
+                    <p class="text-sm font-medium text-gray-900">
+                      {{ claim.incidentType }}
+                    </p>
+
+                    <p class="text-xs text-gray-400">
+                      {{ claim.incidentDate | date:'mediumDate' }}
+                    </p>
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                    ₹ {{ claim.claimedAmount | number:'1.2-2' }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                    @if (
+                      claim.approvedAmount !== null &&
+                      claim.approvedAmount !== undefined
+                    ) {
+                      ₹ {{ claim.approvedAmount | number:'1.2-2' }}
+                    } @else {
+                      <span class="text-gray-400">Not decided</span>
+                    }
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4">
+                    <app-status-badge [status]="claim.status" />
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
+                    <a
+                      [routerLink]="['/admin/claims', claim.id]"
+                      class="font-semibold text-brand-600 hover:text-brand-700"
+                    >
+                      View
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <app-empty-state
+        title="No claims found"
+        message="No claims match the selected status."
+        icon="📋"
+      />
+    }
+  }
+</section>

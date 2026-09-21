@@ -1,0 +1,281 @@
+<section class="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <a
+    routerLink="/customer/policies"
+    class="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
+  >
+    ← My policies
+  </a>
+
+  <div>
+    <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+      New application
+    </p>
+    <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+      Apply for coverage
+    </h1>
+    <p class="mt-1 text-sm text-gray-500">
+      Pick a product, choose your sum insured and term, and select your
+      location zone. An underwriter reviews your application.
+    </p>
+  </div>
+
+  @if (submitError$ | async; as error) {
+    <app-error-message [error]="error" />
+  }
+
+  @if (productsLoading$ | async) {
+    <app-loading-spinner label="Loading products..." />
+  } @else if (productsError$ | async; as error) {
+    <app-error-message [error]="error" />
+  } @else if (products$ | async; as products) {
+    @if (products.length === 0) {
+      <app-empty-state
+        title="No products available"
+        message="There are no active products to apply for right now."
+        icon="📦"
+      />
+    } @else {
+      <form
+        class="space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-card"
+        [formGroup]="form"
+        (ngSubmit)="onSubmit()"
+      >
+        <div>
+          <label class="label-base" for="productId">
+            Product
+          </label>
+
+          <select
+            id="productId"
+            formControlName="productId"
+            class="input-base"
+          >
+            <option [ngValue]="null" disabled>
+              Select a product
+            </option>
+
+            @for (product of products; track product.id) {
+              <option [ngValue]="product.id">
+                {{ product.name }} ({{ product.productCode }})
+              </option>
+            }
+          </select>
+
+          @if (
+            form.controls.productId.invalid &&
+            form.controls.productId.touched
+          ) {
+            <p class="mt-1 text-xs text-danger-500">
+              Product is required.
+            </p>
+          }
+        </div>
+
+        @if (selectedProduct; as product) {
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="rounded-xl bg-gray-50 p-4">
+              <p class="text-xs font-medium text-gray-500">
+                Sum insured range
+              </p>
+              <p class="mt-1 text-lg font-semibold text-gray-900">
+                ₹ {{ product.minimumSumInsured | number }}
+                -
+                ₹ {{ product.maximumSumInsured | number }}
+              </p>
+            </div>
+
+            <div class="rounded-xl bg-gray-50 p-4">
+              <p class="text-xs font-medium text-gray-500">
+                Policy term
+              </p>
+              <p class="mt-1 text-lg font-semibold text-gray-900">
+                {{ product.minimumTermMonths }}
+                -
+                {{ product.maximumTermMonths }}
+                months
+              </p>
+            </div>
+          </div>
+
+          <app-parametric-trigger-card
+            [trigger]="selectedTrigger()"
+            mode="STATIC"
+            [title]="'Trigger condition for this product'"
+          />
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label class="label-base" for="sumInsured">
+                Sum insured (₹)
+              </label>
+
+              <input
+                id="sumInsured"
+                type="number"
+                formControlName="sumInsured"
+                class="input-base"
+                [min]="product.minimumSumInsured"
+                [max]="product.maximumSumInsured"
+              />
+
+              @if (
+                form.controls.sumInsured.invalid &&
+                form.controls.sumInsured.touched
+              ) {
+                <p class="mt-1 text-xs text-danger-500">
+                  @if (form.controls.sumInsured.errors?.['required']) {
+                    Sum insured is required.
+                  } @else if (form.controls.sumInsured.errors?.['min']) {
+                    Minimum is
+                    ₹ {{ product.minimumSumInsured | number }}.
+                  } @else if (form.controls.sumInsured.errors?.['max']) {
+                    Maximum is
+                    ₹ {{ product.maximumSumInsured | number }}.
+                  }
+                </p>
+              }
+            </div>
+
+            <div>
+              <label class="label-base" for="termMonths">
+                Term in months
+              </label>
+
+              <input
+                id="termMonths"
+                type="number"
+                formControlName="termMonths"
+                class="input-base"
+                [min]="product.minimumTermMonths"
+                [max]="product.maximumTermMonths"
+              />
+
+              @if (
+                form.controls.termMonths.invalid &&
+                form.controls.termMonths.touched
+              ) {
+                <p class="mt-1 text-xs text-danger-500">
+                  @if (form.controls.termMonths.errors?.['required']) {
+                    Term is required.
+                  } @else if (form.controls.termMonths.errors?.['min']) {
+                    Minimum is
+                    {{ product.minimumTermMonths }} months.
+                  } @else if (form.controls.termMonths.errors?.['max']) {
+                    Maximum is
+                    {{ product.maximumTermMonths }} months.
+                  }
+                </p>
+              }
+            </div>
+          </div>
+        }
+
+        <div>
+          <label class="label-base" for="locationZoneId">
+            Location zone
+          </label>
+
+          <select
+            id="locationZoneId"
+            formControlName="locationZoneId"
+            class="input-base"
+          >
+            <option [ngValue]="null" disabled>
+              @if (zonesLoading) {
+                Loading zones...
+              } @else if (zones.length === 0) {
+                No zones available
+              } @else {
+                Select your zone
+              }
+            </option>
+
+            @for (zone of zones; track zone.id) {
+              <option [ngValue]="zone.id">
+                {{ zone.zoneName }}
+                @if (zone.district) {
+                  - {{ zone.district }}
+                }
+                @if (zone.state) {
+                  , {{ zone.state }}
+                }
+              </option>
+            }
+          </select>
+
+          @if (zonesLoading) {
+            <p class="mt-1 text-xs text-gray-500">
+              Loading available location zones...
+            </p>
+          }
+
+          @if (zonesError) {
+            <div class="mt-2 flex items-center gap-3">
+              <p class="text-xs text-danger-500">
+                {{ zonesError }}
+              </p>
+              <button
+                type="button"
+                class="text-xs font-semibold text-brand-600"
+                (click)="retryZones()"
+              >
+                Retry
+              </button>
+            </div>
+          }
+
+          @if (
+            form.controls.locationZoneId.invalid &&
+            form.controls.locationZoneId.touched
+          ) {
+            <p class="mt-1 text-xs text-danger-500">
+              Location zone is required.
+            </p>
+          }
+        </div>
+
+        @if (selectedProduct) {
+          <div class="flex items-center justify-between rounded-xl bg-brand-50 px-5 py-4">
+            <div>
+              <p class="text-xs font-medium text-brand-700 uppercase">
+                Estimated premium
+              </p>
+              <p class="mt-0.5 text-xs text-gray-500">
+                2% annual rate, prorated by policy term.
+              </p>
+            </div>
+
+            <p class="text-2xl font-bold text-brand-800">
+              ₹ {{ ((premium$ | async) ?? 0) | number:'1.2-2' }}
+            </p>
+          </div>
+        }
+
+        <div class="flex justify-end gap-3">
+          <a
+            routerLink="/customer/policies"
+            class="btn-outline"
+          >
+            Cancel
+          </a>
+
+          <button
+            type="submit"
+            class="btn-brand"
+            [disabled]="
+              form.invalid ||
+              zonesLoading ||
+              zones.length === 0 ||
+              ((submitting$ | async) ?? false)
+            "
+          >
+            {{ (submitting$ | async)
+              ? 'Submitting...'
+              : 'Submit application'
+            }}
+          </button>
+        </div>
+      </form>
+    }
+  }
+</section>

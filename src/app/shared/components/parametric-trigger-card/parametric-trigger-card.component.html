@@ -1,0 +1,82 @@
+<div class="trigger-card">
+  @if (configured()) {
+    <div class="trigger-card-header">
+      <span class="trigger-card-kicker">
+        {{ title() || metricLabel() }}
+        @if (unitLabel()) {
+          ({{ unitLabel() }})
+        }
+      </span>
+
+      @if (mode() === 'POLICY_SNAPSHOT') {
+        <span class="trigger-card-pill trigger-card-pill--snapshot">
+          Snapshot
+        </span>
+      } @else if (showSync()) {
+        <span
+          class="trigger-card-pill"
+          [class]="syncColor()"
+        >
+          {{ syncLabel() }}
+        </span>
+      }
+    </div>
+  } @else {
+    <div class="trigger-card-header">
+      <span class="trigger-card-kicker">
+        {{ title() || 'Trigger condition' }}
+      </span>
+    </div>
+  }
+
+  @if (mode() === 'LIVE' && zoneName()) {
+    <p class="trigger-card-zone">
+      📍 {{ zoneName() }}
+    </p>
+  }
+
+  <div class="trigger-card-body">
+    @if (configured()) {
+      <p class="trigger-card-sentence">
+        {{ trigger()?.humanReadableTrigger || buildSentence() }}
+      </p>
+
+      @if (description()) {
+        <p class="trigger-card-description">
+          {{ description() }}
+        </p>
+      }
+    } @else {
+      <p class="trigger-card-empty">Trigger not configured yet.</p>
+    }
+  </div>
+
+  @if (mode() === 'LIVE') {
+    <div class="trigger-card-live">
+      <div class="trigger-card-live-row">
+        <span class="trigger-card-live-value">
+          {{ liveValue() === null || liveValue() === undefined ? 'No live value' : liveValueText() }}
+        </span>
+        <span
+          class="trigger-card-pill"
+          [class]="stateColor()"
+        >
+          {{ stateLabel() }}
+        </span>
+      </div>
+      <div class="trigger-card-progress">
+        <div
+          class="trigger-card-progress-fill"
+          [style.width.%]="liveProgress().percent"
+          [class]="liveProgress().color"
+        ></div>
+      </div>
+    </div>
+  }
+
+  @if (showSync() && syncMessage()) {
+    <p class="trigger-card-sync-message">
+      {{ syncMessage() }}
+    </p>
+  }
+</div>

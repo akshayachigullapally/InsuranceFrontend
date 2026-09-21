@@ -1,0 +1,199 @@
+<section class="mx-auto max-w-6xl px-6 py-12">
+  <a
+    routerLink="/products"
+    class="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
+  >
+    ← All products
+  </a>
+
+  @if (error$ | async; as error) {
+    <div class="mt-4">
+      <app-error-message [error]="error" />
+    </div>
+  }
+
+  @if (loading$ | async) {
+    <div class="mt-6">
+      <app-loading-spinner label="Loading product..." />
+    </div>
+  } @else if (product$ | async; as product) {
+    <div class="mt-6 grid gap-8 lg:grid-cols-3">
+      <div class="lg:col-span-2">
+        <div class="card p-8">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+                {{ categoryLabel(product.category) }}
+              </p>
+
+              <h1 class="mt-1 text-3xl font-bold tracking-tight text-gray-900">
+                {{ product.name }}
+              </h1>
+
+              <p class="mt-1 text-sm text-gray-400">
+                {{ product.productCode }}
+              </p>
+            </div>
+
+            <span class="rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-700 uppercase">
+              {{ product.status }}
+            </span>
+          </div>
+
+          <p class="mt-6 leading-relaxed text-gray-600">
+            {{ product.description || 'No description available.' }}
+          </p>
+
+          <h2 class="mt-8 text-lg font-semibold text-gray-900">
+            How the payout triggers
+          </h2>
+
+          <div class="mt-4">
+            <app-parametric-trigger-card
+              [trigger]="triggerCondition(product)"
+              mode="PRODUCT"
+              [syncStatus]="product.triggerSyncStatus"
+              [syncMessage]="syncMessage(product)"
+              [title]="'Trigger condition'"
+            />
+          </div>
+
+          <h2 class="mt-8 text-lg font-semibold text-gray-900">
+            Key information
+          </h2>
+
+          <dl class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            @for (row of specRows(product); track row.label) {
+              <div class="rounded-xl bg-gray-50 p-4">
+                <dt class="text-xs font-medium text-gray-500">
+                  {{ row.label }}
+                </dt>
+                <dd class="mt-1 text-lg font-semibold text-gray-900">
+                  {{ row.value }}
+                </dd>
+              </div>
+            }
+          </dl>
+
+          @if (product.coverages.length > 0) {
+            <h2 class="mt-8 text-lg font-semibold text-gray-900">
+              What's covered
+            </h2>
+
+            <ul class="mt-4 divide-y divide-gray-100 rounded-2xl border border-gray-100">
+              @for (coverage of product.coverages; track coverage.id) {
+                <li class="flex items-start gap-4 p-4">
+                  <span
+                    class="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-success-50 text-sm text-success-700"
+                    aria-hidden="true"
+                  >
+                    ✓
+                  </span>
+
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <p class="text-sm font-semibold text-gray-900">
+                        {{ coverage.name }}
+                      </p>
+
+                      @if (coverage.mandatory) {
+                        <span class="rounded-full bg-navy-100 px-2 py-0.5 text-xs font-medium text-navy-800">
+                          Mandatory
+                        </span>
+                      }
+                    </div>
+
+                    @if (coverage.description) {
+                      <p class="mt-1 text-sm text-gray-500">
+                        {{ coverage.description }}
+                      </p>
+                    }
+
+                    @if (coverage.coverageLimit !== null && coverage.coverageLimit !== undefined) {
+                      <p class="mt-1 text-xs font-medium text-brand-600">
+                        Up to ₹ {{ coverage.coverageLimit | number }}
+                      </p>
+                    }
+                  </div>
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="mt-8 rounded-xl bg-gray-50 p-5">
+              <p class="text-sm text-gray-500">
+                Detailed coverage information is not available for this product.
+              </p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <aside class="space-y-6">
+        <div class="card p-6">
+          <h2 class="text-base font-semibold text-gray-900">
+            Get covered
+          </h2>
+
+          <p class="mt-2 text-sm leading-relaxed text-gray-500">
+            Create an account to apply for this product. An underwriter reviews
+            the application, and the policy activates after approval.
+          </p>
+
+          <a
+            routerLink="/register"
+            [queryParams]="{ productId: product.id }"
+            class="btn-brand mt-5 block w-full text-center"
+          >
+            Request this coverage
+          </a>
+
+          <p class="mt-3 text-center text-xs text-gray-400">
+            Already registered?
+
+            <a
+              routerLink="/login"
+              [queryParams]="{
+                returnUrl: '/customer/policies/new',
+                productId: product.id
+              }"
+              class="font-medium text-brand-600 hover:text-brand-700"
+            >
+              Sign in
+            </a>
+          </p>
+        </div>
+
+        <div class="rounded-xl bg-navy-950 p-6 text-white">
+          <h3 class="text-sm font-semibold text-brand-300 uppercase">
+            Why parametric?
+          </h3>
+
+          <ul class="mt-4 space-y-3 text-sm text-navy-200">
+            <li class="flex items-start gap-2.5">
+              <span class="mt-0.5 text-emerald-400">✓</span>
+              <span>
+                Payout triggers are objective and transparent, with clearly
+                defined thresholds.
+              </span>
+            </li>
+
+            <li class="flex items-start gap-2.5">
+              <span class="mt-0.5 text-emerald-400">✓</span>
+              <span>
+                Events are monitored and evaluated automatically.
+              </span>
+            </li>
+
+            <li class="flex items-start gap-2.5">
+              <span class="mt-0.5 text-emerald-400">✓</span>
+              <span>
+                Qualified events can move directly into the claim-processing
+                pipeline.
+              </span>
+            </li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  }
+</section>

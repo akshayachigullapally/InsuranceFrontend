@@ -1,0 +1,176 @@
+<!-- Hero -->
+<section class="relative overflow-hidden bg-navy-950 text-white">
+  <div class="absolute inset-0">
+    <div class="absolute inset-0 animate-blob bg-[radial-gradient(ellipse_at_top_right,rgba(30,139,255,0.35),transparent_55%)]"></div>
+    <div class="absolute inset-0 animate-blob bg-[radial-gradient(ellipse_at_bottom_left,rgba(0,80,219,0.25),transparent_50%)]" style="animation-delay: -6s"></div>
+  </div>
+  <div class="relative mx-auto max-w-7xl px-6 pb-20 pt-20 lg:pt-28">
+    <div class="mx-auto max-w-3xl text-center">
+      <span class="inline-flex animate-fade-in items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-brand-200 backdrop-blur">
+        <span class="relative flex size-2">
+          <span class="absolute inline-flex size-full animate-ping rounded-full bg-brand-400 opacity-75"></span>
+          <span class="relative inline-flex size-2 rounded-full bg-brand-400"></span>
+        </span>
+        Parametric insurance · Reactive by design
+      </span>
+      <h1 class="mt-6 animate-fade-in-up text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl" style="animation-delay: 100ms">
+        Insurance that pays out
+        <span class="bg-gradient-to-r from-brand-400 via-brand-300 to-cyan-300 bg-clip-text text-transparent">when the weather turns</span>
+      </h1>
+      <p class="mx-auto mt-6 max-w-2xl animate-fade-in-up text-lg leading-relaxed text-navy-200" style="animation-delay: 200ms">
+        ClimateSure links real-time rainfall, flood, temperature and wind data to your policy. When a
+        threshold is breached, your claim is evaluated automatically — and payouts follow fast.
+      </p>
+      <div class="mt-9 flex animate-fade-in-up flex-wrap items-center justify-center gap-4" style="animation-delay: 300ms">
+        <a routerLink="/register" class="btn-brand !rounded-full !px-7 !py-3 !text-base">
+          Start protecting today
+        </a>
+        <a
+          routerLink="/products"
+          class="group inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-7 py-3 text-base font-semibold text-white backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10"
+        >
+          Explore products
+          <span class="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+        </a>
+      </div>
+
+      <!-- Stats strip -->
+      <dl class="mt-14 grid animate-fade-in-up grid-cols-2 gap-6 sm:grid-cols-4" style="animation-delay: 400ms">
+        @for (stat of stats; track stat.label) {
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur transition-all duration-200 hover:-translate-y-1 hover:border-brand-400/40 hover:bg-white/10">
+            <dt class="text-3xl font-bold text-white">{{ stat.value }}</dt>
+            <dd class="mt-1 text-xs font-medium tracking-wide text-brand-200 uppercase">{{ stat.label }}</dd>
+          </div>
+        }
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- Trust bar -->
+<section class="border-b border-brand-100 bg-white">
+  <div class="mx-auto max-w-7xl px-6 py-10">
+    <div class="grid grid-cols-2 gap-6 text-center sm:grid-cols-4">
+      @for (trust of trustItems; track trust.label) {
+        <div class="group flex items-center justify-center gap-2 text-sm font-semibold text-gray-500 transition-colors hover:text-brand-700">
+          <span class="text-xl transition-transform duration-200 group-hover:scale-125" aria-hidden="true">{{ trust.icon }}</span>
+          {{ trust.label }}
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="py-20" id="how-it-works">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="mx-auto max-w-2xl text-center">
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">Simple by design</p>
+      <h2 class="section-title mt-2 !text-3xl">
+        How <span class="gradient-text">ClimateSure</span> works
+      </h2>
+      <p class="section-subtitle">From sign-up to automatic payout in four simple steps.</p>
+    </div>
+    <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      @for (step of steps; track step.number) {
+        <div class="card-hover group relative p-6">
+          <div class="flex size-10 items-center justify-center rounded-full bg-brand-gradient text-sm font-bold text-white shadow-md transition-transform duration-200 group-hover:scale-110">
+            {{ step.number }}
+          </div>
+          <h3 class="mt-4 font-semibold text-gray-900">{{ step.title }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-500">{{ step.description }}</p>
+          @if (!$last) {
+            <span class="absolute right-6 top-1/2 hidden -translate-y-1/2 text-brand-300 lg:block" aria-hidden="true">→</span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="bg-white py-20">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="mx-auto max-w-2xl text-center">
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">Why ClimateSure</p>
+      <h2 class="section-title mt-2 !text-3xl">Built for predictable protection</h2>
+      <p class="section-subtitle">No adjuster visits. No mountains of paperwork. Data makes the decision.</p>
+    </div>
+    <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      @for (feature of features; track feature.title) {
+        <div class="card-hover group p-6">
+          <div class="flex size-11 items-center justify-center rounded-xl text-2xl shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:rotate-3" [class]="feature.color" aria-hidden="true">
+            {{ feature.icon }}
+          </div>
+          <h3 class="mt-4 font-semibold text-gray-900 group-hover:text-brand-700">{{ feature.title }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-500">{{ feature.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Featured products -->
+<section class="py-20">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">Live coverage</p>
+        <h2 class="section-title mt-2 !text-3xl">Featured protection</h2>
+        <p class="section-subtitle">Transparent policies with clear trigger thresholds.</p>
+      </div>
+      <a routerLink="/products" class="btn-outline">View all products →</a>
+    </div>
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      @for (product of products$ | async; track product.id) {
+        <a routerLink="/products/{{ product.id }}" class="card-hover group p-6">
+          <div class="flex items-start justify-between">
+            <span class="flex size-12 items-center justify-center rounded-xl bg-brand-50 text-2xl transition-all duration-200 group-hover:scale-110" aria-hidden="true">
+              {{ categoryIcon(product.category) }}
+            </span>
+            <span class="text-xs font-semibold tracking-wide text-brand-600 uppercase">{{ product.category }}</span>
+          </div>
+          <h3 class="mt-4 text-lg font-semibold text-gray-900 group-hover:text-brand-700">{{ product.name }}</h3>
+          <p class="mt-2 line-clamp-2 text-sm text-gray-500">{{ product.description || 'No description available.' }}</p>
+          <div class="mt-5 flex items-end justify-between border-t border-brand-50 pt-4">
+            <p class="text-sm text-gray-500">
+              Coverage
+              <span class="block font-semibold text-gray-900">
+                {{ product.minimumSumInsured != null ? (product.minimumSumInsured | number) : '—' }} onward
+              </span>
+            </p>
+            <span class="text-sm font-semibold text-brand-600 transition-transform duration-200 group-hover:translate-x-0.5">Learn more →</span>
+          </div>
+        </a>
+      } @empty {
+        <p class="col-span-full text-center text-sm text-gray-400">
+          Products will appear here once published.
+        </p>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- CTA banner -->
+<section class="pb-20">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="relative overflow-hidden rounded-3xl bg-brand-gradient px-8 py-14 text-center text-white shadow-elevated">
+      <div class="absolute inset-0 animate-blob bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_50%)]"></div>
+      <div class="absolute -bottom-16 -right-16 size-64 rounded-full bg-cyan-400/20 blur-3xl"></div>
+      <div class="relative">
+        <h2 class="text-3xl font-bold tracking-tight">Protect your family, farm or business today</h2>
+        <p class="mx-auto mt-3 max-w-xl text-brand-100">
+          Register in under a minute and pick the coverage that fits your risk.
+        </p>
+        <div class="mt-8 flex flex-wrap justify-center gap-4">
+          <a routerLink="/register" class="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 text-base font-semibold text-brand-800 shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-50 hover:shadow-elevated">
+            Create free account
+          </a>
+          <a routerLink="/login" class="inline-flex items-center justify-center rounded-full border border-white/30 px-7 py-3 text-base font-semibold text-white backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10">
+            Sign in
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

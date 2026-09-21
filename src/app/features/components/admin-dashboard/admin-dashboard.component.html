@@ -1,0 +1,82 @@
+<div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+  <!-- Welcome banner -->
+  <section class="relative overflow-hidden rounded-2xl bg-brand-gradient px-8 py-10 text-white shadow-elevated">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.15),transparent_55%)]"></div>
+    <div class="absolute -bottom-20 -right-20 size-72 rounded-full bg-white/5 blur-3xl"></div>
+    <div class="relative flex flex-wrap items-center justify-between gap-6">
+      <div>
+        <p class="text-xs font-semibold tracking-widest text-brand-200 uppercase">Admin Console</p>
+        <h1 class="mt-2 text-3xl font-bold tracking-tight">Platform administration</h1>
+        <p class="mt-2 max-w-lg text-sm text-brand-100">
+          Oversee users, products, reference data, trigger definitions and audit activity.
+        </p>
+      </div>
+      <a routerLink="/admin/products/new" class="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-800 shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/90 hover:shadow-elevated">
+        + New product
+      </a>
+    </div>
+  </section>
+
+  <!-- KPI cards -->
+  <div class="grid animate-fade-in-up gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <app-stat-card label="Registered users" [value]="(userCount$ | async) ?? 0" icon="👥" color="blue" hint="All roles" />
+    <app-stat-card label="Active policies" [value]="(activePolicyCount$ | async) ?? 0" icon="📄" color="green" hint="In force today" />
+    <app-stat-card label="Live products" [value]="(activeProductCount$ | async) ?? 0" icon="🛡️" color="navy" hint="Published lines" />
+    <app-stat-card label="Total payouts" [value]="'₹ ' + ((totalPayouts$ | async) ?? 0)" icon="💸" color="amber" hint="Lifetime settled" />
+  </div>
+
+  <!-- Platform management grid -->
+  <section class="card">
+    <div class="flex items-center justify-between border-b border-brand-50 px-6 py-4">
+      <div>
+        <h2 class="text-base font-semibold text-gray-900">Platform management</h2>
+        <p class="text-xs text-gray-500">Reference data and operational modules</p>
+      </div>
+    </div>
+    <div class="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      @for (link of adminLinks; track link.label) {
+        <a [routerLink]="link.routerLink" class="card-hover group flex items-start gap-3.5 p-5">
+          <span class="flex size-10 shrink-0 items-center justify-center rounded-xl text-xl transition-all duration-200 group-hover:scale-110 group-hover:rotate-3" [class]="link.color" aria-hidden="true">
+            {{ link.icon }}
+          </span>
+          <div class="min-w-0">
+            <p class="font-semibold text-gray-900 group-hover:text-brand-700">{{ link.label }}</p>
+            <p class="mt-0.5 text-xs text-gray-500">{{ link.description }}</p>
+          </div>
+        </a>
+      }
+    </div>
+  </section>
+
+  <!-- Products snapshot -->
+  <section class="card">
+    <div class="flex items-center justify-between border-b border-brand-50 px-6 py-4">
+      <h2 class="text-base font-semibold text-gray-900">Product catalogue</h2>
+      <a routerLink="/admin/products" class="text-sm font-medium text-brand-600 transition-colors hover:text-brand-700">Manage products →</a>
+    </div>
+    <div class="p-6">
+      @if ((products$ | async)?.length) {
+        <ul class="divide-y divide-brand-50">
+          @for (product of products$ | async; track product.id) {
+            <li class="flex items-center justify-between gap-4 py-3 transition-colors hover:bg-brand-50/40 rounded-lg px-2">
+              <div>
+                <p class="text-sm font-semibold text-gray-900">{{ product.name }}</p>
+                <p class="text-xs text-gray-500">{{ product.category }}</p>
+              </div>
+              <span class="rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-700 uppercase">
+                {{ product.status }}
+              </span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-brand-200 bg-brand-50/30 py-12 text-center">
+          <span class="text-4xl" aria-hidden="true">🌱</span>
+          <p class="mt-3 text-sm font-semibold text-gray-700">No products yet</p>
+          <p class="mt-1 text-xs text-gray-500">Create your first parametric insurance product to publish it to customers.</p>
+          <a routerLink="/admin/products/new" class="btn-brand mt-4 !px-4 !py-2">Create a product</a>
+        </div>
+      }
+    </div>
+  </section>
+</div>

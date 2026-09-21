@@ -1,0 +1,110 @@
+<div class="grid min-h-[calc(100vh-4rem)] lg:grid-cols-2">
+  <!-- Brand panel -->
+  <aside class="relative hidden overflow-hidden bg-navy-950 text-white lg:flex lg:flex-col lg:justify-between">
+    <div class="absolute -top-24 -left-24 size-96 animate-blob rounded-full bg-cyan-400/15 blur-3xl"></div>
+    <div class="absolute -right-20 bottom-0 size-80 animate-blob rounded-full bg-brand-500/20 blur-3xl" style="animation-delay: -6s"></div>
+    <div class="relative flex flex-col px-12 py-14">
+      <div class="flex items-center gap-2.5">
+        <span class="flex size-10 items-center justify-center rounded-xl bg-brand-gradient text-xl shadow-md" aria-hidden="true">🌦️</span>
+        <span class="text-xl font-bold tracking-tight">ClimateSure</span>
+      </div>
+      <div class="mt-auto py-16">
+        <h2 class="text-3xl font-bold leading-tight tracking-tight">
+          Turn unpredictable weather into<br />
+          <span class="gradient-text">predictable protection</span>.
+        </h2>
+        <p class="mt-4 max-w-md text-navy-200">
+          Create a free customer account. No paperwork — your policy activates as soon as an underwriter
+          approves it.
+        </p>
+        <div class="mt-8 grid grid-cols-3 gap-4 text-center">
+          @for (stat of stats; track stat.label) {
+            <div class="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur transition-all duration-200 hover:-translate-y-1 hover:border-brand-400/30">
+              <p class="text-2xl font-bold">{{ stat.value }}</p>
+              <p class="mt-1 text-xs text-brand-200">{{ stat.label }}</p>
+            </div>
+          }
+        </div>
+      </div>
+      <p class="text-xs text-navy-400">© 2026 ClimateSure Insurance</p>
+    </div>
+  </aside>
+
+  <!-- Form panel -->
+  <main class="flex items-center justify-center px-6 py-16 sm:px-12">
+    <div class="w-full max-w-md">
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">Get protected</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900">Create your account</h1>
+      <p class="mt-2 text-gray-500">Start protecting what matters most — in under a minute.</p>
+
+      @if (error$ | async; as error) {
+        <div class="mt-6 animate-slide-down">
+          <app-error-message [error]="error" />
+        </div>
+      }
+
+      <form class="mt-8 space-y-5" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <div>
+          <label for="fullName" class="label-base">Full name</label>
+          <input
+            id="fullName"
+            type="text"
+            formControlName="fullName"
+            class="input-base"
+            placeholder="Jane Doe"
+            autocomplete="name"
+          />
+          @if (submitted() && fullNameControl?.invalid) {
+            <p class="mt-1.5 text-xs text-red-600">Full name must be at least 2 characters.</p>
+          }
+        </div>
+        <div>
+          <label for="email" class="label-base">Email address</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="input-base"
+            placeholder="you@example.com"
+            autocomplete="email"
+          />
+          @if (submitted() && emailControl?.invalid) {
+            <p class="mt-1.5 text-xs text-red-600">A valid email is required.</p>
+          }
+        </div>
+        <div>
+          <label for="password" class="label-base">Password</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            class="input-base"
+            placeholder="At least 8 characters"
+            autocomplete="new-password"
+          />
+          @if (submitted() && passwordControl?.invalid) {
+            <p class="mt-1.5 text-xs text-red-600">Password must be at least 8 characters.</p>
+          }
+        </div>
+
+        <button type="submit" class="btn-brand w-full !py-3" [disabled]="(loading$ | async) ?? false">
+          @if (loading$ | async) {
+            Creating account…
+          } @else {
+            Create free account
+          }
+        </button>
+      </form>
+
+      <p class="mt-8 text-center text-sm text-gray-500">
+        Already registered?
+        <a routerLink="/login" class="font-semibold text-brand-600 transition-colors hover:text-brand-700">Sign in</a>
+      </p>
+
+      <div class="mt-10 rounded-xl border border-brand-100 bg-brand-50/60 p-4 text-xs text-gray-500">
+        <strong class="text-brand-700">What happens next —</strong> your account is created as a customer. Add
+        your address and select a product to apply for coverage.
+      </div>
+    </div>
+  </main>
+</div>

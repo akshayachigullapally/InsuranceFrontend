@@ -1,0 +1,272 @@
+<section class="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <a
+    routerLink="/underwriter/policies"
+    class="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
+  >
+    ← Pending applications
+  </a>
+
+  @if (invalidPolicyId) {
+    <app-error-message error="Invalid policy ID." />
+  }
+
+  @if (error$ | async; as error) {
+    <app-error-message [error]="error" />
+  }
+
+  @if (loading$ | async) {
+    <app-loading-spinner label="Loading policy application..." />
+  } @else if (policy$ | async; as policy) {
+    <div class="card overflow-hidden">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 bg-gray-50/60 px-6 py-5">
+        <div>
+          <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+            Underwriting review
+          </p>
+
+          <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+            {{ policy.policyNumber }}
+          </h1>
+
+          <p class="mt-1 text-sm text-gray-500">
+            Customer #{{ policy.customerId }}
+          </p>
+        </div>
+
+        <app-status-badge [status]="policy.status" />
+      </div>
+
+      <div class="grid gap-5 p-6 md:grid-cols-3">
+        <div class="rounded-xl bg-gray-50 p-5">
+          <p class="text-xs font-medium text-gray-500">
+            Product
+          </p>
+
+          <p class="mt-1 font-semibold text-gray-900">
+            {{ policy.productName }}
+          </p>
+
+          <p class="text-xs text-gray-400">
+            {{ policy.productCode }}
+          </p>
+        </div>
+
+        <div class="rounded-xl bg-gray-50 p-5">
+          <p class="text-xs font-medium text-gray-500">
+            Requested coverage
+          </p>
+
+          <p class="mt-1 text-lg font-bold text-gray-900">
+            ₹ {{ policy.sumInsured | number }}
+          </p>
+        </div>
+
+        <div class="rounded-xl bg-brand-50 p-5">
+          <p class="text-xs font-medium text-brand-700">
+            Calculated premium
+          </p>
+
+          <p class="mt-1 text-lg font-bold text-brand-800">
+            ₹ {{ policy.premiumAmount | number:'1.2-2' }}
+          </p>
+        </div>
+      </div>
+
+      <dl class="grid grid-cols-1 gap-px bg-gray-100 sm:grid-cols-2">
+        @for (row of details(policy); track row.label) {
+          <div class="bg-white px-6 py-4">
+            <dt class="text-xs font-medium text-gray-500">
+              {{ row.label }}
+            </dt>
+
+            <dd class="mt-1 text-sm font-semibold text-gray-900">
+              {{ row.value }}
+            </dd>
+          </div>
+        }
+      </dl>
+
+      @if (policy.status === 'PENDING') {
+        <div class="border-t border-gray-100 bg-gray-50 px-6 py-5">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-semibold text-gray-900">
+                Underwriting decision
+              </p>
+
+              <p class="mt-1 text-xs text-gray-500">
+                Approval activates the policy immediately and assigns its
+                coverage start and end dates.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <button
+                type="button"
+                class="btn-danger"
+                [disabled]="(saving$ | async) ?? false"
+                (click)="openRejection()"
+              >
+                Reject
+              </button>
+
+              <button
+                type="button"
+                class="btn-brand"
+                [disabled]="(saving$ | async) ?? false"
+                (click)="openApproval()"
+              >
+                {{ (saving$ | async) ? 'Processing...' : 'Approve policy' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (policy.status === 'ACTIVE') {
+        <div class="border-t border-success-100 bg-success-50 px-6 py-5">
+          <p class="text-sm font-semibold text-success-700">
+            ✓ This policy has been approved and activated
+          </p>
+
+          @if (policy.startDate && policy.endDate) {
+            <p class="mt-1 text-xs text-gray-500">
+              Coverage is valid from
+              {{ policy.startDate | date:'mediumDate' }}
+              to
+              {{ policy.endDate | date:'mediumDate' }}.
+            </p>
+          }
+        </div>
+      }
+
+      @if (policy.status === 'REJECTED') {
+        <div class="border-t border-danger-100 bg-danger-50 px-6 py-5">
+          <p class="text-sm font-semibold text-danger-700">
+            This application was rejected
+          </p>
+
+          @if (policy.rejectionReason) {
+            <p class="mt-2 text-sm text-danger-700">
+              {{ policy.rejectionReason }}
+            </p>
+          }
+        </div>
+      }
+
+      @if (policy.status === 'CANCELLED') {
+        <div class="border-t border-gray-200 bg-gray-50 px-6 py-5">
+          <p class="text-sm font-semibold text-gray-700">
+            This application was cancelled by the customer.
+          </p>
+        </div>
+      }
+    </div>
+
+    @if (approveOpen) {
+      <app-confirmation-dialog
+        title="Approve this policy?"
+        message="The policy will become active immediately, and its coverage dates will be assigned from today."
+        confirmLabel="Approve policy"
+        (confirmed)="confirmApproval()"
+        (dismissed)="dismissApproval()"
+      />
+    }
+
+    @if (rejectOpen) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/50 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reject-dialog-title"
+      >
+        <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+          <div>
+            <p class="text-xs font-semibold tracking-widest text-danger-600 uppercase">
+              Underwriting decision
+            </p>
+
+            <h2
+              id="reject-dialog-title"
+              class="mt-1 text-xl font-bold text-gray-900"
+            >
+              Reject policy application
+            </h2>
+
+            <p class="mt-2 text-sm text-gray-500">
+              Provide a clear reason. The customer will be able to view this
+              reason in the policy details.
+            </p>
+          </div>
+
+          <form
+            class="mt-5"
+            [formGroup]="rejectionForm"
+            (ngSubmit)="submitRejection()"
+          >
+            <label class="label-base" for="rejectionReason">
+              Rejection reason
+            </label>
+
+            <textarea
+              id="rejectionReason"
+              formControlName="reason"
+              rows="5"
+              maxlength="500"
+              class="input-base"
+              placeholder="Explain why this application cannot be approved"
+            ></textarea>
+
+            <div class="mt-1 flex items-start justify-between gap-4">
+              <div>
+                @if (
+                  rejectionForm.controls.reason.invalid &&
+                  rejectionForm.controls.reason.touched
+                ) {
+                  <p class="text-xs text-danger-500">
+                    @if (
+                      rejectionForm.controls.reason.errors?.['required'] ||
+                      rejectionForm.controls.reason.errors?.['pattern']
+                    ) {
+                      Rejection reason is required.
+                    } @else if (
+                      rejectionForm.controls.reason.errors?.['maxlength']
+                    ) {
+                      Rejection reason cannot exceed 500 characters.
+                    }
+                  </p>
+                }
+              </div>
+
+              <p class="shrink-0 text-xs text-gray-400">
+                {{ reasonLength() }}/500
+              </p>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                class="btn-outline"
+                [disabled]="(saving$ | async) ?? false"
+                (click)="dismissRejection()"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                class="btn-danger"
+                [disabled]="
+                  rejectionForm.invalid ||
+                  ((saving$ | async) ?? false)
+                "
+              >
+                {{ (saving$ | async) ? 'Rejecting...' : 'Reject application' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+  }
+</section>

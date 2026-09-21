@@ -1,0 +1,147 @@
+<section class="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <a
+    routerLink="/customer/policies"
+    class="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
+  >
+    ← My policies
+  </a>
+
+  @if (error$ | async; as error) {
+    <app-error-message [error]="error" />
+  }
+
+  @if (loading$ | async) {
+    <app-loading-spinner label="Loading policy..." />
+  } @else if (policy$ | async; as policy) {
+    <div class="card overflow-hidden">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 bg-gray-50/60 px-6 py-5">
+        <div>
+          <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+            Policy
+          </p>
+          <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+            {{ policy.policyNumber }}
+          </h1>
+        </div>
+
+        <app-status-badge [status]="policy.status" />
+      </div>
+
+      <div class="grid gap-6 p-6 lg:grid-cols-3">
+        <div class="rounded-xl bg-gray-50 p-5">
+          <p class="text-xs font-medium text-gray-500">Product</p>
+          <p class="mt-1 text-sm font-semibold text-gray-900">
+            {{ policy.productName }}
+          </p>
+          <p class="text-xs text-gray-400">
+            {{ policy.productCode }}
+          </p>
+        </div>
+
+        <div class="rounded-xl bg-gray-50 p-5">
+          <p class="text-xs font-medium text-gray-500">Sum insured</p>
+          <p class="mt-1 text-lg font-bold text-gray-900">
+            ₹ {{ policy.sumInsured | number }}
+          </p>
+        </div>
+
+        <div class="rounded-xl bg-gray-50 p-5">
+          <p class="text-xs font-medium text-gray-500">Premium</p>
+          <p class="mt-1 text-lg font-bold text-brand-700">
+            ₹ {{ policy.premiumAmount | number }}
+          </p>
+        </div>
+      </div>
+
+      <dl class="grid grid-cols-1 gap-px bg-gray-100 sm:grid-cols-2">
+        @for (row of details(policy); track row.label) {
+          <div class="bg-white px-6 py-4">
+            <dt class="text-xs font-medium text-gray-500">
+              {{ row.label }}
+            </dt>
+            <dd class="mt-1 text-sm font-semibold text-gray-900">
+              {{ row.value }}
+            </dd>
+          </div>
+        }
+      </dl>
+
+      @if (snapshotLoading) {
+        <div class="border-t border-gray-100 px-6 py-5">
+          <app-loading-spinner label="Loading trigger snapshot..." />
+        </div>
+      } @else if (snapshot; as snapshot) {
+        <div class="border-t border-gray-100 px-6 py-5">
+          <app-parametric-trigger-card
+            [trigger]="snapshotTrigger()!"
+            mode="POLICY_SNAPSHOT"
+            [title]="'Locked trigger condition'"
+            [zoneName]="'Captured at policy creation'"
+          />
+        </div>
+      }
+
+      @if (policy.status === 'REJECTED' && policy.rejectionReason) {
+        <div class="border-t border-danger-100 bg-danger-50 px-6 py-4">
+          <p class="text-xs font-semibold text-danger-700 uppercase">
+            Rejection reason
+          </p>
+          <p class="mt-1 text-sm text-danger-700">
+            {{ policy.rejectionReason }}
+          </p>
+        </div>
+      }
+
+      @if (policy.status === 'PENDING') {
+        <div class="flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 bg-warn-50 px-6 py-5">
+          <div>
+            <p class="text-sm font-semibold text-warn-700">
+              Waiting for underwriter review
+            </p>
+            <p class="text-xs text-gray-500">
+              You can withdraw this application before a decision is made.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="btn-danger"
+            [disabled]="(saving$ | async) ?? false"
+            (click)="openCancel()"
+          >
+            {{ (saving$ | async) ? 'Cancelling...' : 'Cancel application' }}
+          </button>
+        </div>
+      }
+
+      @if (policy.status === 'ACTIVE') {
+        <div class="border-t border-success-100 bg-success-50 px-6 py-5">
+          <p class="text-sm font-semibold text-success-700">
+            ✓ Policy is in force
+          </p>
+          <p class="mt-0.5 text-xs text-gray-500">
+            @if (policy.startDate && policy.endDate) {
+              Covered from
+              {{ policy.startDate | date:'mediumDate' }}
+              to
+              {{ policy.endDate | date:'mediumDate' }}.
+            } @else {
+              Your policy is active.
+            }
+          </p>
+        </div>
+      }
+    </div>
+
+    @if (cancelOpen) {
+      <app-confirmation-dialog
+        title="Cancel this application?"
+        message="This pending policy application will be cancelled. You can submit a new application later."
+        confirmLabel="Yes, cancel it"
+        [danger]="true"
+        (confirmed)="confirmCancel()"
+        (dismissed)="dismissCancel()"
+      />
+    }
+  }
+</section>

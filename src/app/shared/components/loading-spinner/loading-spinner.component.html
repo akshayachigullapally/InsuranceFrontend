@@ -1,0 +1,9 @@
+<div class="flex flex-row items-center justify-center p-8" role="status" aria-live="polite">
+  <div
+    class="size-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-t-transparent"
+    aria-hidden="true"
+  ></div>
+  @if (label()) {
+    <span class="ms-3 text-sm text-gray-600">{{ label() }}</span>
+  }
+</div>

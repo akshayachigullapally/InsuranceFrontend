@@ -1,0 +1,234 @@
+<section class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+        Trigger administration
+      </p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+        Observations
+      </h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Weather and environmental measurements used for trigger evaluation.
+      </p>
+    </div>
+
+    <button type="button" class="btn-brand" (click)="openCreate()">
+      + New observation
+    </button>
+  </div>
+
+  @if (error$ | async; as error) {
+    <app-error-message [error]="error" />
+  }
+
+  <div class="card p-4">
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="md:col-span-2">
+        <label class="label-base" for="obsSearch">Search observations</label>
+        <input
+          id="obsSearch"
+          type="search"
+          class="input-base"
+          placeholder="Search reference, type, source, status or zone"
+          [formControl]="searchControl"
+        />
+      </div>
+    </div>
+
+    @if (searchControl.value) {
+      <div class="mt-4 flex justify-end">
+        <button
+          type="button"
+          class="text-sm font-semibold text-brand-600 hover:text-brand-700"
+          (click)="clearFilters()"
+        >
+          Clear filters
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (loading$ | async) {
+    <app-loading-spinner label="Loading observations..." />
+  } @else if (observations$ | async; as observations) {
+    @if (observations.length > 0) {
+      <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Reference</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Measurement</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Value</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Observed At</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Source</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+              @for (obs of observations; track obs.id) {
+                <tr class="transition-colors hover:bg-gray-50">
+                  <td class="px-6 py-4">
+                    <p class="text-sm font-semibold text-gray-900">
+                      {{ obs.observationReference }}
+                    </p>
+                    <p class="text-xs text-gray-400">
+                      {{ obs.locationZoneCode || 'Zone ' + obs.locationZoneId }}
+                    </p>
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                    {{ obs.measurementType }}
+                    <span class="text-gray-400">({{ obs.measurementUnit }})</span>
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                    {{ obs.observedValue | number:'1.2-4' }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                    {{ obs.observedAt | date:'medium' }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                    {{ obs.source }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4">
+                    <app-status-badge [status]="obs.status" />
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <app-empty-state
+        title="No observations found"
+        message="Create an observation or clear the applied filters."
+        icon="📡"
+      >
+        <button type="button" class="btn-brand mt-4" (click)="openCreate()">
+          Create observation
+        </button>
+      </app-empty-state>
+    }
+  }
+
+  @if (formOpen) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-950/50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="obs-form-title"
+    >
+      <div class="my-8 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
+        <div>
+          <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+            Observation
+          </p>
+          <h2 id="obs-form-title" class="mt-1 text-xl font-bold text-gray-900">
+            Create observation
+          </h2>
+        </div>
+
+        <form class="mt-6 space-y-5" [formGroup]="form" (ngSubmit)="submit()">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="label-base" for="locationZoneId">Location Zone ID</label>
+              <input id="locationZoneId" type="number" class="input-base" formControlName="locationZoneId" />
+              @if (form.controls.locationZoneId.invalid && form.controls.locationZoneId.touched) {
+                <p class="mt-1 text-xs text-danger-500">Location zone is required.</p>
+              }
+            </div>
+
+            <div>
+              <label class="label-base" for="source">Source</label>
+              <select id="source" class="input-base" formControlName="source">
+                <option value="">Select source</option>
+                @for (source of sources; track source) {
+                  <option [value]="source">{{ source }}</option>
+                }
+              </select>
+              @if (form.controls.source.invalid && form.controls.source.touched) {
+                <p class="mt-1 text-xs text-danger-500">Source is required.</p>
+              }
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="label-base" for="measurementType">Measurement Type</label>
+              <select id="measurementType" class="input-base" formControlName="measurementType">
+                <option value="">Select type</option>
+                @for (type of measurementTypes; track type) {
+                  <option [value]="type">{{ type }}</option>
+                }
+              </select>
+              @if (form.controls.measurementType.invalid && form.controls.measurementType.touched) {
+                <p class="mt-1 text-xs text-danger-500">Measurement type is required.</p>
+              }
+            </div>
+
+            <div>
+              <label class="label-base" for="measurementUnit">Measurement Unit</label>
+              <select id="measurementUnit" class="input-base" formControlName="measurementUnit">
+                <option value="">Select unit</option>
+                @for (unit of measurementUnits; track unit) {
+                  <option [value]="unit">{{ unit }}</option>
+                }
+              </select>
+              @if (form.controls.measurementUnit.invalid && form.controls.measurementUnit.touched) {
+                <p class="mt-1 text-xs text-danger-500">Measurement unit is required.</p>
+              }
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="label-base" for="observedValue">Observed Value</label>
+              <input id="observedValue" type="number" step="any" class="input-base" formControlName="observedValue" />
+              @if (form.controls.observedValue.invalid && form.controls.observedValue.touched) {
+                <p class="mt-1 text-xs text-danger-500">Observed value is required.</p>
+              }
+            </div>
+
+            <div>
+              <label class="label-base" for="observedAt">Observed At</label>
+              <input id="observedAt" type="datetime-local" class="input-base" formControlName="observedAt" />
+              @if (form.controls.observedAt.invalid && form.controls.observedAt.touched) {
+                <p class="mt-1 text-xs text-danger-500">Observation time is required.</p>
+              }
+            </div>
+          </div>
+
+          <div>
+            <label class="label-base" for="sourceReference">Source Reference</label>
+            <input id="sourceReference" class="input-base" formControlName="sourceReference" placeholder="Optional external reference ID" />
+          </div>
+
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              class="btn-outline"
+              [disabled]="(saving$ | async) ?? false"
+              (click)="closeForm()"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="btn-brand"
+              [disabled]="form.invalid || ((saving$ | async) ?? false)"
+            >
+              {{ (saving$ | async) ? 'Saving...' : 'Create observation' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</section>

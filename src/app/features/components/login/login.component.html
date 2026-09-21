@@ -1,0 +1,101 @@
+<div class="grid min-h-[calc(100vh-4rem)] lg:grid-cols-2">
+  <!-- Brand panel -->
+  <aside class="relative hidden overflow-hidden bg-navy-950 text-white lg:flex lg:flex-col lg:justify-between">
+    <div class="absolute -top-24 -right-24 size-96 animate-blob rounded-full bg-brand-600/20 blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 size-72 animate-blob rounded-full bg-cyan-400/10 blur-3xl" style="animation-delay: -6s"></div>
+    <div class="relative flex flex-col px-12 py-14">
+      <div class="flex items-center gap-2.5">
+        <span class="flex size-10 items-center justify-center rounded-xl bg-brand-gradient text-xl shadow-md" aria-hidden="true">🌦️</span>
+        <span class="text-xl font-bold tracking-tight">ClimateSure</span>
+      </div>
+      <div class="mt-auto py-16">
+        <h2 class="text-3xl font-bold leading-tight tracking-tight">
+          Your protection,<br />
+          triggered by <span class="gradient-text">real-world data</span>.
+        </h2>
+        <p class="mt-4 max-w-md text-navy-200">
+          Sign in to manage your policies, track live weather triggers and follow claim payouts in real time.
+        </p>
+        <ul class="mt-8 space-y-3 text-sm text-navy-100">
+          <li class="flex items-center gap-2.5 transition-transform duration-150 hover:translate-x-1">
+            <span class="flex size-5 items-center justify-center rounded-full bg-brand-500/20 text-brand-300">✓</span>
+            Automatic payout evaluation
+          </li>
+          <li class="flex items-center gap-2.5 transition-transform duration-150 hover:translate-x-1">
+            <span class="flex size-5 items-center justify-center rounded-full bg-brand-500/20 text-brand-300">✓</span>
+            Transparent trigger thresholds
+          </li>
+          <li class="flex items-center gap-2.5 transition-transform duration-150 hover:translate-x-1">
+            <span class="flex size-5 items-center justify-center rounded-full bg-brand-500/20 text-brand-300">✓</span>
+            Secure role-based workspace
+          </li>
+        </ul>
+      </div>
+      <p class="text-xs text-navy-400">© 2026 ClimateSure Insurance</p>
+    </div>
+  </aside>
+
+  <!-- Form panel -->
+  <main class="flex items-center justify-center px-6 py-16 sm:px-12">
+    <div class="w-full max-w-md">
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">Member sign in</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900">Welcome back</h1>
+      <p class="mt-2 text-gray-500">Sign in to your ClimateSure account to continue.</p>
+
+      @if (error$ | async; as error) {
+        <div class="mt-6 animate-slide-down">
+          <app-error-message [error]="error" />
+        </div>
+      }
+
+      <form class="mt-8 space-y-5" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div>
+          <label for="email" class="label-base">Email address</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="input-base"
+            placeholder="you@example.com"
+            autocomplete="email"
+          />
+          @if (submitted() && emailControl?.invalid) {
+            <p class="mt-1.5 text-xs text-red-600">A valid email is required.</p>
+          }
+        </div>
+        <div>
+          <label for="password" class="label-base">Password</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            class="input-base"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+          @if (submitted() && passwordControl?.invalid) {
+            <p class="mt-1.5 text-xs text-red-600">Password is required.</p>
+          }
+        </div>
+
+        <button type="submit" class="btn-brand w-full !py-3" [disabled]="(loading$ | async) ?? false">
+          @if (loading$ | async) {
+            Please wait…
+          } @else {
+            Sign in
+          }
+        </button>
+      </form>
+
+      <p class="mt-8 text-center text-sm text-gray-500">
+        New to ClimateSure?
+        <a routerLink="/register" class="font-semibold text-brand-600 transition-colors hover:text-brand-700">Create an account</a>
+      </p>
+
+      <div class="mt-10 rounded-xl border border-brand-100 bg-brand-50/60 p-4 text-xs text-gray-500">
+        <strong class="text-brand-700">Demo note —</strong> staff accounts are provisioned by the platform. Use a
+        customer account to explore policy purchase, cancel, review and claims flows.
+      </div>
+    </div>
+  </main>
+</div>

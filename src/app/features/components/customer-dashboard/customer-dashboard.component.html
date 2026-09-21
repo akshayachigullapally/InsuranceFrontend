@@ -1,0 +1,141 @@
+<div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+  <!-- Welcome banner -->
+  <section class="relative overflow-hidden rounded-2xl bg-brand-gradient px-8 py-10 text-white shadow-elevated">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.15),transparent_55%)]"></div>
+    <div class="absolute -bottom-20 -right-20 size-72 rounded-full bg-white/5 blur-3xl"></div>
+    <div class="relative flex flex-wrap items-center justify-between gap-6">
+      <div>
+        <p class="text-xs font-semibold tracking-widest text-brand-200 uppercase">Customer Portal</p>
+        <h1 class="mt-2 text-3xl font-bold tracking-tight">
+          Welcome back, {{ (user$ | async)?.fullName || 'there' }}
+        </h1>
+        <p class="mt-2 max-w-lg text-sm text-brand-100">
+          Manage your policies, track live weather triggers and follow claim payouts in real time.
+        </p>
+      </div>
+      <a routerLink="/products" class="inline-flex items-center gap-2 rounded-full bg-white/15 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/25">
+        Explore products
+        <span class="text-lg">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- KPI cards -->
+  <div class="grid animate-fade-in-up gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <app-stat-card label="Active policies" [value]="(activePolicyCount$ | async) ?? 0" icon="📄" color="blue" hint="Policies in force" />
+    <app-stat-card label="Sum insured" [value]="'₹ ' + ((sumInsured$ | async) ?? 0)" icon="🛡️" color="green" hint="Total coverage" />
+    <app-stat-card label="Claims submitted" [value]="(claimCount$ | async) ?? 0" icon="📋" color="amber" hint="All statuses" />
+    <app-stat-card label="Open notifications" [value]="(unreadCount$ | async) ?? 0" icon="🔔" color="navy" hint="Needs attention" />
+  </div>
+
+  <!-- Quick actions -->
+  <section>
+    <h2 class="mb-4 text-lg font-semibold text-gray-900">Quick actions</h2>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      @for (action of quickActions; track action.label) {
+        <a [routerLink]="action.routerLink" class="card-hover group flex items-center gap-4 p-5">
+          <span class="flex size-12 shrink-0 items-center justify-center rounded-xl text-2xl transition-transform duration-200 group-hover:scale-110" [class]="action.color" aria-hidden="true">
+            {{ action.icon }}
+          </span>
+          <div class="min-w-0">
+            <p class="font-semibold text-gray-900 group-hover:text-brand-700">{{ action.label }}</p>
+            <p class="mt-0.5 text-xs text-gray-500 truncate">{{ action.description }}</p>
+          </div>
+        </a>
+      }
+    </div>
+  </section>
+
+  <!-- Policies & claims overview -->
+  <section class="grid gap-6 lg:grid-cols-2">
+    <div class="card">
+      <div class="flex items-center justify-between border-b border-brand-50 px-6 py-4">
+        <h2 class="text-base font-semibold text-gray-900">My policies</h2>
+        <a routerLink="/customer/policies" class="text-sm font-medium text-brand-600 transition-colors hover:text-brand-700">View all →</a>
+      </div>
+      <div class="p-6">
+        @if ((policies$ | async)?.length) {
+          <ul class="divide-y divide-brand-50">
+            @for (policy of policies$ | async; track policy.id) {
+              <li class="flex items-center justify-between gap-4 py-3 transition-colors hover:bg-brand-50/40 rounded-lg px-2">
+                <div class="min-w-0">
+                  <p class="text-sm font-semibold text-gray-900 truncate">{{ policy.policyNumber }}</p>
+                  <p class="mt-0.5 text-xs text-gray-500 truncate">
+                    {{ policy.productName }} · ₹ {{ policy.sumInsured }}
+                  </p>
+                </div>
+                <span class="shrink-0">
+                  <app-status-badge [status]="policy.status" />
+                </span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-brand-200 bg-brand-50/30 py-12 text-center">
+            <span class="text-4xl" aria-hidden="true">📄</span>
+            <p class="mt-3 text-sm font-semibold text-gray-700">No policies yet</p>
+            <p class="mt-1 max-w-xs text-xs text-gray-500">
+              Browse our parametric products and apply for coverage — underwriter approval is fast.
+            </p>
+            <a routerLink="/products" class="btn-brand mt-4 !px-4 !py-2">Browse products</a>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex items-center justify-between border-b border-brand-50 px-6 py-4">
+        <h2 class="text-base font-semibold text-gray-900">My claims</h2>
+        <a routerLink="/customer/claims" class="text-sm font-medium text-brand-600 transition-colors hover:text-brand-700">View all →</a>
+      </div>
+      <div class="p-6">
+        @if ((claims$ | async)?.length) {
+          <ul class="divide-y divide-brand-50">
+            @for (claim of claims$ | async; track claim.id) {
+              <li class="flex items-center justify-between gap-4 py-3 transition-colors hover:bg-brand-50/40 rounded-lg px-2">
+                <div class="min-w-0">
+                  <p class="text-sm font-semibold text-gray-900 truncate">{{ claim.claimNumber }}</p>
+                  <p class="mt-0.5 text-xs text-gray-500 truncate">
+                    {{ claim.incidentType }} · ₹ {{ claim.claimedAmount }} · {{ claim.submittedAt | date:'mediumDate' }}
+                  </p>
+                </div>
+                <span class="shrink-0">
+                  <app-status-badge [status]="claim.status" />
+                </span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-brand-200 bg-brand-50/30 py-12 text-center">
+            <span class="text-4xl" aria-hidden="true">📋</span>
+            <p class="mt-3 text-sm font-semibold text-gray-700">No claims recorded</p>
+            <p class="mt-1 max-w-xs text-xs text-gray-500">
+              Trigger events are evaluated automatically. You can also submit a manual claim here.
+            </p>
+            <a routerLink="/customer/claims/new" class="btn-outline mt-4 !px-4 !py-2">Report a claim</a>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Live monitoring banner -->
+  <section class="relative overflow-hidden rounded-2xl bg-navy-950 px-8 py-8 text-white shadow-elevated">
+    <div class="absolute inset-0 animate-blob bg-[radial-gradient(ellipse_at_top_right,rgba(30,139,255,0.3),transparent_55%)]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(0,80,219,0.2),transparent_50%)]"></div>
+    <div class="relative flex flex-wrap items-center justify-between gap-6">
+      <div class="flex items-center gap-4">
+        <span class="inline-flex size-10 items-center justify-center rounded-xl bg-white/10 text-lg backdrop-blur">🌦️</span>
+        <div>
+          <h2 class="text-lg font-semibold">Live monitoring active</h2>
+          <p class="mt-0.5 text-sm text-navy-200">
+            Our engine watches rainfall, flood and temperature feeds for your covered zones 24/7.
+          </p>
+        </div>
+      </div>
+      <a routerLink="/customer/notifications" class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/20">
+        Notification settings
+      </a>
+    </div>
+  </section>
+</div>

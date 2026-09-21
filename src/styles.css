@@ -1,0 +1,364 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Inter Tight', 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-50: #edf8ff;
+  --color-brand-100: #d6eeff;
+  --color-brand-200: #b5e1ff;
+  --color-brand-300: #83ceff;
+  --color-brand-400: #48b0ff;
+  --color-brand-500: #1e8bff;
+  --color-brand-600: #0068f5;
+  --color-brand-700: #0050db;
+  --color-brand-800: #0041b1;
+  --color-brand-900: #003b8b;
+  --color-brand-950: #002453;
+
+  --color-navy-50: #f2f7fc;
+  --color-navy-100: #e4eff7;
+  --color-navy-200: #c3ddef;
+  --color-navy-300: #8fc0e1;
+  --color-navy-400: #549fcf;
+  --color-navy-500: #2f81b9;
+  --color-navy-600: #22679c;
+  --color-navy-700: #1d547e;
+  --color-navy-800: #1b4768;
+  --color-navy-900: #1a3d57;
+  --color-navy-950: #0f2739;
+
+  --color-success-50: #f0fdf4;
+  --color-success-500: #22c55e;
+  --color-success-700: #15803d;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-500: #ef4444;
+  --color-danger-700: #b91c1c;
+
+  --color-warn-50: #fffbeb;
+  --color-warn-500: #f59e0b;
+  --color-warn-700: #b45309;
+
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-card-hover: 0 10px 25px -5px rgb(0 104 245 / 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.08);
+  --shadow-elevated: 0 20px 35px -10px rgb(0 0 0 / 0.15), 0 10px 15px -5px rgb(0 0 0 / 0.1);
+  --shadow-glow: 0 0 0 1px rgb(0 104 245 / 0.25), 0 8px 30px -6px rgb(0 104 245 / 0.4);
+
+  --animate-fade-in-up: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-in: fade-in 0.5s ease both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-blob: blob 12s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.5s linear infinite;
+  --animate-slide-down: slide-down 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes blob {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(24px, -18px) scale(1.1);
+    }
+    66% {
+      transform: translate(-18px, 14px) scale(0.95);
+    }
+  }
+
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  @keyframes slide-down {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: #1e293b;
+    background-color: #f4f8fd;
+    background-image: radial-gradient(60rem 30rem at 80% -10%, rgb(30 139 255 / 0.08), transparent 60%),
+      radial-gradient(50rem 25rem at -10% 30%, rgb(0 104 245 / 0.06), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background-color: rgb(0 104 245 / 0.18);
+    color: #003b8b;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgb(148 163 184 / 0.5);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(0 104 245 / 0.4);
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  .btn-brand {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-glow active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-sm;
+  }
+
+  /* Global focus styles for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+
+  /* Override for buttons that already have focus-visible */
+  .btn-brand:focus-visible,
+  .btn-outline:focus-visible,
+  .btn-danger:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+
+  /* Focus styles for links */
+  a:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  /* Focus styles for form elements */
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+
+  /* Reactive form validation styles */
+  .input-base.ng-invalid.ng-touched,
+  .input-base.ng-invalid.ng-dirty {
+    @apply border-danger-500 focus:border-danger-500 focus:ring-danger-500/20;
+  }
+
+  .input-base.ng-valid.ng-touched,
+  .input-base.ng-valid.ng-dirty {
+    @apply border-success-500;
+  }
+
+  .input-base.ng-invalid.ng-touched:focus,
+  .input-base.ng-invalid.ng-dirty:focus {
+    @apply ring-2 ring-danger-500/20;
+  }
+
+  .input-base.ng-valid.ng-touched:focus,
+  .input-base.ng-valid.ng-dirty:focus {
+    @apply ring-2 ring-success-500/20;
+  }
+
+  /* Validation error message */
+  .validation-error {
+    @apply mt-1 text-xs text-danger-500;
+  }
+
+  /* Form group with error */
+  .form-group.has-error .input-base {
+    @apply border-danger-500 focus:border-danger-500 focus:ring-danger-500/20;
+  }
+
+  .form-group.has-success .input-base {
+    @apply border-success-500;
+  }
+
+  /* Select validation */
+  select.input-base.ng-invalid.ng-touched,
+  select.input-base.ng-invalid.ng-dirty {
+    @apply border-danger-500 focus:border-danger-500 focus:ring-danger-500/20;
+  }
+
+  /* Checkbox/Radio validation */
+  input[type="checkbox"].ng-invalid.ng-touched,
+  input[type="radio"].ng-invalid.ng-touched {
+    @apply border-danger-500 focus:ring-danger-500/20;
+  }
+
+  /* Disabled state */
+  .input-base:disabled,
+  .input-base[disabled] {
+    @apply cursor-not-allowed bg-gray-50 text-gray-500 border-gray-200;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-brand-200 bg-white px-5 py-2.5 text-sm font-semibold text-brand-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-300 hover:bg-brand-50 active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-danger-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-danger-700 hover:shadow-elevated active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger-500 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .card {
+    border-radius: 1rem;
+    border: 1px solid #e2eaf5;
+    background-color: #fff;
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-hover {
+    border-radius: 1rem;
+    border: 1px solid #e2eaf5;
+    background-color: #fff;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    border-color: rgb(0 104 245 / 0.35);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .input-base {
+    @apply block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm transition-all placeholder:text-gray-400 hover:border-brand-300 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500;
+  }
+
+  .label-base {
+    @apply mb-1.5 block text-sm font-medium text-gray-700;
+  }
+
+  .section-title {
+    @apply text-2xl font-bold tracking-tight text-gray-900;
+  }
+
+  .section-subtitle {
+    @apply mt-1 text-base text-gray-500;
+  }
+
+  .nav-link {
+    @apply relative rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:text-brand-700;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.25rem;
+    height: 2px;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, #0068f5, #1e8bff);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .nav-link:hover::after,
+  .nav-link.router-link-active::after {
+    transform: scaleX(1);
+  }
+
+  .nav-link.router-link-active {
+    color: #0050db;
+    font-weight: 600;
+  }
+
+  .gradient-text {
+    background: linear-gradient(90deg, #0068f5, #1e8bff, #48b0ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .bg-brand-gradient {
+    background-image: linear-gradient(135deg, #0068f5 0%, #0050db 45%, #0f2739 100%);
+  }
+
+  .table-base {
+    @apply min-w-full divide-y divide-gray-200;
+  }
+
+  .table-base thead {
+    @apply bg-gray-50;
+  }
+
+  .table-base th {
+    @apply px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500;
+  }
+
+  .table-base td {
+    @apply whitespace-nowrap px-6 py-4 text-sm;
+  }
+
+  .table-base tbody tr {
+    @apply transition-colors hover:bg-gray-50;
+  }
+
+  .badge-status {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+}

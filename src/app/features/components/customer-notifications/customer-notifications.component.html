@@ -1,0 +1,282 @@
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <section>
+    <div class="mb-6">
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+        Account
+      </p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">Notifications</h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Stay informed about policy updates, trigger events and claim decisions.
+      </p>
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <span class="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700">
+          <span class="mr-1.5 inline-block h-2 w-2 rounded-full bg-green-500"></span>
+          Updates automatically
+        </span>
+        <span class="inline-flex items-center rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700">
+          {{ unreadCount$ | async }} unread
+        </span>
+        <button
+          (click)="refresh()"
+          [disabled]="refreshing$ | async"
+          class="inline-flex items-center rounded-full border border-brand-200 px-2.5 py-0.5 text-xs font-medium text-brand-700 transition-colors hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {{ (refreshing$ | async) ? 'Refreshing…' : 'Refresh' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading$ | async" class="flex justify-center py-12">
+      <div class="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error$ | async as error" class="mb-6 rounded-md bg-red-50 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">{{ error }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div *ngIf="!(isLoading$ | async)" class="mb-6 rounded-lg border border-gray-200 bg-white p-4">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div>
+          <label for="typeFilter" class="block text-xs font-medium text-gray-500">Type</label>
+          <select
+            id="typeFilter"
+            [(ngModel)]="filters.type"
+            (ngModelChange)="onFilterChange()"
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-brand-500"
+          >
+            <option value="">All types</option>
+            <option *ngFor="let type of notificationTypes" [value]="type">{{ formatNotificationType(type) }}</option>
+          </select>
+        </div>
+        <div>
+          <label for="statusFilter" class="block text-xs font-medium text-gray-500">Delivery Status</label>
+          <select
+            id="statusFilter"
+            [(ngModel)]="filters.status"
+            (ngModelChange)="onFilterChange()"
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-brand-500"
+          >
+            <option value="">All statuses</option>
+            <option *ngFor="let status of deliveryStatuses" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+        <div class="flex items-end justify-between">
+          <label class="flex cursor-pointer items-center text-sm text-gray-700">
+            <input
+              type="checkbox"
+              [(ngModel)]="filters.unreadOnly"
+              (ngModelChange)="onFilterChange()"
+              class="mr-2 h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+            />
+            Unread only
+          </label>
+          <button
+            (click)="clearFilters()"
+            class="text-sm font-medium text-brand-600 hover:text-brand-500"
+          >
+            Clear filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preferences -->
+    <div *ngIf="(preferences$ | async)?.length" class="mb-6 rounded-lg border border-gray-200 bg-white p-4">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-gray-900">Notification preferences</h2>
+        <span class="text-xs text-gray-400">Choose how you want to be notified</span>
+      </div>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div *ngFor="let pref of preferences$ | async" class="flex items-start justify-between rounded-md border border-gray-100 p-3">
+          <div class="min-w-0">
+            <p class="truncate text-sm font-medium text-gray-900">{{ formatNotificationType(pref.notificationType) }}</p>
+            <div class="mt-2 flex flex-wrap gap-3">
+              <label class="flex cursor-pointer items-center text-xs text-gray-600">
+                <input
+                  type="checkbox"
+                  class="mr-1 h-3.5 w-3.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                  [checked]="pref.inAppEnabled"
+                  (change)="togglePreference(pref.notificationType, 'inAppEnabled')"
+                />
+                In-App
+              </label>
+              <label class="flex cursor-pointer items-center text-xs text-gray-600">
+                <input
+                  type="checkbox"
+                  class="mr-1 h-3.5 w-3.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                  [checked]="pref.emailEnabled"
+                  (change)="togglePreference(pref.notificationType, 'emailEnabled')"
+                />
+                Email
+              </label>
+              <label class="flex cursor-pointer items-center text-xs text-gray-600">
+                <input
+                  type="checkbox"
+                  class="mr-1 h-3.5 w-3.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                  [checked]="pref.smsEnabled"
+                  (change)="togglePreference(pref.notificationType, 'smsEnabled')"
+                />
+                SMS
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div *ngIf="!(isLoading$ | async) && !(error$ | async)">
+      <!-- Unread Notifications -->
+      <div *ngIf="(unreadNotifications$ | async)?.length" class="mb-8">
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-gray-900">Unread</h2>
+          <div class="flex items-center space-x-3">
+            <button
+              *ngIf="(unreadCount$ | async) ?? 0 > 0"
+              (click)="markAllAsRead()"
+              class="text-sm font-medium text-brand-600 hover:text-brand-500"
+            >
+              Mark all as read
+            </button>
+          </div>
+        </div>
+        <div class="space-y-3">
+          <div
+            *ngFor="let notification of unreadNotifications$ | async"
+            class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md"
+            [class.border-l-4]="true"
+            [class.border-l-brand-500]="true"
+          >
+            <div class="flex items-start justify-between">
+              <div class="flex items-start space-x-3">
+                <span class="text-2xl">{{ getNotificationIcon(notification.type) }}</span>
+                <div class="flex-1">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="text-sm font-medium text-gray-900">{{ notification.title }}</h3>
+                    <span
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                      [ngClass]="getNotificationColor(notification.type)"
+                    >
+                      {{ formatNotificationType(notification.type) }}
+                    </span>
+                    <span
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                      [ngClass]="getDeliveryStatusColor(notification.deliveryStatus)"
+                    >
+                      {{ notification.deliveryStatus }}
+                    </span>
+                    <span *ngIf="notification.retryCount && notification.retryCount > 0"
+                          class="text-xs text-orange-600"
+                          title="Delivery retries">
+                      🔁 {{ notification.retryCount }}/{{ notification.maxRetries }}
+                    </span>
+                  </div>
+                  <p class="mt-1 text-sm text-gray-600">{{ notification.message }}</p>
+                  <p class="mt-2 text-xs text-gray-400">{{ formatTimeAgo(notification.createdAt) }}</p>
+                </div>
+              </div>
+              <div class="flex space-x-2">
+                <button
+                  (click)="markAsRead(notification.id)"
+                  class="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                  title="Mark as read"
+                >
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+                <button
+                  (click)="deleteNotification(notification.id)"
+                  class="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                  title="Delete"
+                >
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Read Notifications -->
+      <div *ngIf="(readNotifications$ | async)?.length">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900">Read</h2>
+        <div class="space-y-3">
+          <div
+            *ngFor="let notification of readNotifications$ | async"
+            class="rounded-lg border border-gray-200 bg-gray-50 p-4 opacity-75"
+          >
+            <div class="flex items-start justify-between">
+              <div class="flex items-start space-x-3">
+                <span class="text-2xl">{{ getNotificationIcon(notification.type) }}</span>
+                <div class="flex-1">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="text-sm font-medium text-gray-700">{{ notification.title }}</h3>
+                    <span
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                      [ngClass]="getNotificationColor(notification.type)"
+                    >
+                      {{ formatNotificationType(notification.type) }}
+                    </span>
+                    <span
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                      [ngClass]="getDeliveryStatusColor(notification.deliveryStatus)"
+                    >
+                      {{ notification.deliveryStatus }}
+                    </span>
+                  </div>
+                  <p class="mt-1 text-sm text-gray-500">{{ notification.message }}</p>
+                  <p class="mt-2 text-xs text-gray-400">{{ formatTimeAgo(notification.createdAt) }}</p>
+                </div>
+              </div>
+              <button
+                (click)="deleteNotification(notification.id)"
+                class="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                title="Delete"
+              >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Match State -->
+      <app-empty-state
+        *ngIf="(unreadNotifications$ | async)?.length === 0 && (readNotifications$ | async)?.length === 0 && hasActiveFilters()"
+        title="No notifications match your filters"
+        message="Try adjusting or clearing your filters to see more notifications."
+      >
+        <button
+          (click)="clearFilters()"
+          class="mt-4 rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+        >
+          Clear filters
+        </button>
+      </app-empty-state>
+
+      <!-- Empty State -->
+      <app-empty-state
+        *ngIf="(unreadNotifications$ | async)?.length === 0 && (readNotifications$ | async)?.length === 0 && !hasActiveFilters()"
+        title="No notifications yet"
+        message="You'll see notifications about policy updates, trigger events and claim decisions here."
+      />
+    </div>
+  </section>
+</div>

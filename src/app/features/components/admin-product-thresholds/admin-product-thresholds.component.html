@@ -1,0 +1,80 @@
+<section class="mx-auto max-w-6xl px-6 py-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+        Trigger administration
+      </p>
+
+      <h1 class="mt-1 text-2xl font-bold text-gray-900">
+        Product thresholds
+      </h1>
+
+      <p class="mt-1 text-sm text-gray-500">
+        Advertised trigger thresholds are managed here. Existing policy
+        snapshots are never changed.
+      </p>
+    </div>
+  </div>
+
+  @if (error$ | async; as error) {
+    <div class="mt-4">
+      <app-error-message [error]="error" />
+    </div>
+  }
+
+  @if (loading$ | async) {
+    <div class="mt-6">
+      <app-loading-spinner label="Loading products..." />
+    </div>
+  } @else if (products$ | async; as products) {
+    @if (products.length > 0) {
+      <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
+        @for (product of products; track product.id) {
+          <div class="card p-5">
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <p class="text-xs font-semibold tracking-wide text-brand-600 uppercase">
+                  {{ product.productCode }}
+                </p>
+
+                <h2 class="mt-0.5 truncate text-base font-semibold text-gray-900">
+                  {{ product.name }}
+                </h2>
+
+                <p class="mt-0.5 text-xs text-gray-400">
+                  {{ product.category.replaceAll('_', ' ') }}
+                  ·
+                  <span [class]="syncColor(product.triggerSyncStatus)">
+                    {{ syncLabel(product.triggerSyncStatus) }}
+                  </span>
+                </p>
+              </div>
+
+              <a
+                [routerLink]="['/admin/products', product.id, 'threshold']"
+                class="btn-outline flex-none !px-4 !py-2"
+              >
+                Manage
+              </a>
+            </div>
+
+            <div class="mt-4">
+              <app-parametric-trigger-card
+                [trigger]="triggerCondition(product)"
+                mode="PRODUCT"
+                [syncStatus]="product.triggerSyncStatus"
+                [title]="'Trigger condition'"
+              />
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <app-empty-state
+        title="No products found"
+        message="Create a product before configuring trigger thresholds."
+        icon="📦"
+      />
+    }
+  }
+</section>

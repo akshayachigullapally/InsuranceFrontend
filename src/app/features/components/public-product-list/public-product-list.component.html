@@ -1,0 +1,148 @@
+<section class="relative overflow-hidden bg-navy-950 text-white">
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(30,139,255,0.3),transparent_55%)]"></div>
+
+  <div class="relative mx-auto max-w-7xl px-6 py-16">
+    <p class="text-xs font-semibold tracking-widest text-brand-300 uppercase">
+      Coverage catalogue
+    </p>
+
+    <h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+      Insurance products
+    </h1>
+
+    <p class="mt-3 max-w-2xl text-navy-200">
+      Every product is parametric, with clear trigger thresholds, transparent
+      limits and automatic evaluation.
+    </p>
+  </div>
+</section>
+
+<section class="mx-auto max-w-7xl space-y-8 px-6 py-12">
+  <div class="flex flex-wrap items-center gap-2">
+    <button
+      type="button"
+      class="rounded-full px-4 py-2 text-sm font-medium transition-colors"
+      [class]="selectedCategory === null
+        ? 'bg-brand-600 text-white shadow-sm'
+        : 'border border-gray-200 bg-white text-gray-600 hover:border-brand-300 hover:text-brand-700'"
+      (click)="applyCategory(null)"
+    >
+      All products
+    </button>
+
+    @for (category of categories; track category.value) {
+      <button
+        type="button"
+        class="rounded-full px-4 py-2 text-sm font-medium transition-colors"
+        [class]="selectedCategory === category.value
+          ? 'bg-brand-600 text-white shadow-sm'
+          : 'border border-gray-200 bg-white text-gray-600 hover:border-brand-300 hover:text-brand-700'"
+        (click)="applyCategory(category.value)"
+      >
+        {{ category.label }}
+      </button>
+    }
+  </div>
+
+  @if (error$ | async; as error) {
+    <app-error-message [error]="error" />
+  }
+
+  @if (loading$ | async) {
+    <app-loading-spinner label="Loading products..." />
+  } @else if (products$ | async; as products) {
+    @if (products.length > 0) {
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        @for (product of products; track product.id) {
+          <a
+            [routerLink]="['/products', product.id]"
+            class="card-hover group flex flex-col p-6"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <span
+                class="flex size-12 items-center justify-center rounded-xl bg-brand-50 text-2xl"
+                aria-hidden="true"
+              >
+                {{ categoryIcon(product.category) }}
+              </span>
+
+              <div class="text-right">
+                <p class="text-xs font-semibold tracking-wide text-brand-600 uppercase">
+                  {{ categoryLabel(product.category) }}
+                </p>
+
+                <p class="mt-0.5 text-xs text-gray-400">
+                  {{ product.productCode }}
+                </p>
+              </div>
+            </div>
+
+            <h2 class="mt-4 text-lg font-semibold text-gray-900 group-hover:text-brand-700">
+              {{ product.name }}
+            </h2>
+
+            <p class="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-gray-500">
+              {{ product.description || 'No description available.' }}
+            </p>
+
+            @if (hasTrigger(product)) {
+              <div class="mt-4 flex items-start gap-2 rounded-lg bg-brand-50/70 px-3 py-2 text-xs leading-relaxed text-brand-800">
+                <span aria-hidden="true">⚡</span>
+                <span>
+                  {{ triggerSummary(product) }}
+                </span>
+              </div>
+            }
+
+            <div class="mt-5 grid grid-cols-2 gap-3 border-t border-gray-100 pt-4">
+              <div>
+                <p class="text-xs text-gray-400">
+                  Sum insured
+                </p>
+
+                <p class="text-sm font-semibold text-gray-900">
+                  ₹ {{ product.minimumSumInsured | number }}
+                  -
+                  ₹ {{ product.maximumSumInsured | number }}
+                </p>
+              </div>
+
+              <div class="pr-2">
+                <p class="text-xs text-gray-400">
+                  Term
+                </p>
+
+                <p class="text-sm font-semibold text-gray-900">
+                  {{ product.minimumTermMonths }}
+                  -
+                  {{ product.maximumTermMonths }}
+                  months
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between gap-3">
+              <span class="text-xs text-gray-400">
+                {{ product.coverages.length }}
+                {{ product.coverages.length === 1 ? 'coverage' : 'coverages' }}
+              </span>
+
+              <span class="inline-flex items-center text-sm font-semibold text-brand-600 group-hover:text-brand-700">
+                View details
+                <span class="ml-1 transition-transform group-hover:translate-x-0.5">
+                  →
+                </span>
+              </span>
+            </div>
+          </a>
+        }
+      </div>
+    } @else {
+      <app-empty-state
+        title="No products available"
+        message="No active products are available for the selected category."
+        icon="📦"
+      />
+    }
+  }
+</section>

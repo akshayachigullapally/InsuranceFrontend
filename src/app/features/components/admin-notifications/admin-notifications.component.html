@@ -1,0 +1,373 @@
+<section class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <h1 class="mb-4 text-2xl font-bold text-gray-900">Admin notifications</h1>
+
+  <!-- Tabs -->
+  <div class="border-b border-gray-200">
+    <nav class="-mb-px flex space-x-8">
+      <button
+        (click)="switchTab('all')"
+        [class.border-brand-500]="activeTab === 'all'"
+        [class.text-brand-600]="activeTab === 'all'"
+        [class.border-transparent]="activeTab !== 'all'"
+        [class.text-gray-500]="activeTab !== 'all'"
+        class="border-b-2 px-1 py-4 text-sm font-medium hover:border-gray-300 hover:text-gray-700"
+      >
+        All Notifications
+      </button>
+      <button
+        (click)="switchTab('failed')"
+        [class.border-brand-500]="activeTab === 'failed'"
+        [class.text-brand-600]="activeTab === 'failed'"
+        [class.border-transparent]="activeTab !== 'failed'"
+        [class.text-gray-500]="activeTab !== 'failed'"
+        class="border-b-2 px-1 py-4 text-sm font-medium hover:border-gray-300 hover:text-gray-700"
+      >
+        Failed Deliveries
+      </button>
+      <button
+        (click)="switchTab('templates')"
+        [class.border-brand-500]="activeTab === 'templates'"
+        [class.text-brand-600]="activeTab === 'templates'"
+        [class.border-transparent]="activeTab !== 'templates'"
+        [class.text-gray-500]="activeTab !== 'templates'"
+        class="border-b-2 px-1 py-4 text-sm font-medium hover:border-gray-300 hover:text-gray-700"
+      >
+        Templates
+      </button>
+      <button
+        (click)="switchTab('batch')"
+        [class.border-brand-500]="activeTab === 'batch'"
+        [class.text-brand-600]="activeTab === 'batch'"
+        [class.border-transparent]="activeTab !== 'batch'"
+        [class.text-gray-500]="activeTab !== 'batch'"
+        class="border-b-2 px-1 py-4 text-sm font-medium hover:border-gray-300 hover:text-gray-700"
+      >
+        Batch Send
+      </button>
+    </nav>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading$ | async" class="flex justify-center py-12">
+    <div class="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error$ | async as error" class="rounded-md bg-red-50 p-4">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm text-red-700">{{ error }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Templates Tab -->
+  <div *ngIf="activeTab === 'templates' && !(isLoading$ | async)">
+    <div class="mb-4 flex items-center justify-between">
+      <p class="text-sm text-gray-500">Manage reusable notification templates.</p>
+      <button
+        (click)="openCreateTemplate()"
+        class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+      >
+        {{ showTemplateForm && !editingTemplate ? 'Creating...' : 'New Template' }}
+      </button>
+    </div>
+
+    <!-- Template Form -->
+    <div *ngIf="showTemplateForm" class="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <h2 class="mb-4 text-lg font-semibold text-gray-900">
+        {{ editingTemplate ? 'Edit Template' : 'Create Template' }}
+      </h2>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Template Code</label>
+          <input
+            type="text"
+            [(ngModel)]="templateForm.templateCode"
+            placeholder="e.g. POLICY_RENEWAL_REMINDER"
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Notification Type</label>
+          <select
+            [(ngModel)]="templateForm.notificationType"
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+          >
+            <option *ngFor="let type of notificationTypes" [value]="type">{{ formatNotificationType(type) }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Title Template</label>
+          <input
+            type="text"
+            [(ngModel)]="templateForm.titleTemplate"
+            placeholder="e.g. Your policy [policyNumber] is expiring"
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Message Template</label>
+          <textarea
+            [(ngModel)]="templateForm.messageTemplate"
+            rows="2"
+            placeholder="e.g. Policy [policyNumber] expires on [expiryDate]. Renew now to avoid a lapse."
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+          ></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Default Channel</label>
+          <select
+            [(ngModel)]="templateForm.defaultChannel"
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+          >
+            <option *ngFor="let channel of deliveryChannels" [value]="channel">{{ channel }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-4 flex space-x-3">
+        <button
+          (click)="saveTemplate()"
+          class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+        >
+          {{ editingTemplate ? 'Save Changes' : 'Create Template' }}
+        </button>
+        <button
+          (click)="closeTemplateForm()"
+          class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <!-- Templates List -->
+    <div *ngIf="(templates$ | async)?.length; else templatesEmpty">
+      <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Code</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Type</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Default Channel</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Created</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 bg-white">
+            <tr *ngFor="let template of templates$ | async">
+              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ template.templateCode }}</td>
+              <td class="whitespace-nowrap px-6 py-4">
+                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" [ngClass]="getNotificationColor(template.notificationType)">
+                  {{ formatNotificationType(template.notificationType) }}
+                </span>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ getDeliveryChannelLabel(template.defaultChannel) }}</td>
+              <td class="whitespace-nowrap px-6 py-4">
+                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                      [ngClass]="template.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+                  {{ template.active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ formatDateTime(template.createdAt) }}</td>
+              <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
+                <button (click)="openEditTemplate(template)" class="text-brand-600 hover:text-brand-500">Edit</button>
+                <button *ngIf="template.active" (click)="toggleTemplateActive(template)" class="ml-3 text-red-600 hover:text-red-500">Deactivate</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <ng-template #templatesEmpty>
+      <app-empty-state title="No templates yet" message="Create a reusable notification template to send messages faster." />
+    </ng-template>
+  </div>
+
+  <!-- Batch Send Tab -->
+  <div *ngIf="activeTab === 'batch' && !(isLoading$ | async)" class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div class="mb-4 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900">Send batch notification</h2>
+        <p class="text-sm text-gray-500">Send a notification to multiple users at once.</p>
+      </div>
+    </div>
+
+    <div class="rounded-md border border-brand-100 bg-brand-50/50 p-4">
+      <h3 class="text-sm font-semibold text-gray-900">Or send from a template</h3>
+      <p class="text-xs text-gray-500">Render a template with data for a single user.</p>
+      <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">User ID</label>
+          <input type="number" [(ngModel)]="singleSendForm.userId" placeholder="e.g. 42"
+                 class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Template Code</label>
+          <input type="text" [(ngModel)]="singleSendForm.templateCode" placeholder="e.g. POLICY_RENEWAL_REMINDER"
+                 class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none" />
+        </div>
+        <div class="flex items-end">
+          <button (click)="onSingleSend()"
+                  class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">User IDs (comma separated)</label>
+          <input type="text" [(ngModel)]="batchForm.userIds" placeholder="e.g. 1, 2, 3"
+                 class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Type</label>
+          <select [(ngModel)]="batchForm.type"
+                  class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none">
+            <option *ngFor="let type of notificationTypes" [value]="type">{{ formatNotificationType(type) }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Channel</label>
+          <select [(ngModel)]="batchForm.channel"
+                  class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none">
+            <option *ngFor="let channel of deliveryChannels" [value]="channel">{{ channel }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Subject</label>
+          <input type="text" [(ngModel)]="batchForm.subject"
+                 class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Message</label>
+          <textarea [(ngModel)]="batchForm.message" rows="3"
+                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"></textarea>
+        </div>
+      </div>
+      <div class="mt-4">
+        <button (click)="onBatchSubmit()"
+                class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+          Send to {{ batchForm.userIds.split(',').filter((id) => id.trim() !== '').length }} user(s)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delivery Attempts Modal -->
+  <div *ngIf="selectedNotificationId" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
+    <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
+      <div class="mb-4 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">Delivery attempts</h3>
+        <button (click)="selectedNotificationId = null" class="text-gray-400 hover:text-gray-600">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div *ngIf="(deliveryAttempts$ | async)?.length; else attemptsEmpty">
+        <ul class="divide-y divide-gray-100">
+          <li *ngFor="let attempt of deliveryAttempts$ | async" class="py-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-900">
+                  Attempt #{{ attempt.attemptNumber }} · {{ getDeliveryChannelLabel(attempt.deliveryChannel) }}
+                </p>
+                <p class="text-xs text-gray-500">{{ formatDateTime(attempt.attemptedAt) }}</p>
+                <p *ngIf="attempt.errorMessage" class="mt-1 text-xs text-red-600">{{ attempt.errorMessage }}</p>
+              </div>
+              <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                    [ngClass]="getDeliveryStatusColor(attempt.deliveryStatus)">
+                {{ attempt.deliveryStatus }}
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <ng-template #attemptsEmpty>
+        <p class="text-sm text-gray-500">No delivery attempts recorded.</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Notifications Tables (All / Failed) -->
+  <div *ngIf="(activeTab === 'all' || activeTab === 'failed') && !(isLoading$ | async)">
+    <div *ngIf="(notifications$ | async)?.length; else emptyState">
+      <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Type</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Title</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Channels</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Recipient</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Created</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 bg-white">
+            <tr *ngFor="let notification of notifications$ | async">
+              <td class="whitespace-nowrap px-6 py-4">
+                <div class="flex items-center">
+                  <span class="text-xl">{{ getNotificationIcon(notification.type) }}</span>
+                  <span class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                        [ngClass]="getNotificationColor(notification.type)">
+                    {{ formatNotificationType(notification.type) }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm text-gray-900">{{ notification.title }}</div>
+                <div class="text-sm text-gray-500">{{ notification.message }}</div>
+                <span *ngIf="notification.retryCount && notification.retryCount > 0" class="text-xs text-orange-600">
+                  Retries: {{ notification.retryCount }}/{{ notification.maxRetries }}
+                </span>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4">
+                <div class="flex flex-col space-y-1 text-xs text-gray-500">
+                  <span *ngFor="let channel of notification.deliveryChannels || [notification.deliveryChannel]">
+                    {{ getDeliveryChannelLabel(channel) }}
+                  </span>
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4">
+                <div class="text-sm text-gray-900">
+                  <span *ngIf="notification.recipientUserId">User #{{ notification.recipientUserId }}</span>
+                  <span *ngIf="notification.recipientCustomerId">Customer #{{ notification.recipientCustomerId }}</span>
+                  <span *ngIf="notification.recipientRole">{{ notification.recipientRole }}</span>
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4">
+                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                      [ngClass]="getDeliveryStatusColor(notification.deliveryStatus)">
+                  {{ notification.deliveryStatus }}
+                </span>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ formatTimeAgo(notification.createdAt) }}</td>
+              <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
+                <button (click)="viewDeliveryAttempts(notification.id)" class="text-brand-600 hover:text-brand-500">Attempts</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <app-empty-state
+        title="No notifications found"
+        [message]="activeTab === 'all' ? 'No notifications have been created yet.' : 'No failed deliveries to display.'"
+      />
+    </ng-template>
+  </div>
+</section>

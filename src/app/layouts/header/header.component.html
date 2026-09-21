@@ -1,0 +1,551 @@
+<header class="header">
+  <div class="header-inner">
+    <!-- Left: Logo and Primary Navigation -->
+    <div class="header-start">
+      <a
+        routerLink="/"
+        class="header-logo"
+        (click)="closeAllMenus()"
+        aria-label="ClimateSure Home"
+      >
+        <span class="header-logo-icon" aria-hidden="true">
+          <svg
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              width="32"
+              height="32"
+              rx="8"
+              fill="url(#brandGradient)"
+            />
+
+            <path
+              d="M16 8C12.6863 8 10 10.6863 10 14C10 15.5835 10.6375 17.012 11.7148 18.075L16 22L20.2852 18.075C21.3625 17.012 22 15.5835 22 14C22 10.6863 19.3137 8 16 8Z"
+              fill="white"
+              opacity="0.9"
+            />
+
+            <path
+              d="M16 12C14.8954 12 14 12.8954 14 14C14 15.1046 14.8954 16 16 16C17.1046 16 18 15.1046 18 14C18 12.8954 17.1046 12 16 12Z"
+              fill="url(#brandGradient)"
+            />
+
+            <defs>
+              <linearGradient
+                id="brandGradient"
+                x1="0"
+                y1="0"
+                x2="32"
+                y2="32"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0%" stop-color="#0068f5" />
+                <stop offset="100%" stop-color="#0050db" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+
+        <span class="header-logo-text">ClimateSure</span>
+      </a>
+
+      @if (isAuthenticated$ | async) {
+        <nav class="header-nav" aria-label="Primary navigation">
+          @for (link of primaryNav$ | async; track link.routerLink) {
+            <a
+              [routerLink]="link.routerLink"
+              class="header-nav-link"
+              [class.header-nav-link--active]="isActiveRoute(link.routerLink)"
+              (click)="onNavClick()"
+            >
+              {{ link.label }}
+            </a>
+          }
+
+          @if ((moreGroups$ | async)?.length) {
+            <div
+              class="header-dropdown"
+              (keydown)="onMoreMenuKeydown($event)"
+            >
+              <button
+                #moreMenuTriggerBtn
+                type="button"
+                class="header-nav-link header-dropdown-trigger"
+                (click)="toggleMoreMenu()"
+                (keydown)="onMoreMenuKeydown($event)"
+                [attr.aria-expanded]="moreMenuOpen"
+                [attr.aria-controls]="moreMenuOpen ? 'more-menu-panel' : null"
+                aria-haspopup="true"
+              >
+                <span>More</span>
+
+                <svg
+                  class="header-dropdown-chevron"
+                  [class.rotated]="moreMenuOpen"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              @if (moreMenuOpen) {
+                <div
+                  #moreMenuPanel
+                  id="more-menu-panel"
+                  role="menu"
+                  class="header-dropdown-panel header-dropdown-panel--left"
+                  (keydown)="onMoreMenuKeydown($event)"
+                >
+                  @for (
+                    group of moreGroups$ | async;
+                    track group.label;
+                    let i = $index
+                  ) {
+                    @if (i > 0) {
+                      <div
+                        class="header-dropdown-divider"
+                        role="separator"
+                      ></div>
+                    }
+
+                    <div class="header-dropdown-group" role="none">
+                      <p
+                        class="header-dropdown-group-label"
+                        role="none"
+                      >
+                        {{ group.label }}
+                      </p>
+
+                      @for (
+                        item of group.items;
+                        track item.routerLink
+                      ) {
+                        <a
+                          [routerLink]="item.routerLink"
+                          role="menuitem"
+                          class="header-dropdown-item"
+                          (click)="onMenuItemClick()"
+                          (keydown.enter)="onMenuItemClick()"
+                          (keydown.space)="onMenuItemClick()"
+                        >
+                          @if (item.icon) {
+                            <span
+                              class="header-dropdown-item-icon header-dropdown-item-icon--text"
+                              aria-hidden="true"
+                            >
+                              {{ item.icon }}
+                            </span>
+                          }
+
+                          <span class="header-dropdown-item-label">
+                            {{ item.label }}
+                          </span>
+                        </a>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </nav>
+      } @else {
+        <nav class="header-nav" aria-label="Public navigation">
+          <a
+            routerLink="/products"
+            class="header-nav-link"
+            [class.header-nav-link--active]="isActiveRoute('/products')"
+          >
+            Products
+          </a>
+
+          <a
+            routerLink="/about"
+            class="header-nav-link"
+            [class.header-nav-link--active]="isActiveRoute('/about')"
+          >
+            About
+          </a>
+        </nav>
+      }
+    </div>
+
+    <!-- Right: Actions and User Menu -->
+    <div class="header-end">
+      @if (isAuthenticated$ | async) {
+        @if (user$ | async; as user) {
+          <a
+            routerLink="/products"
+            class="btn-brand header-btn-primary"
+            (click)="onNavClick()"
+          >
+            Products
+          </a>
+
+          <button
+            type="button"
+            class="header-action-btn header-action-btn--thresholds"
+            [attr.aria-expanded]="thresholdsOpen"
+            aria-haspopup="dialog"
+            aria-label="Measurement details and thresholds"
+            title="Measurement details & thresholds"
+            (click)="toggleThresholds()"
+          >
+            <svg
+              class="header-action-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 6h18M3 12h18M3 18h18M7 4v4M12 10v4M17 16v4"
+              />
+            </svg>
+          </button>
+
+          <div
+            class="header-dropdown header-notifications-dropdown"
+            (keydown)="onNotificationsMenuKeydown($event)"
+          >
+            <button
+              type="button"
+              class="header-action-btn header-action-btn--notifications header-notifications-trigger"
+              aria-label="Notifications"
+              aria-haspopup="true"
+              [attr.aria-expanded]="notificationsMenuOpen"
+              [attr.aria-controls]="notificationsMenuOpen ? 'notifications-menu-panel' : null"
+              (click)="toggleNotificationsMenu()"
+              (keydown)="onNotificationsMenuKeydown($event)"
+            >
+              <svg
+                class="header-action-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
+                />
+              </svg>
+
+              <span
+                class="header-action-badge"
+                [class.header-action-badge--visible]="((unreadCount$ | async) ?? 0) > 0"
+                aria-label="Unread notifications"
+              >{{ (unreadCount$ | async) ?? 0 }}</span>
+            </button>
+
+            @if (notificationsMenuOpen) {
+              <div
+                #notificationsMenuPanel
+                id="notifications-menu-panel"
+                role="menu"
+                class="header-dropdown-panel header-dropdown-panel--right header-notifications-panel"
+                (keydown)="onNotificationsMenuKeydown($event)"
+              >
+                <div class="header-dropdown-header header-notifications-header" role="none">
+                  <p class="header-dropdown-header-name">Notifications</p>
+                  <div class="header-notifications-actions">
+                    <button
+                      type="button"
+                      class="header-notifications-action"
+                      (click)="refreshNotificationsNow()"
+                      [disabled]="notificationsRefreshing$ | async"
+                    >
+                      {{ (notificationsRefreshing$ | async) ? 'Refreshing…' : 'Refresh' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="header-notifications-action"
+                      (click)="markAllNotificationsRead()"
+                      [disabled]="((unreadCount$ | async) ?? 0) === 0"
+                    >
+                      Mark all read
+                    </button>
+                  </div>
+                </div>
+
+                @if (notificationsError$ | async; as error) {
+                  <p class="header-notifications-error" role="status">
+                    {{ error }}
+                  </p>
+                }
+
+                <div class="header-notifications-list">
+                  @if ((latestNotifications$ | async)?.length) {
+                    @for (notification of latestNotifications$ | async; track notification.id) {
+                      @if (notificationLink(notification, user) ; as path) {
+                        <a
+                          [routerLink]="path"
+                          role="menuitem"
+                          class="header-notifications-item"
+                          [class.header-notifications-item--unread]="!notification.read"
+                          (click)="onNotificationClick(notification)"
+                        >
+                          <span class="header-notifications-item-icon" aria-hidden="true">
+                            {{ notificationsIcon(notification.type) }}
+                          </span>
+                          <span class="header-notifications-item-body">
+                            <span class="header-notifications-item-title">
+                              @if (!notification.read) {
+                                <span class="header-notifications-item-dot" aria-hidden="true"></span>
+                              }
+                              {{ notification.title }}
+                            </span>
+                            <span class="header-notifications-item-message">{{ notification.message }}</span>
+                            <span class="header-notifications-item-time">{{ timeAgo(notification.createdAt) }}</span>
+                          </span>
+                        </a>
+                      } @else {
+                        <button
+                          type="button"
+                          role="menuitem"
+                          class="header-notifications-item"
+                          [class.header-notifications-item--unread]="!notification.read"
+                          (click)="onNotificationClick(notification)"
+                        >
+                          <span class="header-notifications-item-icon" aria-hidden="true">
+                            {{ notificationsIcon(notification.type) }}
+                          </span>
+                          <span class="header-notifications-item-body">
+                            <span class="header-notifications-item-title">
+                              @if (!notification.read) {
+                                <span class="header-notifications-item-dot" aria-hidden="true"></span>
+                              }
+                              {{ notification.title }}
+                            </span>
+                            <span class="header-notifications-item-message">{{ notification.message }}</span>
+                            <span class="header-notifications-item-time">{{ timeAgo(notification.createdAt) }}</span>
+                          </span>
+                        </button>
+                      }
+                    }
+                  } @else {
+                    <p class="header-notifications-empty">No notifications yet.</p>
+                  }
+                </div>
+
+                @if (notificationsPagePath(user) ; as viewAllPath) {
+                  <div class="header-dropdown-divider" role="separator"></div>
+                  <a
+                    [routerLink]="viewAllPath"
+                    role="menuitem"
+                    class="header-dropdown-item"
+                    (click)="onMenuItemClick()"
+                  >
+                    <span class="header-dropdown-item-icon" aria-hidden="true">🔔</span>
+                    <span class="header-dropdown-item-label">View all notifications</span>
+                  </a>
+                }
+              </div>
+            }
+          </div>
+
+          <div
+            class="header-dropdown header-user-dropdown"
+            (keydown)="onUserMenuKeydown($event)"
+          >
+            <button
+              #userMenuTriggerBtn
+              type="button"
+              class="header-user-trigger"
+              (click)="toggleUserMenu()"
+              (keydown)="onUserMenuKeydown($event)"
+              [attr.aria-expanded]="dropdownOpen"
+              [attr.aria-controls]="dropdownOpen ? 'user-menu-panel' : null"
+              aria-label="Account menu"
+            >
+              <span class="header-user-avatar" aria-hidden="true">
+                {{ initials(user) }}
+              </span>
+
+              <span class="header-user-info">
+                <span class="header-user-name">
+                  {{ user.fullName || 'Member' }}
+                </span>
+
+                <span class="header-user-role">
+                  {{ roleLabel(user.role) }}
+                </span>
+              </span>
+
+              <svg
+                class="header-dropdown-chevron header-user-chevron"
+                [class.rotated]="dropdownOpen"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            @if (dropdownOpen) {
+              <div
+                #userMenuPanel
+                id="user-menu-panel"
+                role="menu"
+                class="header-dropdown-panel header-dropdown-panel--right"
+                (keydown)="onUserMenuKeydown($event)"
+              >
+                <div class="header-dropdown-header" role="none">
+                  <div
+                    class="header-dropdown-avatar"
+                    aria-hidden="true"
+                  >
+                    {{ initials(user) }}
+                  </div>
+
+                  <div class="header-dropdown-account">
+                    <p class="header-dropdown-header-name">
+                      {{ user.fullName || 'Member' }}
+                    </p>
+
+                    <p class="header-dropdown-header-email">
+                      {{ user.email }}
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  class="header-dropdown-divider"
+                  role="separator"
+                ></div>
+
+                <a
+                  [routerLink]="dashboardPath(user)"
+                  role="menuitem"
+                  class="header-dropdown-item"
+                  (click)="onMenuItemClick()"
+                >
+                  <svg
+                    class="header-dropdown-item-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 10a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 20a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                    />
+                  </svg>
+
+                  <span class="header-dropdown-item-label">
+                    Dashboard
+                  </span>
+                </a>
+
+                <a
+                  [routerLink]="profilePath(user)"
+                  role="menuitem"
+                  class="header-dropdown-item"
+                  (click)="onMenuItemClick()"
+                >
+                  <svg
+                    class="header-dropdown-item-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+
+                  <span class="header-dropdown-item-label">
+                    My Profile
+                  </span>
+                </a>
+
+                <div
+                  class="header-dropdown-divider"
+                  role="separator"
+                ></div>
+
+                <button
+                  type="button"
+                  role="menuitem"
+                  class="header-dropdown-item header-dropdown-item--danger"
+                  (click)="onLogout()"
+                >
+                  <svg
+                    class="header-dropdown-item-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a2 2 0 012-2h2a2 2 0 012 2v1"
+                    />
+                  </svg>
+
+                  <span class="header-dropdown-item-label">
+                    Sign Out
+                  </span>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      } @else {
+        <div class="header-auth-actions">
+          <a
+            routerLink="/login"
+            class="header-nav-link header-nav-link--ghost"
+          >
+            Sign In
+          </a>
+
+          <a
+            routerLink="/register"
+            class="btn-brand header-btn-primary"
+          >
+            Get Protected
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+</header>
+
+@if (thresholdsOpen) {
+  <app-measurement-thresholds
+    [open]="thresholdsOpen"
+    (closed)="closeThresholds()"
+  />
+}

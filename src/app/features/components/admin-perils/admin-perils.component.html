@@ -1,0 +1,227 @@
+<section class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+        Trigger administration
+      </p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+        Perils
+      </h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Manage insurable peril types used by trigger definitions.
+      </p>
+    </div>
+
+    <button type="button" class="btn-brand" (click)="openCreate()">
+      + New peril
+    </button>
+  </div>
+
+  @if (error$ | async; as error) {
+    <app-error-message [error]="error" />
+  }
+
+  <div class="card p-4">
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="md:col-span-2">
+        <label class="label-base" for="perilSearch">Search perils</label>
+        <input
+          id="perilSearch"
+          type="search"
+          class="input-base"
+          placeholder="Search code, name or description"
+          [formControl]="searchControl"
+        />
+      </div>
+    </div>
+
+    @if (searchControl.value) {
+      <div class="mt-4 flex justify-end">
+        <button
+          type="button"
+          class="text-sm font-semibold text-brand-600 hover:text-brand-700"
+          (click)="clearFilters()"
+        >
+          Clear filters
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (loading$ | async) {
+    <app-loading-spinner label="Loading perils..." />
+  } @else if (perils$ | async; as perils) {
+    @if (updatingPerilId$ | async; as updatingPerilId) {
+      <p class="sr-only">Updating peril {{ updatingPerilId }}</p>
+    }
+
+    @if (perils.length > 0) {
+      <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Peril</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Description</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+              @for (peril of perils; track peril.id) {
+                <tr class="transition-colors hover:bg-gray-50">
+                  <td class="px-6 py-4">
+                    <p class="text-sm font-semibold text-gray-900">
+                      {{ peril.perilName }}
+                    </p>
+                    <p class="text-xs text-gray-400">{{ peril.perilCode }}</p>
+                  </td>
+
+                  <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                    {{ peril.description }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4">
+                    <app-status-badge [status]="peril.status" />
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
+                    <div class="flex items-center justify-end gap-3">
+                      <button
+                        type="button"
+                        class="font-semibold text-brand-600 hover:text-brand-700"
+                        (click)="openEdit(peril)"
+                      >
+                        Edit
+                      </button>
+
+                      @if (updatingPerilId$ | async; as updatingPerilId) {
+                        <select
+                          class="rounded-lg border border-gray-300 px-2 py-1 text-xs disabled:opacity-50"
+                          [value]="peril.status"
+                          [disabled]="isUpdating(peril.id, updatingPerilId)"
+                          (change)="changeStatus(peril, $event)"
+                        >
+                          @for (status of statuses; track status) {
+                            <option [value]="status">{{ status }}</option>
+                          }
+                        </select>
+                      } @else {
+                        <select
+                          class="rounded-lg border border-gray-300 px-2 py-1 text-xs"
+                          [value]="peril.status"
+                          (change)="changeStatus(peril, $event)"
+                        >
+                          @for (status of statuses; track status) {
+                            <option [value]="status">{{ status }}</option>
+                          }
+                        </select>
+                      }
+
+                      <button
+                        type="button"
+                        class="font-semibold text-danger-500 hover:text-danger-700"
+                        (click)="archive(peril)"
+                      >
+                        Archive
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <app-empty-state
+        title="No perils found"
+        message="Create a peril or clear the applied filters."
+        icon="⚠️"
+      >
+        <button type="button" class="btn-brand mt-4" (click)="openCreate()">
+          Create peril
+        </button>
+      </app-empty-state>
+    }
+  }
+
+  @if (formOpen) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-950/50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="peril-form-title"
+    >
+      <div class="my-8 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
+        <div>
+          <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+            Peril
+          </p>
+          <h2 id="peril-form-title" class="mt-1 text-xl font-bold text-gray-900">
+            {{ editingPeril ? 'Edit peril' : 'Create peril' }}
+          </h2>
+        </div>
+
+        <form class="mt-6 space-y-5" [formGroup]="form" (ngSubmit)="submit()">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="label-base" for="perilCode">Peril code</label>
+              <input id="perilCode" class="input-base" formControlName="perilCode" placeholder="EXCESS_RAINFALL" />
+              @if (form.controls.perilCode.invalid && form.controls.perilCode.touched) {
+                <p class="mt-1 text-xs text-danger-500">Peril code is required.</p>
+              }
+            </div>
+
+            <div>
+              <label class="label-base" for="perilName">Peril name</label>
+              <input id="perilName" class="input-base" formControlName="perilName" placeholder="Excess Rainfall" />
+              @if (form.controls.perilName.invalid && form.controls.perilName.touched) {
+                <p class="mt-1 text-xs text-danger-500">Peril name is required.</p>
+              }
+            </div>
+          </div>
+
+          <div>
+            <label class="label-base" for="description">Description</label>
+            <textarea
+              id="description"
+              class="input-base"
+              formControlName="description"
+              rows="3"
+              placeholder="Describe the peril condition..."
+            ></textarea>
+            @if (form.controls.description.invalid && form.controls.description.touched) {
+              <p class="mt-1 text-xs text-danger-500">Description is required.</p>
+            }
+          </div>
+
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              class="btn-outline"
+              [disabled]="(saving$ | async) ?? false"
+              (click)="closeForm()"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="btn-brand"
+              [disabled]="form.invalid || ((saving$ | async) ?? false)"
+            >
+              {{ (saving$ | async)
+                ? 'Saving...'
+                : editingPeril
+                  ? 'Save changes'
+                  : 'Create peril'
+              }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</section>

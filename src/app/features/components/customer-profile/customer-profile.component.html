@@ -1,0 +1,293 @@
+<section class="profile-page">
+  <div class="profile-container">
+    <!-- Header -->
+    <div class="profile-header">
+      <div class="profile-avatar-section">
+        @if (user$ | async; as user) {
+          <div class="profile-avatar-large" aria-hidden="true">
+            {{ getInitials(user.fullName || '') }}
+          </div>
+          <div class="profile-header-info">
+            <h1 class="profile-name">{{ user.fullName || 'Member' }}</h1>
+            <p class="profile-role">{{ roleLabel(user.role) }}</p>
+            <p class="profile-email">{{ user.email }}</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (saveSuccess) {
+      <div class="profile-alert profile-alert--success" role="alert">
+        Profile updated successfully!
+      </div>
+    }
+
+    @if (saveError) {
+      <div class="profile-alert profile-alert--error" role="alert">
+        {{ saveError }}
+      </div>
+    }
+
+    <!-- Tabs -->
+    <nav class="profile-tabs" aria-label="Profile sections">
+      <button
+        type="button"
+        class="profile-tab"
+        [class.profile-tab--active]="activeTab === 'profile'"
+        (click)="onTabChange('profile')"
+        [attr.aria-selected]="activeTab === 'profile'"
+      >
+        <svg class="profile-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+        Profile
+      </button>
+      <button
+        type="button"
+        class="profile-tab"
+        [class.profile-tab--active]="activeTab === 'policies'"
+        (click)="onTabChange('policies')"
+        [attr.aria-selected]="activeTab === 'policies'"
+      >
+        <svg class="profile-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        My Policies
+      </button>
+      <button
+        type="button"
+        class="profile-tab"
+        [class.profile-tab--active]="activeTab === 'claims'"
+        (click)="onTabChange('claims')"
+        [attr.aria-selected]="activeTab === 'claims'"
+      >
+        <svg class="profile-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        My Claims
+      </button>
+    </nav>
+
+    <!-- Profile Tab -->
+    @if (activeTab === 'profile') {
+      <div class="profile-tab-content">
+        <form [formGroup]="profileForm" (ngSubmit)="onSave()" class="profile-form">
+          <div class="profile-form-section">
+            <h2 class="profile-form-section-title">Personal Information</h2>
+            <div class="profile-form-grid">
+              <div class="profile-form-field">
+                <label for="fullName" class="profile-form-label">Full Name</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  formControlName="fullName"
+                  class="profile-form-input"
+                  [class.profile-form-input--error]="profileForm.controls.fullName.invalid && profileForm.controls.fullName.touched"
+                  placeholder="Enter your full name"
+                />
+                @if (profileForm.controls.fullName.invalid && profileForm.controls.fullName.touched) {
+                  <p class="profile-form-error">Full name is required</p>
+                }
+              </div>
+              <div class="profile-form-field">
+                <label for="email" class="profile-form-label">Email Address</label>
+                <input
+                  type="email"
+                  id="email"
+                  formControlName="email"
+                  class="profile-form-input"
+                  [class.profile-form-input--error]="profileForm.controls.email.invalid && profileForm.controls.email.touched"
+                  placeholder="Enter your email"
+                />
+                @if (profileForm.controls.email.invalid && profileForm.controls.email.touched) {
+                  <p class="profile-form-error">
+                    @if (profileForm.controls.email.errors?.['required']) { Email is required }
+                    @else if (profileForm.controls.email.errors?.['email']) { Enter a valid email }
+                  </p>
+                }
+              </div>
+              <div class="profile-form-field">
+                <label for="phone" class="profile-form-label">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  formControlName="phone"
+                  class="profile-form-input"
+                  [class.profile-form-input--error]="profileForm.controls.phone.invalid && profileForm.controls.phone.touched"
+                  placeholder="Enter your phone number"
+                />
+                @if (profileForm.controls.phone.invalid && profileForm.controls.phone.touched) {
+                  <p class="profile-form-error">Enter a valid phone number</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-form-section">
+            <h2 class="profile-form-section-title">Address</h2>
+            <div class="profile-form-grid">
+              <div class="profile-form-field profile-form-field--full">
+                <label for="address" class="profile-form-label">Address</label>
+                <input
+                  type="text"
+                  id="address"
+                  formControlName="address"
+                  class="profile-form-input"
+                  placeholder="Street address, apartment, etc."
+                />
+              </div>
+              <div class="profile-form-field">
+                <label for="city" class="profile-form-label">City</label>
+                <input
+                  type="text"
+                  id="city"
+                  formControlName="city"
+                  class="profile-form-input"
+                  placeholder="City"
+                />
+              </div>
+              <div class="profile-form-field">
+                <label for="state" class="profile-form-label">State</label>
+                <input
+                  type="text"
+                  id="state"
+                  formControlName="state"
+                  class="profile-form-input"
+                  placeholder="State"
+                />
+              </div>
+              <div class="profile-form-field">
+                <label for="postalCode" class="profile-form-label">Postal Code</label>
+                <input
+                  type="text"
+                  id="postalCode"
+                  formControlName="postalCode"
+                  class="profile-form-input"
+                  [class.profile-form-input--error]="profileForm.controls.postalCode.invalid && profileForm.controls.postalCode.touched"
+                  placeholder="123456"
+                />
+                @if (profileForm.controls.postalCode.invalid && profileForm.controls.postalCode.touched) {
+                  <p class="profile-form-error">Enter a valid 6-digit postal code</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-form-actions">
+            <button type="submit" class="btn-brand" [disabled]="saving">
+              {{ saving ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- Policies Tab -->
+    @if (activeTab === 'policies') {
+      <div class="profile-tab-content">
+        @if (policies$ | async; as policies) {
+          @if (policies.length === 0) {
+            <app-empty-state
+              title="No policies yet"
+              message="You haven't purchased any policies. Browse our products to get started."
+              icon="📄"
+            />
+          } @else {
+            <div class="profile-table-wrapper">
+              <table class="profile-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Policy</th>
+                    <th scope="col">Product</th>
+                    <th scope="col">Sum Insured</th>
+                    <th scope="col">Term</th>
+                    <th scope="col">Premium</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (policy of policies; track policy.id) {
+                    <tr>
+                      <td>
+                        <div class="policy-code">{{ policy.policyNumber }}</div>
+                      </td>
+                      <td>{{ policy.productName }}</td>
+                      <td>{{ formatCurrency(policy.sumInsured) }}</td>
+                      <td>{{ policy.termMonths }} months</td>
+                      <td>{{ formatCurrency(policy.premiumAmount) }}</td>
+                      <td>
+                        <span class="profile-status" [class]="getStatusClass(policy.status)">
+                          {{ policy.status }}
+                        </span>
+                      </td>
+                      <td>
+                        <a [routerLink]="['/customer/policies', policy.id]" class="profile-action-link">
+                          View Details
+                        </a>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+      </div>
+    }
+
+    <!-- Claims Tab -->
+    @if (activeTab === 'claims') {
+      <div class="profile-tab-content">
+        @if (claims$ | async; as claims) {
+          @if (claims.length === 0) {
+            <app-empty-state
+              title="No claims filed"
+              message="You haven't filed any claims yet."
+              icon="📋"
+            />
+          } @else {
+            <div class="profile-table-wrapper">
+              <table class="profile-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Claim</th>
+                    <th scope="col">Policy</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Filed On</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (claim of claims; track claim.id) {
+                    <tr>
+                      <td>
+                        <div class="claim-code">{{ claim.claimNumber }}</div>
+                      </td>
+                      <td>{{ claim.policyNumber }}</td>
+                      <td>{{ claim.incidentType }}</td>
+                      <td>{{ formatCurrency(claim.claimedAmount) }}</td>
+                      <td>
+                        <span class="profile-status" [class]="getStatusClass(claim.status)">
+                          {{ claim.status }}
+                        </span>
+                      </td>
+                      <td>{{ formatDate(claim.submittedAt) }}</td>
+                      <td>
+                        <a [routerLink]="['/customer/claims', claim.id]" class="profile-action-link">
+                          View Details
+                        </a>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+      </div>
+    }
+  </div>
+</section>

@@ -1,0 +1,465 @@
+<section class="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <a
+    routerLink="/claims-officer/claims"
+    class="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
+  >
+    ← Submitted claims
+  </a>
+
+  @if (invalidClaimId) {
+    <app-error-message error="Invalid claim ID." />
+  }
+
+  @if (error$ | async; as error) {
+    <app-error-message [error]="error" />
+  }
+
+  @if (loading$ | async) {
+    <app-loading-spinner label="Loading claim..." />
+  } @else if (claim$ | async; as claim) {
+    <div class="card overflow-hidden">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 bg-gray-50/60 px-6 py-5">
+        <div>
+          <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+            Claims assessment
+          </p>
+
+          <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+            {{ claim.claimNumber }}
+          </h1>
+
+          <p class="mt-1 text-sm text-gray-500">
+            Policy {{ claim.policyNumber }}
+          </p>
+        </div>
+
+        <app-status-badge [status]="claim.status" />
+      </div>
+
+      <div class="grid gap-5 p-6 md:grid-cols-3">
+        <div class="rounded-xl bg-gray-50 p-5">
+          <p class="text-xs font-medium text-gray-500">
+            Incident
+          </p>
+
+          <p class="mt-1 font-semibold text-gray-900">
+            {{ claim.incidentType.replaceAll('_', ' ') }}
+          </p>
+
+          <p class="text-xs text-gray-400">
+            {{ claim.incidentDate | date:'mediumDate' }}
+          </p>
+        </div>
+
+        <div class="rounded-xl bg-gray-50 p-5">
+          <p class="text-xs font-medium text-gray-500">
+            Claimed amount
+          </p>
+
+          <p class="mt-1 text-lg font-bold text-gray-900">
+            ₹ {{ claim.claimedAmount | number:'1.2-2' }}
+          </p>
+        </div>
+
+        <div class="rounded-xl bg-blue-50 p-5">
+          <p class="text-xs font-medium text-blue-700">
+            {{ claim.manualReviewRequired
+              ? 'Review status'
+              : 'Trigger event'
+            }}
+          </p>
+
+          @if (claim.manualReviewRequired) {
+            <p class="mt-1 font-semibold text-blue-900">
+              Manual review
+            </p>
+
+            <p class="text-xs text-blue-600">
+              Awaiting officer decision
+            </p>
+          } @else {
+            <p class="mt-1 font-semibold text-blue-900">
+              {{ claim.triggerEventReference }}
+            </p>
+
+            <p class="text-xs text-blue-600">
+              Event #{{ claim.triggerEventId }}
+            </p>
+          }
+        </div>
+      </div>
+
+      <div class="border-t border-gray-100 px-6 py-5">
+        <h2 class="text-lg font-semibold text-gray-900">
+          Claim information
+        </h2>
+
+        <dl class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          @for (row of claimDetails(claim); track row.label) {
+            <div class="rounded-xl bg-gray-50 p-4">
+              <dt class="text-xs font-medium text-gray-500">
+                {{ row.label }}
+              </dt>
+
+              <dd class="mt-1 break-words text-sm font-semibold text-gray-900">
+                {{ row.value }}
+              </dd>
+            </div>
+          }
+        </dl>
+      </div>
+
+      <div class="border-t border-gray-100 px-6 py-5">
+        <h2 class="text-lg font-semibold text-gray-900">
+          Customer description
+        </h2>
+
+        <div class="mt-4 rounded-xl bg-gray-50 p-5">
+          <p class="whitespace-pre-line text-sm leading-6 text-gray-700">
+            {{ claim.description }}
+          </p>
+        </div>
+      </div>
+
+      <div class="border-t border-gray-100 px-6 py-5">
+        <h2 class="text-lg font-semibold text-gray-900">
+          {{ claim.manualReviewRequired
+            ? 'Manual review information'
+            : 'Verified trigger'
+          }}
+        </h2>
+
+        <p class="mt-1 text-sm text-gray-500">
+          @if (claim.manualReviewRequired) {
+            The customer submitted this claim without a verified trigger event.
+            Confirm coverage before approving or rejecting the claim.
+          } @else {
+            The Claims Service verified this event through the Trigger Service
+            when the claim was submitted.
+          }
+        </p>
+
+        <dl class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          @for (row of triggerDetails(claim); track row.label) {
+            <div class="rounded-xl bg-blue-50 p-4">
+              <dt class="text-xs font-medium text-blue-700">
+                {{ row.label }}
+              </dt>
+
+              <dd class="mt-1 break-words text-sm font-semibold text-blue-900">
+                {{ row.value }}
+              </dd>
+            </div>
+          }
+        </dl>
+      </div>
+
+      @if (claim.status !== 'SUBMITTED') {
+        <div class="border-t border-gray-100 px-6 py-5">
+          <h2 class="text-lg font-semibold text-gray-900">
+            Review information
+          </h2>
+
+          <dl class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            @for (row of reviewDetails(claim); track row.label) {
+              <div class="rounded-xl bg-gray-50 p-4">
+                <dt class="text-xs font-medium text-gray-500">
+                  {{ row.label }}
+                </dt>
+
+                <dd class="mt-1 text-sm font-semibold text-gray-900">
+                  {{ row.value }}
+                </dd>
+              </div>
+            }
+          </dl>
+        </div>
+      }
+
+      @if (claim.status === 'SUBMITTED') {
+        <div class="border-t border-warn-100 bg-warn-50 px-6 py-5">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-semibold text-warn-700">
+                Claim is waiting for review
+              </p>
+
+              <p class="mt-1 text-xs text-gray-500">
+                Start the review before approving or rejecting the claim.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="btn-brand"
+              [disabled]="(saving$ | async) ?? false"
+              (click)="openStartReview()"
+            >
+              {{ (saving$ | async) ? 'Starting...' : 'Start review' }}
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (claim.status === 'UNDER_REVIEW') {
+        <div class="border-t border-blue-100 bg-blue-50 px-6 py-5">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-semibold text-blue-700">
+                Claim is under review
+              </p>
+
+              <p class="mt-1 text-xs text-gray-500">
+                Approve an amount up to the claimed amount or reject the claim
+                with a clear reason.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <button
+                type="button"
+                class="btn-danger"
+                [disabled]="(saving$ | async) ?? false"
+                (click)="openRejection()"
+              >
+                Reject claim
+              </button>
+
+              <button
+                type="button"
+                class="btn-brand"
+                [disabled]="(saving$ | async) ?? false"
+                (click)="openApproval(claim)"
+              >
+                Approve claim
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (claim.status === 'APPROVED') {
+        <div class="border-t border-success-100 bg-success-50 px-6 py-5">
+          <p class="text-sm font-semibold text-success-700">
+            ✓ Claim approved
+          </p>
+
+          <p class="mt-1 text-xs text-gray-500">
+            Approved amount:
+            ₹ {{ claim.approvedAmount | number:'1.2-2' }}
+          </p>
+        </div>
+      }
+
+      @if (claim.status === 'REJECTED') {
+        <div class="border-t border-danger-100 bg-danger-50 px-6 py-5">
+          <p class="text-sm font-semibold text-danger-700">
+            Claim rejected
+          </p>
+
+          @if (claim.rejectionReason) {
+            <p class="mt-2 whitespace-pre-line text-sm text-danger-700">
+              {{ claim.rejectionReason }}
+            </p>
+          }
+        </div>
+      }
+
+      @if (claim.status === 'CANCELLED') {
+        <div class="border-t border-gray-200 bg-gray-50 px-6 py-5">
+          <p class="text-sm font-semibold text-gray-700">
+            The customer cancelled this claim before review started.
+          </p>
+        </div>
+      }
+    </div>
+
+    @if (startReviewOpen) {
+      <app-confirmation-dialog
+        title="Start reviewing this claim?"
+        message="The claim status will change to under review and you will be assigned as the reviewer."
+        confirmLabel="Start review"
+        (confirmed)="confirmStartReview()"
+        (dismissed)="dismissStartReview()"
+      />
+    }
+
+    @if (approvalOpen) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/50 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="approve-claim-title"
+      >
+        <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+          <p class="text-xs font-semibold tracking-widest text-success-700 uppercase">
+            Claims decision
+          </p>
+
+          <h2
+            id="approve-claim-title"
+            class="mt-1 text-xl font-bold text-gray-900"
+          >
+            Approve claim
+          </h2>
+
+          <p class="mt-2 text-sm text-gray-500">
+            Enter an approved amount greater than zero and not exceeding
+            ₹ {{ claimedAmount() | number:'1.2-2' }}.
+          </p>
+
+          <form
+            class="mt-5"
+            [formGroup]="approvalForm"
+            (ngSubmit)="submitApproval()"
+          >
+            <label class="label-base" for="approvedAmount">
+              Approved amount (₹)
+            </label>
+
+            <input
+              id="approvedAmount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              [max]="claimedAmount()"
+              formControlName="approvedAmount"
+              class="input-base"
+            />
+
+            @if (
+              approvalForm.controls.approvedAmount.invalid &&
+              approvalForm.controls.approvedAmount.touched
+            ) {
+              <p class="mt-1 text-xs text-danger-500">
+                @if (approvalForm.controls.approvedAmount.errors?.['required']) {
+                  Approved amount is required.
+                } @else if (approvalForm.controls.approvedAmount.errors?.['min']) {
+                  Approved amount must be greater than zero.
+                } @else if (approvalForm.controls.approvedAmount.errors?.['max']) {
+                  Approved amount cannot exceed the claimed amount.
+                }
+              </p>
+            }
+
+            <div class="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                class="btn-outline"
+                [disabled]="(saving$ | async) ?? false"
+                (click)="dismissApproval()"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                class="btn-brand"
+                [disabled]="
+                  approvalForm.invalid ||
+                  ((saving$ | async) ?? false)
+                "
+              >
+                {{ (saving$ | async) ? 'Approving...' : 'Approve claim' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+
+    @if (rejectionOpen) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/50 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reject-claim-title"
+      >
+        <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+          <p class="text-xs font-semibold tracking-widest text-danger-600 uppercase">
+            Claims decision
+          </p>
+
+          <h2
+            id="reject-claim-title"
+            class="mt-1 text-xl font-bold text-gray-900"
+          >
+            Reject claim
+          </h2>
+
+          <p class="mt-2 text-sm text-gray-500">
+            Provide a clear rejection reason that can be displayed to the
+            customer.
+          </p>
+
+          <form
+            class="mt-5"
+            [formGroup]="rejectionForm"
+            (ngSubmit)="submitRejection()"
+          >
+            <label class="label-base" for="rejectionReason">
+              Rejection reason
+            </label>
+
+            <textarea
+              id="rejectionReason"
+              rows="5"
+              maxlength="500"
+              formControlName="reason"
+              class="input-base"
+              placeholder="Explain why this claim cannot be approved"
+            ></textarea>
+
+            <div class="mt-1 flex justify-between gap-4">
+              <div>
+                @if (
+                  rejectionForm.controls.reason.invalid &&
+                  rejectionForm.controls.reason.touched
+                ) {
+                  <p class="text-xs text-danger-500">
+                    @if (
+                      rejectionForm.controls.reason.errors?.['required'] ||
+                      rejectionForm.controls.reason.errors?.['pattern']
+                    ) {
+                      Rejection reason is required.
+                    } @else if (
+                      rejectionForm.controls.reason.errors?.['maxlength']
+                    ) {
+                      Rejection reason cannot exceed 500 characters.
+                    }
+                  </p>
+                }
+              </div>
+
+              <p class="shrink-0 text-xs text-gray-400">
+                {{ rejectionReasonLength() }}/500
+              </p>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                class="btn-outline"
+                [disabled]="(saving$ | async) ?? false"
+                (click)="dismissRejection()"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                class="btn-danger"
+                [disabled]="
+                  rejectionForm.invalid ||
+                  ((saving$ | async) ?? false)
+                "
+              >
+                {{ (saving$ | async) ? 'Rejecting...' : 'Reject claim' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+  }
+</section>

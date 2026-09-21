@@ -1,0 +1,118 @@
+<div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+  <!-- Welcome banner -->
+  <section class="relative overflow-hidden rounded-2xl bg-brand-gradient px-8 py-10 text-white shadow-elevated">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.15),transparent_55%)]"></div>
+    <div class="absolute -bottom-20 -right-20 size-72 rounded-full bg-white/5 blur-3xl"></div>
+    <div class="relative flex flex-wrap items-center justify-between gap-6">
+      <div>
+        <p class="text-xs font-semibold tracking-widest text-brand-200 uppercase">Claims Desk</p>
+        <h1 class="mt-2 text-3xl font-bold tracking-tight">Claims operations</h1>
+        <p class="mt-2 max-w-lg text-sm text-brand-100">
+          Review and settle claims — automated evaluations come in straight from the trigger engine.
+        </p>
+      </div>
+      <a routerLink="/claims-officer/claims" class="inline-flex items-center gap-2 rounded-full bg-white/15 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/25">
+        Open claims queue
+        <span class="text-lg">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- KPI cards -->
+  <div class="grid animate-fade-in-up gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <app-stat-card label="Claims to review" [value]="(submittedCount$ | async) ?? 0" icon="📋" color="amber" hint="In queue" />
+    <app-stat-card label="Manual claims" [value]="(manualClaimCount$ | async) ?? 0" icon="✍️" color="red" hint="Customer submitted" />
+    <app-stat-card label="Total claimed" [value]="'₹ ' + ((totalClaimedAmount$ | async) ?? 0)" icon="🛡️" color="blue" hint="Across submitted claims" />
+    <app-stat-card label="Average claim" [value]="'₹ ' + ((averageClaimAmount$ | async) ?? 0)" icon="💳" color="green" hint="Average requested amount" />
+  </div>
+
+  <!-- Live trigger engine -->
+  <section class="relative overflow-hidden rounded-2xl bg-navy-950 px-8 py-8 text-white shadow-elevated">
+    <div class="absolute inset-0 animate-blob bg-[radial-gradient(ellipse_at_top_right,rgba(30,139,255,0.3),transparent_55%)]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(0,80,219,0.2),transparent_50%)]"></div>
+    <div class="relative flex flex-wrap items-center justify-between gap-6">
+      <div class="flex items-center gap-4">
+        <span class="inline-flex size-10 items-center justify-center rounded-xl bg-emerald-500/20 text-lg backdrop-blur">⚡</span>
+        <div>
+          <p class="text-[11px] font-semibold tracking-widest text-emerald-300 uppercase">Trigger engine · Live</p>
+          <h2 class="mt-0.5 text-lg font-semibold">No active trigger events</h2>
+          <p class="mt-0.5 text-sm text-navy-200">
+            When weather observations breach a threshold, evaluation records appear here automatically.
+          </p>
+        </div>
+      </div>
+      <span class="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-4 py-2 text-sm font-medium text-emerald-300 backdrop-blur">
+        <span class="relative flex size-2">
+          <span class="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex size-2 rounded-full bg-emerald-400"></span>
+        </span>
+        All systems normal
+      </span>
+    </div>
+  </section>
+
+  <!-- Claims queue -->
+  <section class="card">
+    <div class="flex items-center justify-between border-b border-brand-50 px-6 py-4">
+      <div>
+        <h2 class="text-base font-semibold text-gray-900">Claims awaiting decision</h2>
+        <p class="text-xs text-gray-500">Manual and automated claims, newest first</p>
+      </div>
+      <a routerLink="/claims-officer/claims" class="btn-outline !px-4 !py-2">Open queue</a>
+    </div>
+    <div class="p-6">
+      @if ((claims$ | async)?.length === 0) {
+        <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-brand-200 bg-brand-50/30 py-12 text-center">
+          <span class="text-4xl" aria-hidden="true">🗂️</span>
+          <p class="mt-3 text-sm font-semibold text-gray-700">Nothing waiting in the queue</p>
+          <p class="mt-1 max-w-sm text-xs text-gray-500">
+            Submitted claims will be listed here with eligibility checks, trigger evidence and payout previews.
+          </p>
+        </div>
+      } @else {
+        <ul class="divide-y divide-brand-50">
+          @for (claim of claims$ | async; track claim.id) {
+            <li class="flex items-center justify-between gap-4 py-3 transition-colors hover:bg-brand-50/40 rounded-lg px-2">
+              <div class="min-w-0">
+                <p class="text-sm font-semibold text-gray-900 truncate">{{ claim.claimNumber }}</p>
+                <p class="mt-0.5 text-xs text-gray-500 truncate">
+                  {{ claim.policyNumber }} · ₹ {{ claim.claimedAmount }} · {{ claim.submittedAt | date:'mediumDate' }}
+                </p>
+              </div>
+              <div class="flex shrink-0 items-center gap-3">
+                <app-status-badge [status]="claim.status" />
+                <a
+                  [routerLink]="['/claims-officer/claims', claim.id]"
+                  class="text-sm font-medium text-brand-600 hover:text-brand-700"
+                >Review</a>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </section>
+
+  <!-- Settlement rules -->
+  <section class="card p-6">
+    <h2 class="text-base font-semibold text-gray-900">Settlement rules</h2>
+    <ul class="mt-4 grid gap-3 text-sm text-gray-600 sm:grid-cols-2">
+      <li class="flex items-start gap-2.5">
+        <span class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-100 text-[10px] font-bold text-brand-700">✓</span>
+        Claim eligibility is verified against active policy coverage and trigger definitions.
+      </li>
+      <li class="flex items-start gap-2.5">
+        <span class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-100 text-[10px] font-bold text-brand-700">✓</span>
+        Payout amounts are computed from the policy sum insured and trigger intensity.
+      </li>
+      <li class="flex items-start gap-2.5">
+        <span class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-100 text-[10px] font-bold text-brand-700">✓</span>
+        Approved claims flow to the financial service for settlement automatically.
+      </li>
+      <li class="flex items-start gap-2.5">
+        <span class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-100 text-[10px] font-bold text-brand-700">✓</span>
+        Rejections must include a reason visible to the policyholder.
+      </li>
+    </ul>
+  </section>
+</div>

@@ -1,0 +1,128 @@
+<section class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <div>
+    <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+      Administration
+    </p>
+
+    <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+      Policies
+    </h1>
+
+    <p class="mt-1 text-sm text-gray-500">
+      View customer policy applications, active coverage and completed
+      decisions.
+    </p>
+  </div>
+
+  @if (error$ | async; as error) {
+    <app-error-message [error]="error" />
+  }
+
+  <div class="flex flex-wrap items-center gap-2">
+    @for (filter of filters; track filter.label) {
+      <button
+        type="button"
+        class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
+        [class]="selectedStatus === filter.value
+          ? 'bg-brand-600 text-white shadow-sm'
+          : 'border border-gray-200 bg-white text-gray-600 hover:border-brand-300 hover:text-brand-700'"
+        (click)="applyFilter(filter.value)"
+      >
+        {{ filter.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading$ | async) {
+    <app-loading-spinner label="Loading policies..." />
+  } @else if (policies$ | async; as policies) {
+    @if (policies.length > 0) {
+      <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Policy
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Customer
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Product
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Sum insured
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Premium
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Status
+                </th>
+                <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+              @for (policy of policies; track policy.id) {
+                <tr class="transition-colors hover:bg-gray-50">
+                  <td class="whitespace-nowrap px-6 py-3">
+                    <p class="text-sm font-semibold text-gray-900">
+                      {{ policy.policyNumber }}
+                    </p>
+                    <p class="text-xs text-gray-400">
+                      {{ policy.createdAt | date:'mediumDate' }}
+                    </p>
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
+                    Customer #{{ policy.customerId }}
+                  </td>
+
+                  <td class="px-6 py-3">
+                    <p class="text-sm font-medium text-gray-900">
+                      {{ policy.productName }}
+                    </p>
+                    <p class="text-xs text-gray-400">
+                      {{ policy.productCode }}
+                    </p>
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
+                    ₹ {{ policy.sumInsured | number }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
+                    ₹ {{ policy.premiumAmount | number:'1.2-2' }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3">
+                    <app-status-badge [status]="policy.status" />
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-right text-sm">
+                    <a
+                      [routerLink]="['/admin/policies', policy.id]"
+                      class="font-semibold text-brand-600 hover:text-brand-700"
+                    >
+                      View
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <app-empty-state
+        title="No policies found"
+        message="No policies match the selected status."
+        icon="📄"
+      />
+    }
+  }
+</section>

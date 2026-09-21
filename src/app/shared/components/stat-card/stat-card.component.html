@@ -1,0 +1,17 @@
+<div class="card p-5">
+  <div class="flex items-start justify-between">
+    <div class="flex size-11 items-center justify-center rounded-lg text-xl" [class]="iconClass()">
+      <span aria-hidden="true">{{ icon() }}</span>
+    </div>
+    @if (trend()) {
+      <span class="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-medium" [class]="trendClass()">
+        {{ trendLabel() }}
+      </span>
+    }
+  </div>
+  <p class="mt-4 text-3xl font-bold tracking-tight text-gray-900">{{ value() }}</p>
+  <p class="mt-1 text-sm font-medium text-gray-500">{{ label() }}</p>
+  @if (hint()) {
+    <p class="mt-0.5 text-xs text-gray-400">{{ hint() }}</p>
+  }
+</div>

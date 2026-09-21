@@ -1,0 +1,430 @@
+[1m[33mWorkspace extension with invalid name (defaultProject) found.[39m[22m
+[33m>[39m Building...
+[32m√[39m Building...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m                                [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m                                 [2m | [22m[36m294.31 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m                            [2m | [22m [36m93.39 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m                               [2m | [22m [36m85.09 kB[39m[2m | [22m
+[32mchunk-P3EYW5WT.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m [36m11.55 kB[39m[2m | [22m
+[32mchunk-UVDLUXWB.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m6.83 kB[39m[2m | [22m
+[32mchunk-ALRWBPIM.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m3.79 kB[39m[2m | [22m
+[32mchunk-X2A7X232.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m3.73 kB[39m[2m | [22m
+[32mchunk-R3VAAMPB.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m3.50 kB[39m[2m | [22m
+[32mchunk-UMEAEYHO.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m3.22 kB[39m[2m | [22m
+[32mchunk-7CM7UOGJ.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m2.38 kB[39m[2m | [22m
+[32mchunk-E64T7BT5.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m2.26 kB[39m[2m | [22m
+[32mchunk-I25HIEQH.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m2.18 kB[39m[2m | [22m
+[32mchunk-DBYTYB4E.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.98 kB[39m[2m | [22m
+[32mchunk-RDZCEDNZ.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.64 kB[39m[2m | [22m
+[32mchunk-4TP2INYL.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.52 kB[39m[2m | [22m
+[32mchunk-BFOJNO2T.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.35 kB[39m[2m | [22m
+[32mchunk-MDERI4OV.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.18 kB[39m[2m | [22m
+[32mchunk-CZJLB7T5.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.08 kB[39m[2m | [22m
+[32mchunk-KEQ7MYQ3.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m[36m643 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m                        [2m | [22m[1m521.61 kB[22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m                                [2m | [22m [1mRaw size[22m
+[32mchunk-Z7JAFF66.js[39m  [2m | [22m[2madmin-notifications-component[22m        [2m | [22m [36m73.79 kB[39m[2m | [22m
+[32mchunk-SXEMGYX4.js[39m  [2m | [22m[2madmin-trigger-definitions-component[22m  [2m | [22m [36m61.14 kB[39m[2m | [22m
+[32mchunk-77L3XKSQ.js[39m  [2m | [22m[2mcustomer-profile-component[22m           [2m | [22m [36m59.26 kB[39m[2m | [22m
+[32mchunk-TOHEIWDD.js[39m  [2m | [22m[2mclaims-officer-claim-detail-component[22m[2m | [22m [36m56.65 kB[39m[2m | [22m
+[32mchunk-DQAOJXXA.js[39m  [2m | [22m[2mcustomer-notifications-component[22m     [2m | [22m [36m52.95 kB[39m[2m | [22m
+[32mchunk-ZB5X2QZU.js[39m  [2m | [22m[2madmin-zones-component[22m                [2m | [22m [36m48.84 kB[39m[2m | [22m
+[32mchunk-2LMAHMIH.js[39m  [2m | [22m[2madmin-product-edit-component[22m         [2m | [22m [36m42.53 kB[39m[2m | [22m
+[32mchunk-GIFCODYR.js[39m  [2m | [22m[2mcustomer-claim-new-component[22m         [2m | [22m [36m40.43 kB[39m[2m | [22m
+[32mchunk-VKRZYW7S.js[39m  [2m | [22m[2mcustomer-policy-new-component[22m        [2m | [22m [36m39.79 kB[39m[2m | [22m
+[32mchunk-NVCB5YM6.js[39m  [2m | [22m[2madmin-observations-component[22m         [2m | [22m [36m39.41 kB[39m[2m | [22m
+[32mchunk-GFRNXD46.js[39m  [2m | [22m[2madmin-product-new-component[22m          [2m | [22m [36m38.08 kB[39m[2m | [22m
+[32mchunk-NNWW2CQ4.js[39m  [2m | [22m[2madmin-perils-component[22m               [2m | [22m [36m37.46 kB[39m[2m | [22m
+[32mchunk-7HD4IDN5.js[39m  [2m | [22m[2madmin-users-component[22m                [2m | [22m [36m37.32 kB[39m[2m | [22m
+[32mchunk-25XFCLKT.js[39m  [2m | [22m[2munderwriter-policy-detail-component[22m  [2m | [22m [36m37.22 kB[39m[2m | [22m
+[32mchunk-WMM5HGQI.js[39m  [2m | [22m[2madmin-trigger-events-component[22m       [2m | [22m [36m36.31 kB[39m[2m | [22m
+[2m...and 34 more lazy chunks files. Use "--verbose" to show all the files.[22m
+
+Application bundle generation complete. [60.839 seconds] - 2026-09-20T14:59:40.722Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+[2m8:29:42 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m Re-optimizing dependencies because vite config has changed
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m4299[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m                                [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m                                 [2m | [22m[36m294.31 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m                            [2m | [22m [36m93.39 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m                               [2m | [22m [36m85.09 kB[39m[2m | [22m
+[32mchunk-P3EYW5WT.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m [36m11.55 kB[39m[2m | [22m
+[32mchunk-UVDLUXWB.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m6.83 kB[39m[2m | [22m
+[32mchunk-ALRWBPIM.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m3.79 kB[39m[2m | [22m
+[32mchunk-X2A7X232.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m3.73 kB[39m[2m | [22m
+[32mchunk-R3VAAMPB.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m3.50 kB[39m[2m | [22m
+[32mchunk-UMEAEYHO.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m3.22 kB[39m[2m | [22m
+[32mchunk-7CM7UOGJ.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m2.38 kB[39m[2m | [22m
+[32mchunk-E64T7BT5.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m2.26 kB[39m[2m | [22m
+[32mchunk-I25HIEQH.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m2.18 kB[39m[2m | [22m
+[32mchunk-DBYTYB4E.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.98 kB[39m[2m | [22m
+[32mchunk-RDZCEDNZ.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.64 kB[39m[2m | [22m
+[32mchunk-4TP2INYL.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.52 kB[39m[2m | [22m
+[32mchunk-BFOJNO2T.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.35 kB[39m[2m | [22m
+[32mchunk-MDERI4OV.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.18 kB[39m[2m | [22m
+[32mchunk-CZJLB7T5.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.08 kB[39m[2m | [22m
+[32mchunk-KEQ7MYQ3.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m[36m643 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m                        [2m | [22m[1m521.61 kB[22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m                                [2m | [22m [1mRaw size[22m
+[32mchunk-Z7JAFF66.js[39m  [2m | [22m[2madmin-notifications-component[22m        [2m | [22m [36m73.79 kB[39m[2m | [22m
+[32mchunk-SXEMGYX4.js[39m  [2m | [22m[2madmin-trigger-definitions-component[22m  [2m | [22m [36m61.14 kB[39m[2m | [22m
+[32mchunk-77L3XKSQ.js[39m  [2m | [22m[2mcustomer-profile-component[22m           [2m | [22m [36m59.26 kB[39m[2m | [22m
+[32mchunk-TOHEIWDD.js[39m  [2m | [22m[2mclaims-officer-claim-detail-component[22m[2m | [22m [36m56.65 kB[39m[2m | [22m
+[32mchunk-DQAOJXXA.js[39m  [2m | [22m[2mcustomer-notifications-component[22m     [2m | [22m [36m52.95 kB[39m[2m | [22m
+[32mchunk-ZB5X2QZU.js[39m  [2m | [22m[2madmin-zones-component[22m                [2m | [22m [36m48.84 kB[39m[2m | [22m
+[32mchunk-2LMAHMIH.js[39m  [2m | [22m[2madmin-product-edit-component[22m         [2m | [22m [36m42.53 kB[39m[2m | [22m
+[32mchunk-GIFCODYR.js[39m  [2m | [22m[2mcustomer-claim-new-component[22m         [2m | [22m [36m40.43 kB[39m[2m | [22m
+[32mchunk-VKRZYW7S.js[39m  [2m | [22m[2mcustomer-policy-new-component[22m        [2m | [22m [36m39.79 kB[39m[2m | [22m
+[32mchunk-NVCB5YM6.js[39m  [2m | [22m[2madmin-observations-component[22m         [2m | [22m [36m39.41 kB[39m[2m | [22m
+[32mchunk-GFRNXD46.js[39m  [2m | [22m[2madmin-product-new-component[22m          [2m | [22m [36m38.08 kB[39m[2m | [22m
+[32mchunk-NNWW2CQ4.js[39m  [2m | [22m[2madmin-perils-component[22m               [2m | [22m [36m37.46 kB[39m[2m | [22m
+[32mchunk-7HD4IDN5.js[39m  [2m | [22m[2madmin-users-component[22m                [2m | [22m [36m37.32 kB[39m[2m | [22m
+[32mchunk-25XFCLKT.js[39m  [2m | [22m[2munderwriter-policy-detail-component[22m  [2m | [22m [36m37.22 kB[39m[2m | [22m
+[32mchunk-WMM5HGQI.js[39m  [2m | [22m[2madmin-trigger-events-component[22m       [2m | [22m [36m36.31 kB[39m[2m | [22m
+[2m...and 34 more lazy chunks files. Use "--verbose" to show all the files.[22m
+
+Application bundle generation complete. [7.404 seconds] - 2026-09-20T15:44:34.333Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [34.936 seconds] - 2026-09-20T16:53:23.616Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2322: Type 'Observable<AuthResponse | ({ error: string; } & Action<"[Auth] Restore Session Failure">) | null>' is not assignable to type 'EffectResult<Action<string>>'.
+  Type 'Observable<AuthResponse | ({ error: string; } & Action<"[Auth] Restore Session Failure">) | null>' is not assignable to type 'Observable<Action<string>>'.
+    Type 'AuthResponse | ({ error: string; } & Action<"[Auth] Restore Session Failure">) | null' is not assignable to type 'Action<string>'.
+      Type 'null' is not assignable to type 'Action<string>'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/state/auth/auth.effects.ts:101:4:
+[37m      101 │     [32mthis.actions$.pipe([37m
+          ╵     [32m~~~~~~~~~~~~~~~~~~~[0m
+
+  The expected type comes from the return type of this signature.
+
+    node_modules/@ngrx/effects/types/ngrx-effects.d.ts:49:108:
+[37m      49 │ ...>(source: [32m() => R & ConditionallyDisallowActionCreator<DT, R>[37m, ...
+         ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2554: Expected 0 arguments, but got 3.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/state/auth/auth.effects.ts:119:10:
+[37m      119 │           [32mswitchMap(() => this.authService.me()),[37m
+          ╵           [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2322: Type 'unknown' is not assignable to type 'UserResponse'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/state/auth/auth.effects.ts:121:36:
+[37m      121 │ ...     restoreSessionSuccess({ [32muser[37m, customerId: this.tokenClaim...
+          ╵                                 [32m~~~~[0m
+
+  The expected type comes from property 'user' which is declared here on type '{ user: UserResponse; customerId?: number | undefined; }'
+
+    src/app/features/state/auth/auth.actions.ts:36:10:
+[37m      36 │   props<{ [32muser[37m: UserResponse; customerId?: number }>(),
+         ╵           [32m~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [7.230 seconds] - 2026-09-20T16:53:30.859Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2322: Type 'Observable<AuthResponse | ({ error: string; } & Action<"[Auth] Restore Session Failure">) | null>' is not assignable to type 'EffectResult<Action<string>>'.
+  Type 'Observable<AuthResponse | ({ error: string; } & Action<"[Auth] Restore Session Failure">) | null>' is not assignable to type 'Observable<Action<string>>'.
+    Type 'AuthResponse | ({ error: string; } & Action<"[Auth] Restore Session Failure">) | null' is not assignable to type 'Action<string>'.
+      Type 'null' is not assignable to type 'Action<string>'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/state/auth/auth.effects.ts:101:4:
+[37m      101 │     [32mthis.actions$.pipe([37m
+          ╵     [32m~~~~~~~~~~~~~~~~~~~[0m
+
+  The expected type comes from the return type of this signature.
+
+    node_modules/@ngrx/effects/types/ngrx-effects.d.ts:49:108:
+[37m      49 │ ...>(source: [32m() => R & ConditionallyDisallowActionCreator<DT, R>[37m, ...
+         ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2554: Expected 0 arguments, but got 3.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/state/auth/auth.effects.ts:119:10:
+[37m      119 │           [32mswitchMap(() => this.authService.me()),[37m
+          ╵           [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2322: Type 'unknown' is not assignable to type 'UserResponse'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/state/auth/auth.effects.ts:121:36:
+[37m      121 │ ...     restoreSessionSuccess({ [32muser[37m, customerId: this.tokenClaim...
+          ╵                                 [32m~~~~[0m
+
+  The expected type comes from property 'user' which is declared here on type '{ user: UserResponse; customerId?: number | undefined; }'
+
+    src/app/features/state/auth/auth.actions.ts:36:10:
+[37m      36 │   props<{ [32muser[37m: UserResponse; customerId?: number }>(),
+         ╵           [32m~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [5.511 seconds] - 2026-09-20T16:54:00.909Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2322: Type 'Observable<AuthResponse | ({ error: string; } & Action<"[Auth] Restore Session Failure">) | null>' is not assignable to type 'EffectResult<Action<string>>'.
+  Type 'Observable<AuthResponse | ({ error: string; } & Action<"[Auth] Restore Session Failure">) | null>' is not assignable to type 'Observable<Action<string>>'.
+    Type 'AuthResponse | ({ error: string; } & Action<"[Auth] Restore Session Failure">) | null' is not assignable to type 'Action<string>'.
+      Type 'null' is not assignable to type 'Action<string>'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/state/auth/auth.effects.ts:102:4:
+[37m      102 │     [32mthis.actions$.pipe([37m
+          ╵     [32m~~~~~~~~~~~~~~~~~~~[0m
+
+  The expected type comes from the return type of this signature.
+
+    node_modules/@ngrx/effects/types/ngrx-effects.d.ts:49:108:
+[37m      49 │ ...>(source: [32m() => R & ConditionallyDisallowActionCreator<DT, R>[37m, ...
+         ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2554: Expected 0 arguments, but got 3.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/state/auth/auth.effects.ts:120:10:
+[37m      120 │           [32mswitchMap(() => this.authService.me()),[37m
+          ╵           [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2322: Type 'unknown' is not assignable to type 'UserResponse'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/state/auth/auth.effects.ts:122:36:
+[37m      122 │ ...     restoreSessionSuccess({ [32muser[37m, customerId: this.tokenClaim...
+          ╵                                 [32m~~~~[0m
+
+  The expected type comes from property 'user' which is declared here on type '{ user: UserResponse; customerId?: number | undefined; }'
+
+    src/app/features/state/auth/auth.actions.ts:36:10:
+[37m      36 │   props<{ [32muser[37m: UserResponse; customerId?: number }>(),
+         ╵           [32m~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m                                [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m                                 [2m | [22m[36m295.35 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m                            [2m | [22m [36m93.39 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m                               [2m | [22m [36m85.09 kB[39m[2m | [22m
+[32mchunk-P3EYW5WT.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m [36m11.55 kB[39m[2m | [22m
+[32mchunk-UVDLUXWB.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m6.83 kB[39m[2m | [22m
+[32mchunk-ALRWBPIM.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m3.79 kB[39m[2m | [22m
+[32mchunk-X2A7X232.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m3.73 kB[39m[2m | [22m
+[32mchunk-R3VAAMPB.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m3.50 kB[39m[2m | [22m
+[32mchunk-UMEAEYHO.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m3.22 kB[39m[2m | [22m
+[32mchunk-7CM7UOGJ.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m2.38 kB[39m[2m | [22m
+[32mchunk-E64T7BT5.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m2.26 kB[39m[2m | [22m
+[32mchunk-I25HIEQH.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m2.18 kB[39m[2m | [22m
+[32mchunk-DBYTYB4E.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.98 kB[39m[2m | [22m
+[32mchunk-RDZCEDNZ.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.64 kB[39m[2m | [22m
+[32mchunk-4TP2INYL.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.52 kB[39m[2m | [22m
+[32mchunk-BFOJNO2T.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.35 kB[39m[2m | [22m
+[32mchunk-MDERI4OV.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.18 kB[39m[2m | [22m
+[32mchunk-CZJLB7T5.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m  [36m1.08 kB[39m[2m | [22m
+[32mchunk-KEQ7MYQ3.js[39m  [2m | [22m[2m-[22m                                    [2m | [22m[36m643 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m                        [2m | [22m[1m522.65 kB[22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m                                [2m | [22m [1mRaw size[22m
+[32mchunk-Z7JAFF66.js[39m  [2m | [22m[2madmin-notifications-component[22m        [2m | [22m [36m73.79 kB[39m[2m | [22m
+[32mchunk-SXEMGYX4.js[39m  [2m | [22m[2madmin-trigger-definitions-component[22m  [2m | [22m [36m61.14 kB[39m[2m | [22m
+[32mchunk-77L3XKSQ.js[39m  [2m | [22m[2mcustomer-profile-component[22m           [2m | [22m [36m59.26 kB[39m[2m | [22m
+[32mchunk-TOHEIWDD.js[39m  [2m | [22m[2mclaims-officer-claim-detail-component[22m[2m | [22m [36m56.65 kB[39m[2m | [22m
+[32mchunk-DQAOJXXA.js[39m  [2m | [22m[2mcustomer-notifications-component[22m     [2m | [22m [36m52.95 kB[39m[2m | [22m
+[32mchunk-ZB5X2QZU.js[39m  [2m | [22m[2madmin-zones-component[22m                [2m | [22m [36m48.84 kB[39m[2m | [22m
+[32mchunk-2LMAHMIH.js[39m  [2m | [22m[2madmin-product-edit-component[22m         [2m | [22m [36m42.53 kB[39m[2m | [22m
+[32mchunk-GIFCODYR.js[39m  [2m | [22m[2mcustomer-claim-new-component[22m         [2m | [22m [36m40.43 kB[39m[2m | [22m
+[32mchunk-VKRZYW7S.js[39m  [2m | [22m[2mcustomer-policy-new-component[22m        [2m | [22m [36m39.79 kB[39m[2m | [22m
+[32mchunk-NVCB5YM6.js[39m  [2m | [22m[2madmin-observations-component[22m         [2m | [22m [36m39.41 kB[39m[2m | [22m
+[32mchunk-GFRNXD46.js[39m  [2m | [22m[2madmin-product-new-component[22m          [2m | [22m [36m38.08 kB[39m[2m | [22m
+[32mchunk-NNWW2CQ4.js[39m  [2m | [22m[2madmin-perils-component[22m               [2m | [22m [36m37.46 kB[39m[2m | [22m
+[32mchunk-7HD4IDN5.js[39m  [2m | [22m[2madmin-users-component[22m                [2m | [22m [36m37.32 kB[39m[2m | [22m
+[32mchunk-25XFCLKT.js[39m  [2m | [22m[2munderwriter-policy-detail-component[22m  [2m | [22m [36m37.22 kB[39m[2m | [22m
+[32mchunk-WMM5HGQI.js[39m  [2m | [22m[2madmin-trigger-events-component[22m       [2m | [22m [36m36.31 kB[39m[2m | [22m
+[2m...and 34 more lazy chunks files. Use "--verbose" to show all the files.[22m
+
+Application bundle generation complete. [5.711 seconds] - 2026-09-20T16:54:06.634Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [18.023 seconds] - 2026-09-20T17:56:50.799Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "./src/polyfills.ts"[0m
+
+    angular:polyfills:angular:polyfills:1:7:
+[37m      1 │ import [32m'./src/polyfills.ts'[37m;
+        ╵        [32m~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [2.884 seconds] - 2026-09-20T17:56:57.010Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "./src/polyfills.ts"[0m
+
+    angular:polyfills:angular:polyfills:1:7:
+[37m      1 │ import [32m'./src/polyfills.ts'[37m;
+        ╵        [32m~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [2.440 seconds] - 2026-09-20T17:57:24.400Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "./src/polyfills.ts"[0m
+
+    angular:polyfills:angular:polyfills:1:7:
+[37m      1 │ import [32m'./src/polyfills.ts'[37m;
+        ╵        [32m~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [4.491 seconds] - 2026-09-20T17:57:31.757Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "./src/polyfills.ts"[0m
+
+    angular:polyfills:angular:polyfills:1:7:
+[37m      1 │ import [32m'./src/polyfills.ts'[37m;
+        ╵        [32m~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [2.022 seconds] - 2026-09-20T17:57:49.691Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "./src/polyfills.ts"[0m
+
+    angular:polyfills:angular:polyfills:1:7:
+[37m      1 │ import [32m'./src/polyfills.ts'[37m;
+        ╵        [32m~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [2.244 seconds] - 2026-09-20T17:57:57.534Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "./src/polyfills.ts"[0m
+
+    angular:polyfills:angular:polyfills:1:7:
+[37m      1 │ import [32m'./src/polyfills.ts'[37m;
+        ╵        [32m~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.619 seconds] - 2026-09-20T17:58:50.041Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of AdminZonesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/components/admin-zones/admin-zones.component.ts:59:4:
+[37m      59 │     [32mDatePipe[37m,
+         ╵     [32m~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "./src/polyfills.ts"[0m
+
+    angular:polyfills:angular:polyfills:1:7:
+[37m      1 │ import [32m'./src/polyfills.ts'[37m;
+        ╵        [32m~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
