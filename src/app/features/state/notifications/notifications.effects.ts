@@ -6,6 +6,7 @@ import { Observable, of, timer, EMPTY } from 'rxjs';
 import {
   catchError,
   exhaustMap,
+  filter,
   map,
   mergeMap,
   switchMap,
@@ -21,6 +22,7 @@ import * as NotificationsActions from './notifications.actions';
 import * as AuthActions from '../auth/auth.actions';
 import * as AuthSelectors from '../auth/auth.selectors';
 import * as NotificationsSelectors from './notifications.selectors';
+import { NotificationPushService } from '../../services/notification-push.service';
 
 const NOTIFICATION_POLL_INTERVAL_MS = 30000;
 
@@ -31,6 +33,7 @@ export class NotificationsEffects {
     private readonly notificationService: NotificationService,
     private readonly toastService: ToastService,
     private readonly store: Store,
+    private readonly push: NotificationPushService,
   ) {}
 
   startPollingOnAuth$ = createEffect(() =>
@@ -41,6 +44,11 @@ export class NotificationsEffects {
         AuthActions.restoreSessionSuccess,
         AuthActions.refreshTokenSuccess,
       ),
+      filter((action: any) => {
+        // only start polling for customers (avoid staff triggering notifications immediately)
+        const role = action?.auth?.user?.role ?? action?.user?.role ?? null;
+        return role === 'ROLE_CUSTOMER';
+      }),
       map(() => NotificationsActions.startNotificationPolling()),
     ),
   );
@@ -83,6 +91,25 @@ export class NotificationsEffects {
         ),
       ),
     ),
+  );
+
+  // Start/stop SSE connection when polling starts/stops
+  startPush$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(NotificationsActions.startNotificationPolling),
+        tap(() => this.push.connect()),
+      ),
+    { dispatch: false },
+  );
+
+  stopPush$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(NotificationsActions.stopNotificationPolling),
+        tap(() => this.push.disconnect()),
+      ),
+    { dispatch: false },
   );
 
   loadNotifications$ = createEffect(() =>
