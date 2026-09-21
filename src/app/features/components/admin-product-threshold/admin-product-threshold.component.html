@@ -43,16 +43,7 @@
     </div>
   }
 
-  @if (syncResult$ | async; as result) {
-    <div
-      class="mt-4 rounded-md border border-brand-200 bg-brand-50 p-4 text-sm text-brand-800"
-      role="status"
-    >
-      <p class="font-medium">
-        {{ result.message || 'Trigger sync ' + (result.syncStatus || '') }}
-      </p>
-    </div>
-  }
+    <!-- Manual sync UI removed: trigger syncs automatically on backend when threshold updates -->
 
   @if (loading$ | async) {
     <div class="mt-6">
@@ -64,10 +55,7 @@
     </h1>
 
     <p class="mt-1 text-sm text-gray-500">
-      {{ product.productCode }}
-      · {{ product.category.replaceAll('_', ' ') }}
-      · sync status:
-      {{ syncLabel(product.triggerSyncStatus) }}
+      {{ product.productCode }} · {{ product.category.replaceAll('_', ' ') }}
     </p>
 
     <div class="mt-5">
@@ -80,190 +68,29 @@
       />
     </div>
 
-    <div class="mt-4">
-      <button
-        type="button"
-        class="btn-outline"
-        [disabled]="(syncing$ | async) ?? false"
-        (click)="onSync()"
-      >
-        {{ (syncing$ | async) ? 'Syncing...' : 'Sync trigger to evaluation engine' }}
-      </button>
-    </div>
+    <!-- removed manual sync button; sync is handled automatically by backend -->
 
     <div class="mt-8 grid gap-8 lg:grid-cols-2">
-      <form
-        class="card space-y-4 p-6"
-        [formGroup]="form"
-        (ngSubmit)="onSubmit()"
-      >
+      <form class="card space-y-4 p-6" [formGroup]="form" (ngSubmit)="onSubmit()">
         <div>
-          <h2 class="text-base font-semibold text-gray-900">
-            Update advertised threshold
-          </h2>
+          <h2 class="text-base font-semibold text-gray-900">Update advertised threshold</h2>
 
-          <p class="mt-1 text-xs text-gray-500">
-            The new threshold applies to upcoming policies and live
-            evaluations. Snapshot-based policies are unaffected.
-          </p>
+          <p class="mt-1 text-xs text-gray-500">The new threshold applies to upcoming policies and live evaluations. Snapshot-based policies are unaffected.</p>
         </div>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label class="label-base" for="plc">Peril code</label>
-
-            <input
-              id="plc"
-              formControlName="perilCode"
-              class="input-base"
-            />
-
-            @if (
-              form.get('perilCode')?.invalid &&
-              form.get('perilCode')?.touched
-            ) {
-              <p class="validation-error">Peril code is required.</p>
-            }
-          </div>
-
-          <div>
-            <label class="label-base" for="mt">Measurement type</label>
-
-            <select id="mt" formControlName="measurementType" class="input-base">
-              @for (type of measurementTypes; track type) {
-                <option [value]="type">{{ type.replaceAll('_', ' ') }}</option>
-              }
-            </select>
-          </div>
-
-          <div>
-            <label class="label-base" for="mu">Measurement unit</label>
-
-            <select id="mu" formControlName="measurementUnit" class="input-base">
-              @for (unit of measurementUnits; track unit) {
-                <option [value]="unit">{{ unit.replaceAll('_', ' ') }}</option>
-              }
-            </select>
-          </div>
-
-          <div>
             <label class="label-base" for="tv">Threshold value</label>
 
-            <input
-              id="tv"
-              formControlName="thresholdValue"
-              type="number"
-              step="0.01"
-              min="0.01"
-              class="input-base"
-            />
+            <input id="tv" formControlName="thresholdValue" type="number" step="0.01" min="0.01" class="input-base" />
 
-            @if (
-              form.get('thresholdValue')?.invalid &&
-              form.get('thresholdValue')?.touched
-            ) {
-              <p class="validation-error">
-                Threshold must be a positive number.
-              </p>
-            }
-          </div>
-
-          <div>
-            <label class="label-base" for="co">Comparison operator</label>
-
-            <select id="co" formControlName="comparisonOperator" class="input-base">
-              @for (operator of comparisonOperators; track operator) {
-                <option [value]="operator">{{ operator.replaceAll('_', ' ') }}</option>
-              }
-            </select>
-          </div>
-
-          <div>
-            <label class="label-base" for="at">Aggregation type</label>
-
-            <select id="at" formControlName="aggregationType" class="input-base">
-              @for (aggregation of aggregationTypes; track aggregation) {
-                <option [value]="aggregation">{{ aggregation.replaceAll('_', ' ') }}</option>
-              }
-            </select>
-          </div>
-
-          <div>
-            <label class="label-base" for="ow">Observation window (hours)</label>
-
-            <input
-              id="ow"
-              formControlName="observationWindowHours"
-              type="number"
-              min="1"
-              max="720"
-              class="input-base"
-            />
-
-            @if (
-              form.get('observationWindowHours')?.invalid &&
-              form.get('observationWindowHours')?.touched
-            ) {
-              <p class="validation-error">
-                Window must be between 1 and 720 hours.
-              </p>
-            }
-          </div>
-
-          <div>
-            <label class="label-base" for="moc">Minimum observations</label>
-
-            <input
-              id="moc"
-              formControlName="minimumObservationCount"
-              type="number"
-              min="1"
-              class="input-base"
-            />
-
-            @if (
-              form.get('minimumObservationCount')?.invalid &&
-              form.get('minimumObservationCount')?.touched
-            ) {
-              <p class="validation-error">At least 1 observation is required.</p>
+            @if (form.get('thresholdValue')?.invalid && form.get('thresholdValue')?.touched) {
+              <p class="validation-error">Threshold must be a positive number.</p>
             }
           </div>
         </div>
 
-        <div>
-          <label class="label-base" for="td">Trigger description</label>
-
-          <textarea
-            id="td"
-            formControlName="triggerDescription"
-            rows="2"
-            class="input-base"
-          ></textarea>
-        </div>
-
-        <div>
-          <label class="label-base" for="cr">Change reason</label>
-
-          <input
-            id="cr"
-            formControlName="changeReason"
-            class="input-base"
-            placeholder="Explain why this threshold is changing"
-          />
-
-          @if (
-            form.get('changeReason')?.invalid &&
-            form.get('changeReason')?.touched
-          ) {
-            <p class="validation-error">Change reason is required.</p>
-          }
-        </div>
-
-        <button
-          type="submit"
-          class="btn-brand w-full"
-          [disabled]="form.invalid || ((saving$ | async) ?? false)"
-        >
+        <button type="submit" class="btn-brand w-full" [disabled]="form.invalid || ((saving$ | async) ?? false)">
           {{ (saving$ | async) ? 'Saving...' : 'Update threshold' }}
         </button>
       </form>

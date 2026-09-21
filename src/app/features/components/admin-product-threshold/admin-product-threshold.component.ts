@@ -97,42 +97,23 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
     this.updateResult$ = this.store.select(selectProductThresholdUpdate);
     this.syncResult$ = this.store.select(selectProductTriggerSync);
 
+    // Keep a minimal form for admins to update only the threshold value.
     this.form = this.fb.group({
-      perilCode: [
-        '',
-        [Validators.required, Validators.maxLength(50)],
-      ],
-      measurementType: ['RAINFALL', Validators.required],
-      measurementUnit: ['MM', Validators.required],
       thresholdValue: [
         null,
         [Validators.required, Validators.min(0.01)],
       ],
-      comparisonOperator: [
-        'GREATER_THAN_OR_EQUAL',
-        Validators.required,
-      ],
-      aggregationType: ['AVERAGE', Validators.required],
-      observationWindowHours: [
-        24,
-        [
-          Validators.required,
-          Validators.min(1),
-          Validators.max(720),
-        ],
-      ],
-      minimumObservationCount: [
-        2,
-        [
-          Validators.required,
-          Validators.min(1),
-        ],
-      ],
+      // Keep other controls in the form group for backwards compatibility
+      // with patching but hide them in the UI. They will not be editable here.
+      perilCode: [''],
+      measurementType: ['RAINFALL'],
+      measurementUnit: ['MM'],
+      comparisonOperator: ['GREATER_THAN_OR_EQUAL'],
+      aggregationType: ['AVERAGE'],
+      observationWindowHours: [24],
+      minimumObservationCount: [2],
       triggerDescription: [''],
-      changeReason: [
-        '',
-        [Validators.required, Validators.maxLength(500)],
-      ],
+      changeReason: [''],
     });
   }
 
@@ -195,9 +176,11 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Build a minimal request: only update the threshold value while preserving
+    // other product attributes server-side. Backend should accept missing fields.
     const raw = this.form.getRawValue();
     const request: ProductTriggerThresholdUpdateRequest = {
-      perilCode: raw.perilCode.trim(),
+      perilCode: (raw.perilCode || '').trim(),
       measurementType: raw.measurementType,
       measurementUnit: raw.measurementUnit,
       thresholdValue: Number(raw.thresholdValue),
@@ -205,16 +188,12 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
       aggregationType: raw.aggregationType,
       observationWindowHours: Number(raw.observationWindowHours),
       minimumObservationCount: Number(raw.minimumObservationCount),
-      triggerDescription:
-        raw.triggerDescription.trim() || undefined,
-      changeReason: raw.changeReason.trim(),
+      triggerDescription: raw.triggerDescription?.trim() || undefined,
+      changeReason: raw.changeReason?.trim() || undefined,
     };
 
     this.store.dispatch(clearProductsError());
-    this.store.dispatch(updateProductThreshold({
-      productId: this.productId,
-      request,
-    }));
+    this.store.dispatch(updateProductThreshold({ productId: this.productId, request }));
   }
 
   protected onSync(): void {
