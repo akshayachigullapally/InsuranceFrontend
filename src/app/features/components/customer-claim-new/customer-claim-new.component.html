@@ -274,6 +274,10 @@
                   ) {
                     Claim description is required.
                   } @else if (
+                    form.controls.description.errors?.['minlength']
+                  ) {
+                    Claim description must be at least 10 characters.
+                  } @else if (
                     form.controls.description.errors?.['maxlength']
                   ) {
                     Claim description cannot exceed 1000 characters.

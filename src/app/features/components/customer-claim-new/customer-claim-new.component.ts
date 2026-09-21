@@ -91,6 +91,7 @@ export class CustomerClaimNewComponent implements OnInit, OnDestroy {
       nonNullable: true,
       validators: [
         Validators.required,
+        Validators.minLength(10),
         Validators.maxLength(1000),
         Validators.pattern(/\S+/),
       ],
