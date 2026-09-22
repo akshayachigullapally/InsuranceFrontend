@@ -104,6 +104,8 @@ export interface ProductTriggerThresholdUpdateResponse {
   triggerDescription?: string;
   triggerSyncStatus?: string;
   existingPoliciesUpdated?: boolean;
+  triggeredPolicyCount?: number;
+  createdClaimCount?: number;
   message?: string;
 }
 

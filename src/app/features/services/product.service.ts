@@ -8,6 +8,7 @@ import {
   ProductTriggerThresholdUpdateRequest,
   ProductTriggerThresholdUpdateResponse,
 } from '../dtos/triggers/trigger-condition.dto';
+import { MeasurementStatusResponse } from '../dtos/triggers/measurement-status.dto';
 import {
   MessageResponse,
   ProductCategory,
@@ -43,6 +44,12 @@ export class ProductService {
   getAdminProducts(): Observable<ProductResponse[]> {
     return this.http.get<ProductResponse[]>(
       API_ENDPOINTS.products.adminAll,
+    );
+  }
+
+  getAdminMeasurementStatus(): Observable<MeasurementStatusResponse> {
+    return this.http.get<MeasurementStatusResponse>(
+      API_ENDPOINTS.products.adminMeasurementStatus,
     );
   }
 

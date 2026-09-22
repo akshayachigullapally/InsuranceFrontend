@@ -10,7 +10,6 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import {
   Observable,
@@ -37,6 +36,7 @@ import {
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
+import { MeasurementStatusPanelComponent } from '../measurement-status-panel/measurement-status-panel.component';
 import { ParametricTriggerCardComponent } from '../parametric-trigger-card/parametric-trigger-card.component';
 
 @Component({
@@ -44,10 +44,10 @@ import { ParametricTriggerCardComponent } from '../parametric-trigger-card/param
   standalone: true,
   imports: [
     AsyncPipe,
-    RouterLink,
     LoadingSpinnerComponent,
     ErrorMessageComponent,
     EmptyStateComponent,
+    MeasurementStatusPanelComponent,
     ParametricTriggerCardComponent,
   ],
   templateUrl: './measurement-thresholds.component.html',

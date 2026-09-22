@@ -39,10 +39,10 @@ export const ROLE_MORE_MENU: Record<string, HeaderMoreGroup[]> = {
     {
       label: 'Account',
       items: [
-        { label: 'My Profile', routerLink: '/customer/profile', icon: '👤' },
-        { label: 'Notifications', routerLink: '/customer/notifications', icon: '🔔' },
+        // { label: 'My Profile', routerLink: '/customer/profile', icon: '👤' },
         { label: 'New Policy', routerLink: '/customer/policies/new', icon: '➕' },
         { label: 'New Claim', routerLink: '/customer/claims/new', icon: '📋' },
+        { label: 'Notifications', routerLink: '/customer/notifications', icon: '🔔' },
       ],
     },
   ],
