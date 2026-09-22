@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -7,7 +8,7 @@ import { ZoneService } from '../../services/zone.service';
 import { CurrentMeasurementService } from '../../services/current-measurement.service';
 import { ProductResponse } from '../../dtos/products/product-response.dto';
 import { ZoneResponse } from '../../dtos/zones/zone-response.dto';
-import { CurrentMeasurementResult } from '../../dtos/triggers/current-measurement.dto';
+import { CurrentMeasurementResult, CurrentMeasurementSnapshot } from '../../dtos/triggers/current-measurement.dto';
 import { TriggerCondition } from '../../dtos/triggers/trigger-condition.dto';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
@@ -23,6 +24,7 @@ interface MeasurementForm {
   selector: 'app-admin-current-measurements',
   standalone: true,
   imports: [
+    DatePipe,
     ReactiveFormsModule,
     RouterLink,
     EmptyStateComponent,
@@ -37,6 +39,7 @@ export class AdminCurrentMeasurementsComponent implements OnInit {
   products: ProductResponse[] = [];
   zones: ZoneResponse[] = [];
   results = new Map<number, CurrentMeasurementResult>();
+  currentSnapshots = new Map<number, CurrentMeasurementSnapshot>();
   processing = new Set<number>();
   error = '';
   loading = true;
@@ -53,10 +56,16 @@ export class AdminCurrentMeasurementsComponent implements OnInit {
     forkJoin({
       products: this.productService.getAdminProducts(),
       zones: this.zoneService.getActiveZones(),
+      snapshots: this.measurementService.getCurrentMeasurements(),
     }).subscribe({
-      next: ({ products, zones }) => {
+      next: ({ products, zones, snapshots }) => {
         this.products = products.filter(product => product.status === 'ACTIVE');
         this.zones = zones;
+        snapshots.forEach(snapshot => {
+          if (snapshot.productId != null) {
+            this.currentSnapshots.set(snapshot.productId, snapshot);
+          }
+        });
         this.products.forEach(product => this.forms.set(product.id, this.createForm(product)));
         this.loading = false;
       },
@@ -65,6 +74,10 @@ export class AdminCurrentMeasurementsComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  currentSnapshot(product: ProductResponse): CurrentMeasurementSnapshot | undefined {
+    return this.currentSnapshots.get(product.id);
   }
 
   triggerCondition(product: ProductResponse): TriggerCondition {
@@ -115,14 +128,24 @@ export class AdminCurrentMeasurementsComponent implements OnInit {
 
     this.processing.add(product.id);
     this.error = '';
+    const locationZoneId = form.controls.zoneId.value;
+    const currentValue = Number(form.controls.currentValue.value);
     this.measurementService.process({
       productId: product.id,
-      locationZoneId: form.controls.zoneId.value,
-      currentValue: Number(form.controls.currentValue.value),
-      idempotencyKey: `MEASUREMENT:${product.id}:${form.controls.zoneId.value}:${Date.now()}`,
+      locationZoneId,
+      currentValue,
+      idempotencyKey: `MEASUREMENT:${product.id}:${locationZoneId}:${Date.now()}`,
     }).subscribe({
       next: result => {
         this.results.set(product.id, result);
+        this.currentSnapshots.set(product.id, {
+          productId: product.id,
+          locationZoneId: locationZoneId!,
+          measurementType: result.measurementType ?? product.measurementType ?? '',
+          measurementUnit: result.measurementUnit ?? product.measurementUnit ?? '',
+          currentValue,
+          updatedAt: new Date().toISOString(),
+        });
         this.processing.delete(product.id);
       },
       error: error => {
@@ -133,9 +156,10 @@ export class AdminCurrentMeasurementsComponent implements OnInit {
   }
 
   private createForm(product: ProductResponse): FormGroup<MeasurementForm> {
+    const snapshot = this.currentSnapshots.get(product.id);
     return new FormGroup<MeasurementForm>({
-      zoneId: new FormControl<number | null>(null, Validators.required),
-      currentValue: new FormControl<number | null>(null, [Validators.required, Validators.min(0)]),
+      zoneId: new FormControl<number | null>(snapshot?.locationZoneId ?? null, Validators.required),
+      currentValue: new FormControl<number | null>(snapshot?.currentValue ?? null, [Validators.required, Validators.min(0)]),
     });
   }
 }

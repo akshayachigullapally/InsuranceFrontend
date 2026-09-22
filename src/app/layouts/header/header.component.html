@@ -60,6 +60,9 @@
               [class.header-nav-link--active]="isActiveRoute(link.routerLink)"
               (click)="onNavClick()"
             >
+              @if (link.icon) {
+                <span class="header-nav-link-icon" aria-hidden="true">{{ link.icon }}</span>
+              }
               {{ link.label }}
             </a>
           }

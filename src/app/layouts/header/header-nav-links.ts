@@ -28,7 +28,8 @@ export const ROLE_PRIMARY_NAV: Record<string, HeaderNavLink[]> = {
   [ROLES.ADMIN]: [
     { label: 'Dashboard', routerLink: '/admin/dashboard' },
     { label: 'Users', routerLink: '/admin/users' },
-    // { label: 'Products', routerLink: '/admin/products' },
+    { label: 'Products', routerLink: '/admin/products' },
+    { label: 'Measurements', routerLink: '/admin/current-measurements', icon: '📊' },
     { label: 'Policies', routerLink: '/admin/policies' },
     { label: 'Claims', routerLink: '/admin/claims' },
   ],
@@ -59,7 +60,6 @@ export const ROLE_MORE_MENU: Record<string, HeaderMoreGroup[]> = {
     {
       label: 'Operations',
       items: [
-        { label: 'Current Measurements', routerLink: '/admin/current-measurements', icon: '📊' },
         { label: 'Trigger Events', routerLink: '/admin/trigger-events', icon: '🚨' },
         { label: 'Notifications', routerLink: '/admin/notifications', icon: '🔔' },
         { label: 'Audit Log', routerLink: '/admin/audit', icon: '📝' },

@@ -133,6 +133,12 @@
     transform 0.15s ease;
 }
 
+.header-nav-link-icon {
+  margin-right: 6px;
+  font-size: 0.9em;
+  line-height: 1;
+}
+
 .header-nav-link:hover {
   color: #0068f5;
   background: rgba(0, 104, 245, 0.06);
