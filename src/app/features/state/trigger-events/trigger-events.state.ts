@@ -5,8 +5,6 @@ export interface TriggerEventsState {
   selectedEvent: TriggerEventResponse | null;
   search: string;
   isLoading: boolean;
-  isSaving: boolean;
-  updatingEventId: number | null;
   error: string | null;
 }
 
@@ -15,7 +13,5 @@ export const initialTriggerEventsState: TriggerEventsState = {
   selectedEvent: null,
   search: '',
   isLoading: false,
-  isSaving: false,
-  updatingEventId: null,
   error: null,
 };

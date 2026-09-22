@@ -1,8 +1,7 @@
-import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Observable, forkJoin } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { ProductService } from '../../services/product.service';
 import { ZoneService } from '../../services/zone.service';
 import { CurrentMeasurementService } from '../../services/current-measurement.service';
@@ -18,7 +17,7 @@ interface MeasurementForm {
 @Component({
   selector: 'app-admin-current-measurements',
   standalone: true,
-  imports: [AsyncPipe, DecimalPipe, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './admin-current-measurements.component.html',
   styleUrl: './admin-current-measurements.component.css',
 })

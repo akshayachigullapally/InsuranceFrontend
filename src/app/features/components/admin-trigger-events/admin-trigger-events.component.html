@@ -47,10 +47,6 @@
   @if (loading$ | async) {
     <app-loading-spinner label="Loading trigger events..." />
   } @else if (events$ | async; as events) {
-    @if (updatingEventId$ | async; as updatingEventId) {
-      <p class="sr-only">Updating event {{ updatingEventId }}</p>
-    }
-
     @if (events.length > 0) {
       <div class="card overflow-hidden">
         <div class="overflow-x-auto">
@@ -61,7 +57,6 @@
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Product / Zone</th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Measurement</th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Created</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Policies / Claims</th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
                 <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
               </tr>
@@ -97,10 +92,6 @@
 
                   <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
                     {{ evt.detectedAt | date:'medium' }}
-                  </td>
-
-                  <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-                    {{ evt.matchedPolicyCount || 0 }} / {{ evt.claimsCreatedCount || 0 }}
                   </td>
 
                   <td class="whitespace-nowrap px-6 py-4">

@@ -10,16 +10,7 @@ import {
   loadTriggerEvents,
   loadTriggerEventsFailure,
   loadTriggerEventsSuccess,
-  rejectTriggerEvent,
-  rejectTriggerEventFailure,
-  rejectTriggerEventSuccess,
   setTriggerEventsSearch,
-  startValidation,
-  startValidationFailure,
-  startValidationSuccess,
-  verifyTriggerEvent,
-  verifyTriggerEventFailure,
-  verifyTriggerEventSuccess,
 } from './trigger-events.actions';
 import { initialTriggerEventsState, TriggerEventsState } from './trigger-events.state';
 
@@ -69,44 +60,6 @@ export const triggerEventsReducer = createReducer(
     isLoading: false,
     error,
   })),
-
-  on(
-    startValidation,
-    verifyTriggerEvent,
-    rejectTriggerEvent,
-    (state, { eventId }): TriggerEventsState => ({
-      ...state,
-      isSaving: true,
-      updatingEventId: eventId,
-      error: null,
-    }),
-  ),
-
-  on(
-    startValidationSuccess,
-    verifyTriggerEventSuccess,
-    rejectTriggerEventSuccess,
-    (state, { event }): TriggerEventsState => ({
-      ...state,
-      events: upsert(state.events, event),
-      selectedEvent:
-        state.selectedEvent?.id === event.id ? event : state.selectedEvent,
-      isSaving: false,
-      updatingEventId: null,
-    }),
-  ),
-
-  on(
-    startValidationFailure,
-    verifyTriggerEventFailure,
-    rejectTriggerEventFailure,
-    (state, { error }): TriggerEventsState => ({
-      ...state,
-      isSaving: false,
-      updatingEventId: null,
-      error,
-    }),
-  ),
 
   on(setTriggerEventsSearch, (state, { search }): TriggerEventsState => ({
     ...state,

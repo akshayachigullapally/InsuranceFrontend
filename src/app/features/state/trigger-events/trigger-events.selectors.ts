@@ -23,16 +23,6 @@ export const selectTriggerEventsLoading = createSelector(
   state => state.isLoading,
 );
 
-export const selectTriggerEventsSaving = createSelector(
-  selectTriggerEventsState,
-  state => state.isSaving,
-);
-
-export const selectUpdatingTriggerEventId = createSelector(
-  selectTriggerEventsState,
-  state => state.updatingEventId,
-);
-
 export const selectTriggerEventsError = createSelector(
   selectTriggerEventsState,
   state => state.error,

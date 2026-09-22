@@ -21,7 +21,6 @@ import {
   selectFilteredTriggerEvents,
   selectTriggerEventsError,
   selectTriggerEventsLoading,
-  selectUpdatingTriggerEventId,
 } from '../../state/trigger-events/trigger-events.selectors';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
@@ -47,7 +46,6 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 export class AdminTriggerEventsComponent implements OnInit, OnDestroy {
   readonly events$: Observable<TriggerEventResponse[]>;
   readonly loading$: Observable<boolean>;
-  readonly updatingEventId$: Observable<number | null>;
   readonly error$: Observable<string | null>;
 
   readonly searchControl = new FormControl('', { nonNullable: true });
@@ -57,7 +55,6 @@ export class AdminTriggerEventsComponent implements OnInit, OnDestroy {
   constructor(private readonly store: Store) {
     this.events$ = this.store.select(selectFilteredTriggerEvents);
     this.loading$ = this.store.select(selectTriggerEventsLoading);
-    this.updatingEventId$ = this.store.select(selectUpdatingTriggerEventId);
     this.error$ = this.store.select(selectTriggerEventsError);
   }
 
@@ -85,12 +82,5 @@ export class AdminTriggerEventsComponent implements OnInit, OnDestroy {
     this.searchControl.setValue('', { emitEvent: false });
     this.store.dispatch(clearTriggerEventFilters());
     this.store.dispatch(loadTriggerEvents());
-  }
-
-  protected isUpdating(
-    eventId: number,
-    updatingEventId: number | null,
-  ): boolean {
-    return eventId === updatingEventId;
   }
 }
