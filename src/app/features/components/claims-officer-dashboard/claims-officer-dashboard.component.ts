@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { fromEvent, interval, merge, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ClaimResponse } from '../../dtos/claims/claim-response.dto';
@@ -31,6 +32,8 @@ export class ClaimsOfficerDashboardComponent implements OnInit {
   readonly totalClaimedAmount$: Observable<number>;
   readonly averageClaimAmount$: Observable<number>;
 
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(private readonly store: Store) {
     this.claims$ = this.store.select(selectSubmittedClaims);
     this.submittedCount$ = this.store.select(selectSubmittedReviewCount);
@@ -50,5 +53,12 @@ export class ClaimsOfficerDashboardComponent implements OnInit {
   ngOnInit(): void {
     this.store.dispatch(clearClaimsError());
     this.store.dispatch(loadSubmittedClaims());
+
+    merge(
+      interval(30_000),
+      fromEvent(window, 'focus'),
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.store.dispatch(loadSubmittedClaims()));
   }
 }

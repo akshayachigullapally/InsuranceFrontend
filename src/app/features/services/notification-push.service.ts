@@ -1,5 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { environment } from '../../../environments/environment';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 import * as NotificationsActions from '../state/notifications/notifications.actions';
 
@@ -16,7 +17,7 @@ export class NotificationPushService {
   connect() {
     if (this.es) return;
     const token = this.tokenStorage.getAccessToken();
-    const url = `/api/notifications/me/stream${token ? `?access_token=${encodeURIComponent(token)}` : ''}`;
+    const url = `${environment.apiUrl}/api/notifications/me/stream${token ? `?access_token=${encodeURIComponent(token)}` : ''}`;
     this.es = new EventSource(url);
 
     this.es.onmessage = (ev) => {

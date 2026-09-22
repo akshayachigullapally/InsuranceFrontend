@@ -56,7 +56,6 @@ interface ZoneForm {
   standalone: true,
   imports: [
     AsyncPipe,
-    DatePipe,
     DecimalPipe,
     ReactiveFormsModule,
     EmptyStateComponent,

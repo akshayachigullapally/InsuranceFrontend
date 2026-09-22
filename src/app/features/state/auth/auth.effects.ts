@@ -104,31 +104,23 @@ export class AuthEffects {
         if (!this.tokenStorage.hasTokens()) {
           return of(restoreSessionFailure({ error: 'No saved session.' }));
         }
-
         return this.authService.me().pipe(
-          map((user) =>
-            restoreSessionSuccess({ user, customerId: this.tokenClaims()?.customerId }),
-          ),
-          catchError((error) => {
-            const status = (error as { status?: number })?.status;
-
-            if (status !== 401 && status !== 403) {
-              const claims = this.tokenClaims();
-              if (claims) {
-                return of(
-                  restoreSessionSuccess({
-                    user: {
-                      id: Number(claims.sub),
-                      fullName: '',
-                      email: claims.email,
-                      role: claims.role,
-                    },
-                    customerId: claims.customerId,
-                  }),
-                );
-              }
+          map((user) => restoreSessionSuccess({ user, customerId: this.tokenClaims()?.customerId })),
+          catchError(() => {
+            const claims = this.tokenClaims();
+            if (claims) {
+              return of(
+                restoreSessionSuccess({
+                  user: {
+                    id: Number(claims.sub),
+                    fullName: '',
+                    email: claims.email,
+                    role: claims.role,
+                  },
+                  customerId: claims.customerId,
+                }),
+              );
             }
-
             this.tokenStorage.clear();
             return of(restoreSessionFailure({ error: 'Session could not be restored.' }));
           }),
@@ -182,7 +174,7 @@ export class AuthEffects {
     { dispatch: false },
   );
 
-  redirectOnAuthFailure$ = createEffect(
+  redirectToLoginOnFailure$ = createEffect(
     () =>
       this.actions$.pipe(
         ofType(refreshTokenFailure, loadCurrentUserFailure, restoreSessionFailure),

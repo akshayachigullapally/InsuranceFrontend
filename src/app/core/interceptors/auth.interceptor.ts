@@ -148,6 +148,10 @@ export const authInterceptor: HttpInterceptorFn = (
         return throwError(() => error);
       }
 
+      if (isMeRequest(req.url)) {
+        return throwError(() => error);
+      }
+
       const refreshToken = tokenStorage.getRefreshToken();
 
       if (!refreshToken) {
@@ -228,4 +232,8 @@ function getRequestPath(url: string): string {
   } catch {
     return url.split('?')[0];
   }
+}
+
+function isMeRequest(url: string): boolean {
+  return getRequestPath(url) === '/api/auth/me';
 }
