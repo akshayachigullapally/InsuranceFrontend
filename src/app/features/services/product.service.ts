@@ -7,7 +7,7 @@ import {
   ProductTriggerThresholdUpdateRequest,
   ProductTriggerThresholdUpdateResponse,
 } from '../dtos/triggers/trigger-condition.dto';
-import { MeasurementStatusResponse } from '../dtos/triggers/measurement-status.dto';
+import { AdminMeasurementStatusCard } from '../dtos/triggers/measurement-status.dto';
 import {
   MessageResponse,
   ProductCategory,
@@ -46,8 +46,8 @@ export class ProductService {
     );
   }
 
-  getAdminMeasurementStatus(): Observable<MeasurementStatusResponse> {
-    return this.http.get<MeasurementStatusResponse>(
+  getAdminMeasurementStatus(): Observable<AdminMeasurementStatusCard[]> {
+    return this.http.get<AdminMeasurementStatusCard[]>(
       API_ENDPOINTS.products.adminMeasurementStatus,
     );
   }

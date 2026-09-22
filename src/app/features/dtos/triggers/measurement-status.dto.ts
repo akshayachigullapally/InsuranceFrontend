@@ -1,14 +1,22 @@
-export interface MeasurementStatusEntry {
-  measurementType: string;
-  measurementUnit?: string | null;
-  latestValue?: number | null;
-  observedAt?: string | null;
-  source?: string | null;
-  zoneCode?: string | null;
-  zoneName?: string | null;
+export interface AdminProductTriggerStatus {
+  productId: number;
+  productCode: string;
+  productName: string;
+  thresholdValue?: number | null;
+  comparisonOperator?: string | null;
+  aggregationType?: string | null;
+  observationWindowHours?: number | null;
+  minimumObservationCount?: number | null;
+  triggered: boolean;
 }
 
-export interface MeasurementStatusResponse {
-  entries: MeasurementStatusEntry[];
-  generatedAt?: string;
+export interface AdminMeasurementStatusCard {
+  measurementType: string | null;
+  displayName?: string | null;
+  measurementUnit?: string | null;
+  currentValue?: number | null;
+  observedAt?: string | null;
+  zoneCode?: string | null;
+  zoneName?: string | null;
+  products: AdminProductTriggerStatus[];
 }

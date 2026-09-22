@@ -30,7 +30,7 @@ import {
   ProductTriggerThresholdUpdateRequest,
   ProductTriggerThresholdUpdateResponse,
 } from '../../../features/dtos/triggers/trigger-condition.dto';
-import { MeasurementStatusEntry } from '../../../features/dtos/triggers/measurement-status.dto';
+import { AdminMeasurementStatusCard } from '../../../features/dtos/triggers/measurement-status.dto';
 import { ProductService } from '../../../features/services/product.service';
 import {
   updateProductThreshold,
@@ -42,7 +42,6 @@ import {
   LIVE_CONDITION_STATE_LABELS,
   comparisonOperatorSymbol,
   formatThresholdValue,
-  liveConditionState,
   measurementTypeLabel,
   measurementUnitLabel,
 } from '../../../features/utils/trigger-display';
@@ -102,14 +101,12 @@ export class MeasurementStatusPanelComponent
       timer(0, POLL_INTERVAL_MS).pipe(
         switchMap(() =>
           this.productService.getAdminMeasurementStatus().pipe(
-            catchError(() => of({ entries: [] })),
+            catchError(() => of<AdminMeasurementStatusCard[]>([])),
           ),
         ),
       ),
     ]).pipe(
-      map(([products, status]) =>
-        this.buildCards(products, status.entries),
-      ),
+      map(([, statusCards]) => this.buildCards(statusCards)),
     );
   }
 
@@ -237,65 +234,35 @@ export class MeasurementStatusPanelComponent
   }
 
   private buildCards(
-    products: ProductResponse[],
-    entries: MeasurementStatusEntry[],
+    statusCards: AdminMeasurementStatusCard[],
   ): MeasurementCard[] {
-    const cards = new Map<string, MeasurementCard>();
+    const results: MeasurementCard[] = statusCards
+      .filter(card => !!card.measurementType)
+      .map(card => {
+        const latestValue = card.currentValue ?? null;
+        const rows: ProductThresholdRow[] = (card.products ?? []).map(product => ({
+          productId: product.productId,
+          productCode: product.productCode,
+          productName: product.productName,
+          threshold: product.thresholdValue ?? null,
+          operator: product.comparisonOperator ?? null,
+          unit: card.measurementUnit ?? null,
+          state: product.triggered
+            ? 'THRESHOLD_EXCEEDED'
+            : latestValue === null
+              ? 'NO_DATA'
+              : 'NORMAL',
+        }));
 
-    for (const entry of entries) {
-      if (!entry.measurementType) {
-        continue;
-      }
-      cards.set(entry.measurementType, {
-        measurementType: entry.measurementType,
-        unit: entry.measurementUnit ?? '',
-        latestValue: entry.latestValue ?? null,
-        observedAt: entry.observedAt ?? null,
-        state: 'NO_DATA',
-        rows: [],
-      });
-    }
-
-    for (const product of products) {
-      const type = product.measurementType;
-      if (!type) {
-        continue;
-      }
-      const card =
-        cards.get(type) ?? {
-          measurementType: type,
-          unit: product.measurementUnit ?? '',
-          latestValue: null,
-          observedAt: null,
-          state: 'NO_DATA',
-          rows: [],
+        return {
+          measurementType: card.measurementType!,
+          unit: card.measurementUnit ?? '',
+          latestValue,
+          observedAt: card.observedAt ?? null,
+          state: this.cardState(latestValue, rows),
+          rows,
         };
-      if (!card.unit && product.measurementUnit) {
-        card.unit = product.measurementUnit;
-      }
-      card.rows.push({
-        productId: product.id,
-        productCode: product.productCode,
-        productName: product.name,
-        threshold: product.thresholdValue ?? null,
-        operator: product.comparisonOperator ?? null,
-        unit: product.measurementUnit ?? null,
-        state: 'NO_DATA',
       });
-      cards.set(type, card);
-    }
-
-    const results = [...cards.values()];
-    for (const card of results) {
-      for (const row of card.rows) {
-        row.state = liveConditionState(
-          card.latestValue,
-          row.threshold,
-          row.operator,
-        );
-      }
-      card.state = this.cardState(card.latestValue, card.rows);
-    }
 
     return results.sort((a, b) =>
       a.measurementType.localeCompare(b.measurementType),
