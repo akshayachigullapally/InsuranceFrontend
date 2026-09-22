@@ -181,27 +181,8 @@ export const loadProductThresholdHistoryFailure = createAction(
   props<{ error: string }>(),
 );
 
-export const syncProductTrigger = createAction(
-  '[Products] Sync Product Trigger',
-  props<{ productId: number }>(),
-);
-
-export const syncProductTriggerSuccess = createAction(
-  '[Products] Sync Product Trigger Success',
-  props<{ result: ProductTriggerSyncResponse }>(),
-);
-
-export const syncProductTriggerFailure = createAction(
-  '[Products] Sync Product Trigger Failure',
-  props<{ error: string }>(),
-);
-
 export const clearProductThresholdUpdate = createAction(
   '[Products] Clear Product Threshold Update',
-);
-
-export const clearProductTriggerSync = createAction(
-  '[Products] Clear Product Trigger Sync',
 );
 
 export const setProductFilters = createAction(

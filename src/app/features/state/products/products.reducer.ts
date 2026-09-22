@@ -3,7 +3,6 @@ import { ProductResponse } from '../../dtos/products/product-response.dto';
 import {
   clearProductFilters,
   clearProductThresholdUpdate,
-  clearProductTriggerSync,
   clearProductsError,
   clearSelectedProduct,
   createProduct,
@@ -31,9 +30,6 @@ import {
   loadProductThresholdHistoryFailure,
   loadProductThresholdHistorySuccess,
   setProductFilters,
-  syncProductTrigger,
-  syncProductTriggerFailure,
-  syncProductTriggerSuccess,
   updateProduct,
   updateProductFailure,
   updateProductStatus,
@@ -320,46 +316,10 @@ export const productsReducer = createReducer(
   ),
 
   on(
-    syncProductTrigger,
-    (state): ProductsState => ({
-      ...state,
-      isSyncingTrigger: true,
-      triggerSync: null,
-      error: null,
-    }),
-  ),
-
-  on(
-    syncProductTriggerSuccess,
-    (state, { result }): ProductsState => ({
-      ...state,
-      triggerSync: result,
-      isSyncingTrigger: false,
-    }),
-  ),
-
-  on(
-    syncProductTriggerFailure,
-    (state, { error }): ProductsState => ({
-      ...state,
-      isSyncingTrigger: false,
-      error,
-    }),
-  ),
-
-  on(
     clearProductThresholdUpdate,
     (state): ProductsState => ({
       ...state,
       thresholdUpdate: null,
-    }),
-  ),
-
-  on(
-    clearProductTriggerSync,
-    (state): ProductsState => ({
-      ...state,
-      triggerSync: null,
     }),
   ),
 

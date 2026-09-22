@@ -18,9 +18,6 @@ import { ErrorMessageComponent } from '../../../shared/components/error-message/
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ParametricTriggerCardComponent } from '../../../shared/components/parametric-trigger-card/parametric-trigger-card.component';
 import { TriggerCondition } from '../../dtos/triggers/trigger-condition.dto';
-import {
-  triggerSyncStatusLabel,
-} from '../../utils/trigger-display';
 
 interface SpecRow {
   label: string;
@@ -127,8 +124,4 @@ export class PublicProductDetailComponent implements OnInit, OnDestroy {
     };
   }
 
-  protected syncMessage(product: ProductResponse): string {
-    if (!product.triggerSyncError) return '';
-    return `${triggerSyncStatusLabel(product.triggerSyncStatus)}: ${product.triggerSyncError}`;
-  }
 }

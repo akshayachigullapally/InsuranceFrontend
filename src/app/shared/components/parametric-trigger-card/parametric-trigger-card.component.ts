@@ -13,8 +13,6 @@ import {
   liveConditionProgress,
   measurementTypeLabel,
   measurementUnitLabel,
-  triggerSyncStatusColor,
-  triggerSyncStatusLabel,
 } from '../../../features/utils/trigger-display';
 
 export type ParametricTriggerCardMode =
@@ -36,8 +34,6 @@ export class ParametricTriggerCardComponent {
   readonly zoneName = input<string>('');
   readonly liveValue = input<number | null>(null);
   readonly liveState = input<LiveConditionState | null>(null);
-  readonly syncStatus = input<string | null | undefined>(null);
-  readonly syncMessage = input<string | null>(null);
 
   protected readonly configured = computed(() =>
     hasTriggerCondition(this.trigger()),
@@ -83,16 +79,6 @@ export class ParametricTriggerCardComponent {
   protected readonly stateColor = computed(
     () => LIVE_CONDITION_STATE_COLORS[this.resolvedLiveState()],
   );
-
-  protected readonly syncColor = computed(() =>
-    triggerSyncStatusColor(this.syncStatus()),
-  );
-
-  protected readonly syncLabel = computed(() =>
-    triggerSyncStatusLabel(this.syncStatus()),
-  );
-
-  protected readonly showSync = computed(() => this.mode() === 'PRODUCT');
 
   protected readonly description = computed(() =>
     this.trigger()?.triggerDescription?.trim() ?? '',

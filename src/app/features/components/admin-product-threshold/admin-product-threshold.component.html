@@ -62,8 +62,6 @@
       <app-parametric-trigger-card
         [trigger]="triggerCondition(product)"
         mode="PRODUCT"
-        [syncStatus]="product.triggerSyncStatus"
-        [syncMessage]="product.triggerSyncError || null"
         [title]="'Currently advertised trigger'"
       />
     </div>
@@ -75,7 +73,7 @@
         <div>
           <h2 class="text-base font-semibold text-gray-900">Update advertised threshold</h2>
 
-          <p class="mt-1 text-xs text-gray-500">The new threshold applies to upcoming policies and live evaluations. Snapshot-based policies are unaffected.</p>
+          <p class="mt-1 text-xs text-gray-500">The updated threshold applies to new policies. Existing policies retain the condition captured when they were created.</p>
         </div>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -101,7 +99,7 @@
         </h2>
 
         <p class="mt-1 text-xs text-gray-500">
-          Every update is recorded for audit, along with its sync status.
+          Every genuine threshold change is recorded for audit.
         </p>
 
         @if (history$ | async; as history) {
@@ -123,7 +121,6 @@
                     </p>
 
                     <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                      {{ entry.triggerSyncStatus || 'PENDING' }}
                     </span>
                   </div>
 

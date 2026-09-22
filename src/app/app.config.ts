@@ -23,14 +23,8 @@ import { zonesReducer } from './features/state/zones/zones.reducer';
 import { ZonesEffects } from './features/state/zones/zones.effects';
 import { perilsReducer } from './features/state/perils/perils.reducer';
 import { PerilsEffects } from './features/state/perils/perils.effects';
-import { observationsReducer } from './features/state/observations/observations.reducer';
-import { ObservationsEffects } from './features/state/observations/observations.effects';
-import { triggerDefinitionsReducer } from './features/state/trigger-definitions/trigger-definitions.reducer';
-import { TriggerDefinitionsEffects } from './features/state/trigger-definitions/trigger-definitions.effects';
 import { triggerEventsReducer } from './features/state/trigger-events/trigger-events.reducer';
 import { TriggerEventsEffects } from './features/state/trigger-events/trigger-events.effects';
-import { triggerEvaluationsReducer } from './features/state/trigger-evaluations/trigger-evaluations.reducer';
-import { TriggerEvaluationsEffects } from './features/state/trigger-evaluations/trigger-evaluations.effects';
 import { notificationsReducer } from './features/state/notifications/notifications.reducer';
 import { NotificationsEffects } from './features/state/notifications/notifications.effects';
 import { quotesReducer } from './features/state/quotes/quotes.reducer';
@@ -55,10 +49,7 @@ export const appConfig: ApplicationConfig = {
       claims: claimsReducer,
       zones: zonesReducer,
       perils: perilsReducer,
-      observations: observationsReducer,
-      triggerDefinitions: triggerDefinitionsReducer,
       triggerEvents: triggerEventsReducer,
-      triggerEvaluations: triggerEvaluationsReducer,
       notifications: notificationsReducer,
       quotes: quotesReducer,
       payments: paymentsReducer,
@@ -73,10 +64,7 @@ export const appConfig: ApplicationConfig = {
       ClaimsEffects,
       ZonesEffects,
       PerilsEffects,
-      ObservationsEffects,
-      TriggerDefinitionsEffects,
       TriggerEventsEffects,
-      TriggerEvaluationsEffects,
       NotificationsEffects,
       QuotesEffects,
       PaymentsEffects,

@@ -113,11 +113,4 @@ export class ProductService {
   }
 
   syncTrigger(
-    productId: number,
-  ): Observable<ProductTriggerSyncResponse> {
-    return this.http.post<ProductTriggerSyncResponse>(
-      API_ENDPOINTS.products.syncTrigger(productId),
-      {},
-    );
-  }
 }

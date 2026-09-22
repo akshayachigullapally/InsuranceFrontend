@@ -286,24 +286,10 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'trigger-definitions',
+        path: 'current-measurements',
         loadComponent: () =>
-          import('./features/components/admin-trigger-definitions/admin-trigger-definitions.component').then(
-            (m) => m.AdminTriggerDefinitionsComponent,
-          ),
-      },
-      {
-        path: 'observations',
-        loadComponent: () =>
-          import('./features/components/admin-observations/admin-observations.component').then(
-            (m) => m.AdminObservationsComponent,
-          ),
-      },
-      {
-        path: 'evaluations',
-        loadComponent: () =>
-          import('./features/components/admin-evaluations/admin-evaluations.component').then(
-            (m) => m.AdminEvaluationsComponent,
+          import('./features/components/admin-current-measurements/admin-current-measurements.component').then(
+            (m) => m.AdminCurrentMeasurementsComponent,
           ),
       },
       {

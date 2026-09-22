@@ -56,9 +56,6 @@ export interface ProductResponse {
   minimumObservationCount?: number | null;
   triggerDescription?: string | null;
   humanReadableTrigger?: string | null;
-  triggerSyncStatus?: string | null;
-  triggerSyncedAt?: string | null;
-  triggerSyncError?: string | null;
   createdBy?: number;
   coverages: CoverageResponse[];
   createdAt?: string;

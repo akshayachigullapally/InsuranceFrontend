@@ -43,10 +43,6 @@
 
                 <p class="mt-0.5 text-xs text-gray-400">
                   {{ product.category.replaceAll('_', ' ') }}
-                  ·
-                  <span [class]="syncColor(product.triggerSyncStatus)">
-                    {{ syncLabel(product.triggerSyncStatus) }}
-                  </span>
                 </p>
               </div>
 
@@ -62,7 +58,6 @@
               <app-parametric-trigger-card
                 [trigger]="triggerCondition(product)"
                 mode="PRODUCT"
-                [syncStatus]="product.triggerSyncStatus"
                 [title]="'Trigger condition'"
               />
             </div>

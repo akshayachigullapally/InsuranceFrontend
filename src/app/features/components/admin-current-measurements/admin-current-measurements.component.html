@@ -1,0 +1,68 @@
+<main class="measurement-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Operations</p>
+      <h1>Current measurements</h1>
+      <p>Enter the latest value. Each active policy is checked against its own captured threshold.</p>
+    </div>
+  </header>
+
+  @if (error) {
+    <p class="error" role="alert">{{ error }}</p>
+  }
+
+  <section class="product-grid" aria-label="Active products">
+    @for (product of products; track product.id) {
+      <article class="measurement-card">
+        <div class="card-heading">
+          <div>
+            <p class="product-code">{{ product.productCode }}</p>
+            <h2>{{ product.name }}</h2>
+          </div>
+          <span class="status">ACTIVE</span>
+        </div>
+
+        <dl class="rule-summary">
+          <div><dt>Insurance trigger</dt><dd>{{ product.measurementType }} {{ product.comparisonOperator }} {{ product.thresholdValue }} {{ product.measurementUnit }}</dd></div>
+          <div><dt>Rule</dt><dd>{{ product.triggerDescription }}</dd></div>
+        </dl>
+
+        <form [formGroup]="form(product.id)" (ngSubmit)="process(product)">
+          <label>
+            Zone
+            <select formControlName="zoneId">
+              <option [ngValue]="null">Select a zone</option>
+              @for (zone of zones; track zone.id) {
+                <option [ngValue]="zone.id">{{ zone.zoneName }} ({{ zone.zoneCode }})</option>
+              }
+            </select>
+          </label>
+          <label>
+            {{ label(product) }} ({{ product.measurementUnit }})
+            <input type="number" min="0" step="0.01" formControlName="currentValue" />
+          </label>
+          <div class="actions">
+            <button type="button" class="secondary" (click)="useMatchingValue(product)">Use matching demo value</button>
+            <a [routerLink]="['/admin/product-thresholds']">Edit product threshold</a>
+            <button type="submit" [disabled]="processing.has(product.id)">{{ processing.has(product.id) ? 'Processing...' : 'Update measurement and process' }}</button>
+          </div>
+        </form>
+
+        @if (results.get(product.id); as result) {
+          <section class="result" aria-live="polite">
+            <strong>{{ result.matched ? 'Trigger matched' : 'No policy matched' }}</strong>
+            <p>{{ result.message }}</p>
+            <dl>
+              <div><dt>Active policies checked</dt><dd>{{ result.activePolicyCount }}</dd></div>
+              <div><dt>Policies matched</dt><dd>{{ result.matchedPolicyCount }}</dd></div>
+              <div><dt>Automatic claims</dt><dd>{{ result.claimsCreatedCount }}</dd></div>
+              <div><dt>Notifications stored</dt><dd>{{ result.notificationsCreatedCount }}</dd></div>
+            </dl>
+          </section>
+        }
+      </article>
+    } @empty {
+      <p>No active products are available for measurement processing.</p>
+    }
+  </section>
+</main>

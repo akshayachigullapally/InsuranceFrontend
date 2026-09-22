@@ -18,10 +18,6 @@ import { ErrorMessageComponent } from '../../../shared/components/error-message/
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ParametricTriggerCardComponent } from '../../../shared/components/parametric-trigger-card/parametric-trigger-card.component';
 import { TriggerCondition } from '../../dtos/triggers/trigger-condition.dto';
-import {
-  triggerSyncStatusColor,
-  triggerSyncStatusLabel,
-} from '../../utils/trigger-display';
 
 @Component({
   selector: 'app-admin-product-thresholds',
@@ -68,11 +64,4 @@ export class AdminProductThresholdsComponent implements OnInit {
     };
   }
 
-  protected syncColor(status: string | null | undefined): string {
-    return triggerSyncStatusColor(status);
-  }
-
-  protected syncLabel(status: string | null | undefined): string {
-    return triggerSyncStatusLabel(status);
-  }
 }

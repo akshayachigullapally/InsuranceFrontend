@@ -35,9 +35,6 @@ import {
   loadProductThresholdHistory,
   loadProductThresholdHistoryFailure,
   loadProductThresholdHistorySuccess,
-  syncProductTrigger,
-  syncProductTriggerFailure,
-  syncProductTriggerSuccess,
   updateProduct,
   updateProductFailure,
   updateProductStatus,
@@ -265,25 +262,6 @@ export class ProductsEffects {
           ),
           catchError(error =>
             of(loadProductThresholdHistoryFailure({
-              error: httpErrorMessage(error),
-            })),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  syncProductTrigger$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(syncProductTrigger),
-      exhaustMap(({ productId }) =>
-        this.productService.syncTrigger(productId).pipe(
-          switchMap(result => [
-            syncProductTriggerSuccess({ result }),
-            loadAdminProduct({ productId }),
-          ]),
-          catchError(error =>
-            of(syncProductTriggerFailure({
               error: httpErrorMessage(error),
             })),
           ),

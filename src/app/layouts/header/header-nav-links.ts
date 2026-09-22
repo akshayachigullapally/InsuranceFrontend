@@ -54,14 +54,12 @@ export const ROLE_MORE_MENU: Record<string, HeaderMoreGroup[]> = {
       items: [
         { label: 'Perils', routerLink: '/admin/perils', icon: '⚡' },
         { label: 'Zones', routerLink: '/admin/zones', icon: '📍' },
-        { label: 'Trigger Definitions', routerLink: '/admin/trigger-definitions', icon: '🔧' },
       ],
     },
     {
       label: 'Operations',
       items: [
-        { label: 'Observations', routerLink: '/admin/observations', icon: '📡' },
-        { label: 'Evaluations', routerLink: '/admin/evaluations', icon: '✅' },
+        { label: 'Current Measurements', routerLink: '/admin/current-measurements', icon: '📊' },
         { label: 'Trigger Events', routerLink: '/admin/trigger-events', icon: '🚨' },
         { label: 'Notifications', routerLink: '/admin/notifications', icon: '🔔' },
         { label: 'Audit Log', routerLink: '/admin/audit', icon: '📝' },

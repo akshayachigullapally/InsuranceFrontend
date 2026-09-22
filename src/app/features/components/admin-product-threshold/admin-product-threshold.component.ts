@@ -112,11 +112,9 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
       aggregationType: ['AVERAGE'],
       observationWindowHours: [24],
       minimumObservationCount: [2],
-      triggerDescription: [''],
       changeReason: [''],
     });
   }
-
   ngOnInit(): void {
     this.store.dispatch(clearProductsError());
     this.store.dispatch(clearProductThresholdUpdate());
@@ -141,7 +139,6 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
       .subscribe(product => {
         if (!product || product.id !== productId) return;
         this.patchForm(product);
-      });
   }
 
   ngOnDestroy(): void {
@@ -169,18 +166,11 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
   protected syncLabel(status: string | null | undefined): string {
     return triggerSyncStatusLabel(status);
   }
-
   protected onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      return;
-    }
 
     // Build a minimal request: only update the threshold value while preserving
-    // other product attributes server-side. Backend should accept missing fields.
-    const raw = this.form.getRawValue();
-    const request: ProductTriggerThresholdUpdateRequest = {
-      perilCode: (raw.perilCode || '').trim(),
       measurementType: raw.measurementType,
       measurementUnit: raw.measurementUnit,
       thresholdValue: Number(raw.thresholdValue),
