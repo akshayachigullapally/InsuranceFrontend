@@ -8,6 +8,11 @@ import { CurrentMeasurementService } from '../../services/current-measurement.se
 import { ProductResponse } from '../../dtos/products/product-response.dto';
 import { ZoneResponse } from '../../dtos/zones/zone-response.dto';
 import { CurrentMeasurementResult } from '../../dtos/triggers/current-measurement.dto';
+import { TriggerCondition } from '../../dtos/triggers/trigger-condition.dto';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { ParametricTriggerCardComponent } from '../../../shared/components/parametric-trigger-card/parametric-trigger-card.component';
 
 interface MeasurementForm {
   zoneId: FormControl<number | null>;
@@ -17,7 +22,14 @@ interface MeasurementForm {
 @Component({
   selector: 'app-admin-current-measurements',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    EmptyStateComponent,
+    ErrorMessageComponent,
+    LoadingSpinnerComponent,
+    ParametricTriggerCardComponent,
+  ],
   templateUrl: './admin-current-measurements.component.html',
   styleUrl: './admin-current-measurements.component.css',
 })
@@ -27,6 +39,7 @@ export class AdminCurrentMeasurementsComponent implements OnInit {
   results = new Map<number, CurrentMeasurementResult>();
   processing = new Set<number>();
   error = '';
+  loading = true;
 
   readonly forms = new Map<number, FormGroup<MeasurementForm>>();
 
@@ -45,9 +58,28 @@ export class AdminCurrentMeasurementsComponent implements OnInit {
         this.products = products.filter(product => product.status === 'ACTIVE');
         this.zones = zones;
         this.products.forEach(product => this.forms.set(product.id, this.createForm(product)));
+        this.loading = false;
       },
-      error: error => this.error = error?.error?.message ?? 'Unable to load measurement data.',
+      error: error => {
+        this.error = error?.error?.message ?? 'Unable to load measurement data.';
+        this.loading = false;
+      },
     });
+  }
+
+  triggerCondition(product: ProductResponse): TriggerCondition {
+    return {
+      perilCode: product.perilCode,
+      measurementType: product.measurementType,
+      measurementUnit: product.measurementUnit,
+      thresholdValue: product.thresholdValue,
+      comparisonOperator: product.comparisonOperator,
+      aggregationType: product.aggregationType,
+      observationWindowHours: product.observationWindowHours,
+      minimumObservationCount: product.minimumObservationCount,
+      triggerDescription: product.triggerDescription,
+      humanReadableTrigger: product.humanReadableTrigger,
+    };
   }
 
   form(productId: number): FormGroup<MeasurementForm> {
