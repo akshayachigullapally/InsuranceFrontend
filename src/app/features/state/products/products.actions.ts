@@ -1,6 +1,5 @@
 import { createAction, props } from '@ngrx/store';
 import {
-  ProductTriggerSyncResponse,
   ProductTriggerThresholdHistoryResponse,
   ProductTriggerThresholdUpdateRequest,
   ProductTriggerThresholdUpdateResponse,

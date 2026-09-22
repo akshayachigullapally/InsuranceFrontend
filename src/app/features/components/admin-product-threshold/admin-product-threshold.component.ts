@@ -8,11 +8,11 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ProductResponse } from '../../dtos/products/product-response.dto';
 import {
   PRODUCT_MEASUREMENT_TYPES,
-  ProductTriggerSyncResponse,
   ProductTriggerThresholdHistoryResponse,
   ProductTriggerThresholdUpdateRequest,
   ProductTriggerThresholdUpdateResponse,
@@ -23,29 +23,24 @@ import {
 } from '../../dtos/triggers/trigger-condition.dto';
 import {
   clearProductThresholdUpdate,
-  clearProductTriggerSync,
   clearProductsError,
   clearSelectedProduct,
   loadAdminProduct,
   loadProductThresholdHistory,
-  syncProductTrigger,
   updateProductThreshold,
 } from '../../state/products/products.actions';
 import {
   selectProductThresholdHistory,
   selectProductThresholdUpdate,
-  selectProductTriggerSync,
   selectProductsError,
   selectProductsLoading,
   selectProductsSaving,
-  selectProductsSyncingTrigger,
   selectSelectedProduct,
 } from '../../state/products/products.selectors';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ParametricTriggerCardComponent } from '../../../shared/components/parametric-trigger-card/parametric-trigger-card.component';
-import { triggerSyncStatusLabel } from '../../utils/trigger-display';
 
 @Component({
   selector: 'app-admin-product-threshold',
@@ -67,11 +62,9 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
   readonly product$: Observable<ProductResponse | null>;
   readonly loading$: Observable<boolean>;
   readonly saving$: Observable<boolean>;
-  readonly syncing$: Observable<boolean>;
   readonly error$: Observable<string | null>;
   readonly history$: Observable<ProductTriggerThresholdHistoryResponse[]>;
   readonly updateResult$: Observable<ProductTriggerThresholdUpdateResponse | null>;
-  readonly syncResult$: Observable<ProductTriggerSyncResponse | null>;
 
   readonly form: FormGroup;
 
@@ -83,6 +76,8 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
   protected productId = 0;
   protected invalidProductId = false;
 
+  private readonly destroy$ = new Subject<void>();
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly store: Store,
@@ -91,11 +86,9 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
     this.product$ = this.store.select(selectSelectedProduct);
     this.loading$ = this.store.select(selectProductsLoading);
     this.saving$ = this.store.select(selectProductsSaving);
-    this.syncing$ = this.store.select(selectProductsSyncingTrigger);
     this.error$ = this.store.select(selectProductsError);
     this.history$ = this.store.select(selectProductThresholdHistory);
     this.updateResult$ = this.store.select(selectProductThresholdUpdate);
-    this.syncResult$ = this.store.select(selectProductTriggerSync);
 
     // Keep a minimal form for admins to update only the threshold value.
     this.form = this.fb.group({
@@ -112,13 +105,14 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
       aggregationType: ['AVERAGE'],
       observationWindowHours: [24],
       minimumObservationCount: [2],
+      triggerDescription: [''],
       changeReason: [''],
     });
   }
+
   ngOnInit(): void {
     this.store.dispatch(clearProductsError());
     this.store.dispatch(clearProductThresholdUpdate());
-    this.store.dispatch(clearProductTriggerSync());
     this.store.dispatch(clearSelectedProduct());
 
     const productId = Number(
@@ -136,16 +130,19 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
 
     this.store
       .select(selectSelectedProduct)
+      .pipe(takeUntil(this.destroy$))
       .subscribe(product => {
         if (!product || product.id !== productId) return;
         this.patchForm(product);
+      });
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.store.dispatch(clearSelectedProduct());
     this.store.dispatch(clearProductsError());
     this.store.dispatch(clearProductThresholdUpdate());
-    this.store.dispatch(clearProductTriggerSync());
   }
 
   protected triggerCondition(product: ProductResponse): TriggerCondition {
@@ -163,14 +160,18 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
     };
   }
 
-  protected syncLabel(status: string | null | undefined): string {
-    return triggerSyncStatusLabel(status);
-  }
   protected onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
+    }
 
-    // Build a minimal request: only update the threshold value while preserving
+    // Build the full trigger request: only the threshold value is editable in
+    // this form, all other fields are preserved from the loaded product.
+    const raw = this.form.getRawValue();
+
+    const request: ProductTriggerThresholdUpdateRequest = {
+      perilCode: raw.perilCode,
       measurementType: raw.measurementType,
       measurementUnit: raw.measurementUnit,
       thresholdValue: Number(raw.thresholdValue),
@@ -184,13 +185,6 @@ export class AdminProductThresholdComponent implements OnInit, OnDestroy {
 
     this.store.dispatch(clearProductsError());
     this.store.dispatch(updateProductThreshold({ productId: this.productId, request }));
-  }
-
-  protected onSync(): void {
-    this.store.dispatch(clearProductsError());
-    this.store.dispatch(syncProductTrigger({
-      productId: this.productId,
-    }));
   }
 
   private patchForm(product: ProductResponse): void {

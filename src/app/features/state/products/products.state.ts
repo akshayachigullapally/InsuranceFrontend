@@ -4,7 +4,6 @@ import {
   ProductStatus,
 } from '../../dtos/products/product-response.dto';
 import {
-  ProductTriggerSyncResponse,
   ProductTriggerThresholdHistoryResponse,
   ProductTriggerThresholdUpdateResponse,
 } from '../../dtos/triggers/trigger-condition.dto';
@@ -21,13 +20,11 @@ export interface ProductsState {
   selectedProduct: ProductResponse | null;
   isLoading: boolean;
   isSaving: boolean;
-  isSyncingTrigger: boolean;
   error: string | null;
   filters: ProductFilters;
   thresholdHistory: ProductTriggerThresholdHistoryResponse[];
   thresholdHistoryProductId: number | null;
   thresholdUpdate: ProductTriggerThresholdUpdateResponse | null;
-  triggerSync: ProductTriggerSyncResponse | null;
 }
 
 export const initialProductsState: ProductsState = {
@@ -36,11 +33,9 @@ export const initialProductsState: ProductsState = {
   selectedProduct: null,
   isLoading: false,
   isSaving: false,
-  isSyncingTrigger: false,
   error: null,
   filters: {},
   thresholdHistory: [],
   thresholdHistoryProductId: null,
   thresholdUpdate: null,
-  triggerSync: null,
 };

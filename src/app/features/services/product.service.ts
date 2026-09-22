@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
 import {
-  ProductTriggerSyncResponse,
   ProductTriggerThresholdHistoryResponse,
   ProductTriggerThresholdUpdateRequest,
   ProductTriggerThresholdUpdateResponse,
@@ -111,6 +110,4 @@ export class ProductService {
       API_ENDPOINTS.products.thresholdHistory(productId),
     );
   }
-
-  syncTrigger(
 }

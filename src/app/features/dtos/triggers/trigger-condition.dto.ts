@@ -135,14 +135,6 @@ export interface ProductTriggerThresholdHistoryResponse {
   triggerSyncStatus?: string | null;
 }
 
-export interface ProductTriggerSyncResponse {
-  productId?: number;
-  productCode?: string;
-  syncStatus?: string;
-  syncedAt?: string;
-  message?: string;
-}
-
 export type LiveConditionState =
   | 'NO_DATA'
   | 'NORMAL'

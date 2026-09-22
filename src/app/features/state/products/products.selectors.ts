@@ -57,16 +57,6 @@ export const selectProductThresholdUpdate = createSelector(
   state => state.thresholdUpdate,
 );
 
-export const selectProductTriggerSync = createSelector(
-  selectProductsState,
-  state => state.triggerSync,
-);
-
-export const selectProductsSyncingTrigger = createSelector(
-  selectProductsState,
-  state => state.isSyncingTrigger,
-);
-
 export const selectFilteredAdminProducts = createSelector(
   selectAdminProducts,
   selectProductFilters,
