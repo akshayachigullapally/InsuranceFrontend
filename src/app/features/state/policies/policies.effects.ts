@@ -18,6 +18,7 @@ import {
   cancelPolicy,
   cancelPolicyFailure,
   cancelPolicySuccess,
+  createCustomPolicy,
   createPolicy,
   createPolicyFailure,
   createPolicySuccess,
@@ -86,6 +87,22 @@ export class PoliciesEffects {
       ofType(createPolicy),
       exhaustMap(({ request }) =>
         this.policyService.createPolicy(request).pipe(
+          map(policy => createPolicySuccess({ policy })),
+          catchError(error =>
+            of(createPolicyFailure({
+              error: httpErrorMessage(error),
+            })),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  createCustomPolicy$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(createCustomPolicy),
+      exhaustMap(({ request }) =>
+        this.policyService.createCustomPolicy(request).pipe(
           map(policy => createPolicySuccess({ policy })),
           catchError(error =>
             of(createPolicyFailure({

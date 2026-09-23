@@ -44,6 +44,24 @@ export interface CreatePolicyRequest {
   triggerMinObservationCount?: number;
 }
 
+export interface CreateCustomPolicyRequest {
+  name?: string;
+  description?: string;
+  category: string;
+  sumInsured: number;
+  termMonths: number;
+  locationZoneId: number;
+  perilCode: string;
+  measurementType: string;
+  measurementUnit: string;
+  thresholdValue: number;
+  comparisonOperator: string;
+  aggregationType: string;
+  observationWindowHours: number;
+  minimumObservationCount: number;
+  triggerDescription?: string;
+}
+
 export interface PolicyDecisionRequest {
   reason: string;
 }

@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
 import {
+  CreateCustomPolicyRequest,
   CreatePolicyRequest,
   MessageResponse,
   PolicyDecisionRequest,
@@ -36,6 +37,15 @@ export class PolicyService {
   createPolicy(request: CreatePolicyRequest): Observable<PolicyResponse> {
     return this.http.post<PolicyResponse>(
       API_ENDPOINTS.policies.create,
+      request,
+    );
+  }
+
+  createCustomPolicy(
+    request: CreateCustomPolicyRequest,
+  ): Observable<PolicyResponse> {
+    return this.http.post<PolicyResponse>(
+      API_ENDPOINTS.policies.createCustom,
       request,
     );
   }

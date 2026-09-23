@@ -12,6 +12,7 @@ import {
   cancelPolicySuccess,
   clearPoliciesError,
   clearSelectedPolicy,
+  createCustomPolicy,
   createPolicy,
   createPolicyFailure,
   createPolicySuccess,
@@ -228,6 +229,7 @@ export const policiesReducer = createReducer(
 
   on(
     createPolicy,
+    createCustomPolicy,
     cancelPolicy,
     approvePolicy,
     rejectPolicy,

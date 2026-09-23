@@ -36,6 +36,7 @@ export const API_ENDPOINTS = {
   policies: {
     base: `${BASE}/api/policies`,
     create: `${BASE}/api/policies`,
+    createCustom: `${BASE}/api/policies/custom`,
     myPolicies: `${BASE}/api/policies/me`,
     getById: (policyId: number) => `${BASE}/api/policies/${policyId}`,
     cancel: (policyId: number) => `${BASE}/api/policies/${policyId}/cancel`,

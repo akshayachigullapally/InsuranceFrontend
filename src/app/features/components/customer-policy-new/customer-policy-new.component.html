@@ -23,6 +23,31 @@
     <app-error-message [error]="error" />
   }
 
+  <div class="flex gap-2 rounded-xl border border-gray-200 bg-white p-1.5 shadow-card">
+    <button
+      type="button"
+      class="flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition-colors"
+      [class]="mode === 'PRODUCT'
+        ? 'bg-brand-600 text-white shadow-sm'
+        : 'text-gray-600 hover:bg-gray-50'"
+      (click)="setMode('PRODUCT')"
+    >
+      Choose a product
+    </button>
+
+    <button
+      type="button"
+      class="flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition-colors"
+      [class]="mode === 'CUSTOM'
+        ? 'bg-brand-600 text-white shadow-sm'
+        : 'text-gray-600 hover:bg-gray-50'"
+      (click)="setMode('CUSTOM')"
+    >
+      Custom policy
+    </button>
+  </div>
+
+  @if (mode === 'PRODUCT') {
   @if (productsLoading$ | async) {
     <app-loading-spinner label="Loading products..." />
   } @else if (productsError$ | async; as error) {
@@ -277,5 +302,394 @@
         </div>
       </form>
     }
+  }
+  }
+
+  @if (mode === 'CUSTOM') {
+    <form
+      class="space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-card"
+      [formGroup]="customForm"
+      (ngSubmit)="onSubmitCustom()"
+    >
+      <p class="text-sm text-gray-500">
+        Define your own parametric coverage. An underwriter will review the
+        threshold and terms before it becomes active.
+      </p>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="label-base" for="customName">
+            Policy name (optional)
+          </label>
+
+          <input
+            id="customName"
+            type="text"
+            formControlName="name"
+            class="input-base"
+            placeholder="e.g. My rainfall cover"
+          />
+        </div>
+
+        <div>
+          <label class="label-base" for="customCategory">
+            Category
+          </label>
+
+          <select
+            id="customCategory"
+            formControlName="category"
+            class="input-base"
+          >
+            @for (category of categories; track category) {
+              <option [value]="category">
+                {{ category.replaceAll('_', ' ') }}
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="label-base" for="customDescription">
+          Description (optional)
+        </label>
+
+        <textarea
+          id="customDescription"
+          formControlName="description"
+          class="input-base"
+          rows="2"
+          maxlength="1000"
+          placeholder="Briefly describe what this policy covers"
+        ></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="label-base" for="customSumInsured">
+            Sum insured (₹)
+          </label>
+
+          <input
+            id="customSumInsured"
+            type="number"
+            min="1"
+            formControlName="sumInsured"
+            class="input-base"
+          />
+
+          @if (
+            customForm.controls.sumInsured.invalid &&
+            customForm.controls.sumInsured.touched
+          ) {
+            <p class="mt-1 text-xs text-danger-500">
+              Sum insured is required and must be greater than zero.
+            </p>
+          }
+        </div>
+
+        <div>
+          <label class="label-base" for="customTermMonths">
+            Term in months
+          </label>
+
+          <input
+            id="customTermMonths"
+            type="number"
+            min="1"
+            formControlName="termMonths"
+            class="input-base"
+          />
+
+          @if (
+            customForm.controls.termMonths.invalid &&
+            customForm.controls.termMonths.touched
+          ) {
+            <p class="mt-1 text-xs text-danger-500">
+              Term is required and must be at least 1 month.
+            </p>
+          }
+        </div>
+      </div>
+
+      <div>
+        <label class="label-base" for="customLocationZoneId">
+          Location zone
+        </label>
+
+        <select
+          id="customLocationZoneId"
+          formControlName="locationZoneId"
+          class="input-base"
+        >
+          <option [ngValue]="null" disabled>
+            @if (zonesLoading) {
+              Loading zones...
+            } @else if (zones.length === 0) {
+              No zones available
+            } @else {
+              Select your zone
+            }
+          </option>
+
+          @for (zone of zones; track zone.id) {
+            <option [ngValue]="zone.id">
+              {{ zone.zoneName }}
+              @if (zone.district) {
+                - {{ zone.district }}
+              }
+              @if (zone.state) {
+                , {{ zone.state }}
+              }
+            </option>
+          }
+        </select>
+
+        @if (zonesError) {
+          <div class="mt-2 flex items-center gap-3">
+            <p class="text-xs text-danger-500">
+              {{ zonesError }}
+            </p>
+            <button
+              type="button"
+              class="text-xs font-semibold text-brand-600"
+              (click)="retryZones()"
+            >
+              Retry
+            </button>
+          </div>
+        }
+
+        @if (
+          customForm.controls.locationZoneId.invalid &&
+          customForm.controls.locationZoneId.touched
+        ) {
+          <p class="mt-1 text-xs text-danger-500">
+            Location zone is required.
+          </p>
+        }
+      </div>
+
+      <div class="border-t border-gray-100 pt-5">
+        <h2 class="text-sm font-semibold text-gray-900">
+          Trigger condition
+        </h2>
+        <p class="mt-1 text-xs text-gray-500">
+          Define the environmental peril and threshold that will trigger a
+          payout under this policy.
+        </p>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label class="label-base" for="customPerilCode">
+              Peril
+            </label>
+
+            <select
+              id="customPerilCode"
+              formControlName="perilCode"
+              class="input-base"
+            >
+              @for (peril of perils; track peril.value) {
+                <option [value]="peril.value">
+                  {{ peril.label }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="label-base" for="customComparisonOperator">
+              Comparison operator
+            </label>
+
+            <select
+              id="customComparisonOperator"
+              formControlName="comparisonOperator"
+              class="input-base"
+            >
+              @for (operator of comparisonOperators; track operator) {
+                <option [value]="operator">
+                  {{ operator.replaceAll('_', ' ') }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="label-base" for="customMeasurementType">
+              Measurement type
+            </label>
+
+            <select
+              id="customMeasurementType"
+              formControlName="measurementType"
+              class="input-base"
+              [disabled]="perilLocksMeasurement(customForm.controls.perilCode.value)"
+            >
+              @for (type of measurementTypes; track type) {
+                <option [value]="type">
+                  {{ type.replaceAll('_', ' ') }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="label-base" for="customMeasurementUnit">
+              Measurement unit
+            </label>
+
+            <select
+              id="customMeasurementUnit"
+              formControlName="measurementUnit"
+              class="input-base"
+              [disabled]="perilLocksMeasurement(customForm.controls.perilCode.value)"
+            >
+              @for (unit of measurementUnits; track unit) {
+                <option [value]="unit">
+                  {{ unit.replaceAll('_', ' ') }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="label-base" for="customThresholdValue">
+              Threshold value
+            </label>
+
+            <input
+              id="customThresholdValue"
+              type="number"
+              min="0.01"
+              step="0.01"
+              formControlName="thresholdValue"
+              class="input-base"
+            />
+
+            @if (
+              customForm.controls.thresholdValue.invalid &&
+              customForm.controls.thresholdValue.touched
+            ) {
+              <p class="mt-1 text-xs text-danger-500">
+                Threshold value is required and must be greater than zero.
+              </p>
+            }
+          </div>
+
+          <div>
+            <label class="label-base" for="customAggregationType">
+              Aggregation type
+            </label>
+
+            <select
+              id="customAggregationType"
+              formControlName="aggregationType"
+              class="input-base"
+            >
+              @for (type of aggregationTypes; track type) {
+                <option [value]="type">
+                  {{ type.replaceAll('_', ' ') }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="label-base" for="customObservationWindowHours">
+              Observation window (hours)
+            </label>
+
+            <input
+              id="customObservationWindowHours"
+              type="number"
+              min="1"
+              max="720"
+              formControlName="observationWindowHours"
+              class="input-base"
+            />
+          </div>
+
+          <div>
+            <label class="label-base" for="customMinimumObservationCount">
+              Minimum observation count
+            </label>
+
+            <input
+              id="customMinimumObservationCount"
+              type="number"
+              min="1"
+              formControlName="minimumObservationCount"
+              class="input-base"
+            />
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <label class="label-base" for="customTriggerDescription">
+            Trigger description (optional)
+          </label>
+
+          <textarea
+            id="customTriggerDescription"
+            formControlName="triggerDescription"
+            class="input-base"
+            rows="2"
+            maxlength="1000"
+            placeholder="Auto-generated from your settings if left blank"
+          ></textarea>
+        </div>
+
+        <div class="mt-4">
+          <app-parametric-trigger-card
+            [trigger]="customTrigger()"
+            mode="STATIC"
+            [title]="'Preview of your trigger condition'"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between rounded-xl bg-brand-50 px-5 py-4">
+        <div>
+          <p class="text-xs font-medium text-brand-700 uppercase">
+            Estimated premium
+          </p>
+          <p class="mt-0.5 text-xs text-gray-500">
+            2% annual rate, prorated by policy term.
+          </p>
+        </div>
+
+        <p class="text-2xl font-bold text-brand-800">
+          ₹ {{ ((customPremium$ | async) ?? 0) | number:'1.2-2' }}
+        </p>
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <a
+          routerLink="/customer/policies"
+          class="btn-outline"
+        >
+          Cancel
+        </a>
+
+        <button
+          type="submit"
+          class="btn-brand"
+          [disabled]="
+            customForm.invalid ||
+            zonesLoading ||
+            zones.length === 0 ||
+            ((submitting$ | async) ?? false)
+          "
+        >
+          {{ (submitting$ | async)
+            ? 'Submitting...'
+            : 'Submit custom policy'
+          }}
+        </button>
+      </div>
+    </form>
   }
 </section>

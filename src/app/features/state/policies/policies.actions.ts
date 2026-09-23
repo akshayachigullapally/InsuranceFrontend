@@ -1,5 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import {
+  CreateCustomPolicyRequest,
   CreatePolicyRequest,
   PolicyResponse,
   PolicyStatus,
@@ -48,6 +49,11 @@ export const createPolicySuccess = createAction(
 export const createPolicyFailure = createAction(
   '[Policies] Create Policy Failure',
   props<{ error: string }>(),
+);
+
+export const createCustomPolicy = createAction(
+  '[Policies] Create Custom Policy',
+  props<{ request: CreateCustomPolicyRequest }>(),
 );
 
 export const cancelPolicy = createAction(
