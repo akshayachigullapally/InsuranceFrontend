@@ -21,7 +21,12 @@ import {
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { PolicyResponse } from '../../dtos/policies/policy-response.dto';
+import {
+  PolicyResponse,
+  PolicyTriggerSnapshotResponse,
+} from '../../dtos/policies/policy-response.dto';
+import { ProductResponse } from '../../dtos/products/product-response.dto';
+import { TriggerCondition } from '../../dtos/triggers/trigger-condition.dto';
 import {
   approvePolicy,
   clearPoliciesError,
@@ -35,11 +40,15 @@ import {
   selectPoliciesSaving,
   selectSelectedPolicy,
 } from '../../state/policies/policies.selectors';
+import { PolicyService } from '../../services/policy.service';
+import { ProductService } from '../../services/product.service';
+import { UserService } from '../../services/user.service';
 import { ZoneService } from '../../services/zone.service';
 import { parseLocalDateOnly } from '../../utils/local-date.util';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { ParametricTriggerCardComponent } from '../../../shared/components/parametric-trigger-card/parametric-trigger-card.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 
 interface DetailRow {
@@ -64,6 +73,7 @@ interface RejectionForm {
     ErrorMessageComponent,
     StatusBadgeComponent,
     ConfirmationDialogComponent,
+    ParametricTriggerCardComponent,
   ],
   providers: [DatePipe],
   templateUrl: './underwriter-policy-detail.component.html',
@@ -90,6 +100,11 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
   protected rejectOpen = false;
   protected invalidPolicyId = false;
   protected zoneName: string | null = null;
+  protected customerName: string | null = null;
+  protected product: ProductResponse | null = null;
+  protected productLoading = false;
+  protected snapshot: PolicyTriggerSnapshotResponse | null = null;
+  protected snapshotLoading = false;
 
   private policyId = 0;
   private readonly destroy$ = new Subject<void>();
@@ -99,6 +114,9 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
     private readonly store: Store,
     private readonly datePipe: DatePipe,
     private readonly zoneService: ZoneService,
+    private readonly userService: UserService,
+    private readonly productService: ProductService,
+    private readonly policyService: PolicyService,
   ) {
     this.policy$ = this.store.select(selectSelectedPolicy);
     this.loading$ = this.store.select(selectPoliciesLoading);
@@ -130,6 +148,9 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
         }
 
         this.loadZone(policy.locationZoneId);
+        this.loadCustomer(policy.customerId);
+        this.loadProduct(policy.productId);
+        this.loadSnapshot(policy);
       });
   }
 
@@ -154,11 +175,102 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  private loadCustomer(customerId: number): void {
+    this.userService
+      .getUser(customerId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: user => {
+          this.customerName = user.fullName;
+        },
+        error: () => {
+          this.customerName = null;
+        },
+      });
+  }
+
+  private loadProduct(productId: number): void {
+    this.productLoading = true;
+
+    this.productService
+      .getProduct(productId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: product => {
+          this.product = product;
+          this.productLoading = false;
+        },
+        error: () => {
+          this.product = null;
+          this.productLoading = false;
+        },
+      });
+  }
+
+  private loadSnapshot(policy: PolicyResponse): void {
+    if (!policy.triggerSnapshotId) {
+      this.snapshot = null;
+      this.snapshotLoading = false;
+      return;
+    }
+
+    this.snapshotLoading = true;
+
+    this.policyService
+      .getPolicySnapshot(policy.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: snapshot => {
+          this.snapshot = snapshot;
+          this.snapshotLoading = false;
+        },
+        error: () => {
+          this.snapshot = null;
+          this.snapshotLoading = false;
+        },
+      });
+  }
+
+  protected snapshotTrigger(): TriggerCondition | null {
+    const snapshot = this.snapshot;
+
+    if (!snapshot) {
+      return null;
+    }
+
+    return {
+      perilCode: snapshot.perilCode,
+      measurementType: snapshot.measurementType || snapshot.triggerMetric,
+      measurementUnit: snapshot.measurementUnit || snapshot.triggerMetric || undefined,
+      thresholdValue: snapshot.thresholdValue ??
+        snapshot.triggerThreshold ??
+        0,
+      comparisonOperator: snapshot.comparisonOperator ??
+        snapshot.triggerOperator ??
+        'GREATER_THAN_OR_EQUAL',
+      aggregationType: snapshot.aggregationType ??
+        snapshot.triggerAggregationType ??
+        'AVERAGE',
+      observationWindowHours: snapshot.observationWindowHours ??
+        snapshot.triggerDurationHours ??
+        24,
+      minimumObservationCount: snapshot.minimumObservationCount ??
+        snapshot.triggerMinObservationCount ??
+        2,
+      triggerDescription:
+        snapshot.triggerDescription ?? null,
+      humanReadableTrigger:
+        snapshot.humanReadableTrigger ?? null,
+    };
+  }
+
   protected details(policy: PolicyResponse): DetailRow[] {
     return [
       {
         label: 'Customer',
-        value: `Customer #${policy.customerId}`,
+        value: this.customerName
+          ? `${this.customerName} (Customer #${policy.customerId})`
+          : `Customer #${policy.customerId}`,
       },
       {
         label: 'Product',
@@ -195,13 +307,35 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
       },
       {
         label: 'Coverage start',
-        value: this.formatDateOnly(policy.startDate),
+        value: policy.startDate
+          ? this.formatDateOnly(policy.startDate)
+          : this.estimatedCoverageLabel(policy, 'start'),
       },
       {
         label: 'Coverage end',
-        value: this.formatDateOnly(policy.endDate),
+        value: policy.endDate
+          ? this.formatDateOnly(policy.endDate)
+          : this.estimatedCoverageLabel(policy, 'end'),
       },
     ];
+  }
+
+  private estimatedCoverageLabel(
+    policy: PolicyResponse,
+    edge: 'start' | 'end',
+  ): string {
+    if (policy.status !== 'PENDING') {
+      return 'Not available';
+    }
+
+    const start = new Date();
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + policy.termMonths);
+
+    const date = edge === 'start' ? start : end;
+    const formatted = this.datePipe.transform(date, 'mediumDate') ?? 'Not available';
+
+    return `${formatted} (estimated, assigned on approval)`;
   }
 
   protected openApproval(): void {
