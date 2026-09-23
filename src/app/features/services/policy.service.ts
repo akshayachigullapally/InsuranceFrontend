@@ -53,10 +53,19 @@ export class PolicyService {
     );
   }
 
-  getAllPolicies(status?: PolicyStatus): Observable<PolicyResponse[]> {
-    const params = status
-      ? new HttpParams().set('status', status)
-      : undefined;
+  getAllPolicies(
+    status?: PolicyStatus,
+    customerId?: number,
+  ): Observable<PolicyResponse[]> {
+    let params = new HttpParams();
+
+    if (status) {
+      params = params.set('status', status);
+    }
+
+    if (customerId) {
+      params = params.set('customerId', customerId);
+    }
 
     return this.http.get<PolicyResponse[]>(
       API_ENDPOINTS.policies.adminAll,

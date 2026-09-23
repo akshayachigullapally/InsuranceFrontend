@@ -13,8 +13,10 @@ import {
   RouterLink,
 } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ClaimResponse } from '../../dtos/claims/claim-response.dto';
+import { PolicyResponse } from '../../dtos/policies/policy-response.dto';
 import {
   clearClaimsError,
   clearSelectedClaim,
@@ -28,6 +30,10 @@ import {
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { PolicyService } from '../../services/policy.service';
+import { UserService } from '../../services/user.service';
+import { ZoneService } from '../../services/zone.service';
+import { parseLocalDateOnly } from '../../utils/local-date.util';
 
 interface DetailRow {
   label: string;
@@ -56,11 +62,20 @@ export class AdminClaimDetailComponent implements OnInit, OnDestroy {
   readonly error$: Observable<string | null>;
 
   protected invalidClaimId = false;
+  protected policy: PolicyResponse | null = null;
+  protected policyLoading = false;
+  protected customerName: string | null = null;
+  protected zoneName: string | null = null;
+
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly store: Store,
     private readonly datePipe: DatePipe,
+    private readonly policyService: PolicyService,
+    private readonly userService: UserService,
+    private readonly zoneService: ZoneService,
   ) {
     this.claim$ = this.store.select(selectSelectedClaim);
     this.loading$ = this.store.select(selectClaimsLoading);
@@ -81,22 +96,73 @@ export class AdminClaimDetailComponent implements OnInit, OnDestroy {
     }
 
     this.store.dispatch(loadAdminClaim({ claimId }));
+
+    this.claim$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(claim => {
+        if (!claim || claim.id !== claimId) {
+          return;
+        }
+
+        this.loadPolicy(claim.policyId);
+        this.loadCustomer(claim.customerId);
+        this.loadZone(claim.locationZoneId);
+      });
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.store.dispatch(clearSelectedClaim());
     this.store.dispatch(clearClaimsError());
+  }
+
+  protected policyDetails(policy: PolicyResponse): DetailRow[] {
+    return [
+      {
+        label: 'Policy number',
+        value: policy.policyNumber,
+      },
+      {
+        label: 'Product',
+        value: `${policy.productName} (${policy.productCode})`,
+      },
+      {
+        label: 'Status',
+        value: policy.status,
+      },
+      {
+        label: 'Sum insured',
+        value: this.formatCurrency(policy.sumInsured),
+      },
+      {
+        label: 'Premium',
+        value: this.formatCurrency(policy.premiumAmount),
+      },
+      {
+        label: 'Coverage start',
+        value: this.formatDateOnly(policy.startDate),
+      },
+      {
+        label: 'Coverage end',
+        value: this.formatDateOnly(policy.endDate),
+      },
+    ];
   }
 
   protected claimDetails(claim: ClaimResponse): DetailRow[] {
     return [
       {
-        label: 'Customer ID',
-        value: `Customer #${claim.customerId}`,
+        label: 'Customer',
+        value: this.customerName
+          ? `${this.customerName} (Customer #${claim.customerId})`
+          : `Customer #${claim.customerId}`,
       },
       {
-        label: 'Policy ID',
-        value: `Policy #${claim.policyId}`,
+        label: 'Policy',
+        value: this.policy
+          ? `${this.policy.policyNumber} (Policy #${claim.policyId})`
+          : `Policy #${claim.policyId}`,
       },
       {
         label: 'Product ID',
@@ -104,7 +170,9 @@ export class AdminClaimDetailComponent implements OnInit, OnDestroy {
       },
       {
         label: 'Location zone',
-        value: `Zone #${claim.locationZoneId}`,
+        value: this.zoneName
+          ? `${this.zoneName} (Zone #${claim.locationZoneId})`
+          : `Zone #${claim.locationZoneId}`,
       },
       {
         label: 'Incident type',
@@ -112,7 +180,7 @@ export class AdminClaimDetailComponent implements OnInit, OnDestroy {
       },
       {
         label: 'Incident date',
-        value: this.formatDate(claim.incidentDate),
+        value: this.formatDateOnly(claim.incidentDate),
       },
       {
         label: 'Incident location',
@@ -196,22 +264,70 @@ export class AdminClaimDetailComponent implements OnInit, OnDestroy {
     ];
   }
 
+  private loadPolicy(policyId: number): void {
+    this.policyLoading = true;
+
+    this.policyService
+      .getPolicy(policyId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: policy => {
+          this.policy = policy;
+          this.policyLoading = false;
+        },
+        error: () => {
+          this.policy = null;
+          this.policyLoading = false;
+        },
+      });
+  }
+
+  private loadCustomer(customerId: number): void {
+    this.userService
+      .getUser(customerId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: user => {
+          this.customerName = user.fullName;
+        },
+        error: () => {
+          this.customerName = null;
+        },
+      });
+  }
+
+  private loadZone(locationZoneId: number): void {
+    this.zoneService
+      .getZone(locationZoneId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: zone => {
+          this.zoneName = zone.zoneName;
+        },
+        error: () => {
+          this.zoneName = null;
+        },
+      });
+  }
+
+  protected formatDateOnly(value?: string | null): string {
+    const date = parseLocalDateOnly(value);
+
+    if (!date) {
+      return 'Not available';
+    }
+
+    return this.datePipe.transform(
+      date,
+      'mediumDate',
+    ) ?? 'Not available';
+  }
+
   private formatCurrency(value: number): string {
     return `₹ ${value.toLocaleString('en-IN', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
-  }
-
-  private formatDate(value?: string | null): string {
-    if (!value) {
-      return 'Not available';
-    }
-
-    return this.datePipe.transform(
-      value,
-      'mediumDate',
-    ) ?? 'Not available';
   }
 
   private formatDateTime(value?: string | null): string {

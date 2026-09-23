@@ -16,6 +16,7 @@ import {
   ActivatedRoute,
   RouterLink,
 } from '@angular/router';
+import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import {
@@ -33,6 +34,8 @@ import {
   clearSelectedProduct,
   loadAdminProduct,
   updateProduct,
+  updateProductFailure,
+  updateProductSuccess,
 } from '../../state/products/products.actions';
 import {
   selectProductsError,
@@ -40,6 +43,7 @@ import {
   selectProductsSaving,
   selectSelectedProduct,
 } from '../../state/products/products.selectors';
+import { ToastService } from '../../../shared/services/toast.service';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import {
@@ -119,6 +123,8 @@ export class AdminProductEditComponent implements OnInit, OnDestroy {
     private readonly fb: FormBuilder,
     private readonly store: Store,
     private readonly route: ActivatedRoute,
+    private readonly actions$: Actions,
+    private readonly toast: ToastService,
   ) {
     this.loading$ = this.store.select(selectProductsLoading);
     this.saving$ = this.store.select(selectProductsSaving);
@@ -154,6 +160,24 @@ export class AdminProductEditComponent implements OnInit, OnDestroy {
         this.product = product;
         this.form = this.buildForm(product);
       });
+
+    this.actions$
+      .pipe(ofType(updateProductSuccess), takeUntil(this.destroy$))
+      .subscribe(({ product }) => this.toast.show({
+        type: 'success',
+        icon: '✅',
+        title: 'Product updated',
+        message: `${product.name} was updated successfully.`,
+      }));
+
+    this.actions$
+      .pipe(ofType(updateProductFailure), takeUntil(this.destroy$))
+      .subscribe(({ error }) => this.toast.show({
+        type: 'error',
+        icon: '⚠️',
+        title: 'Could not update product',
+        message: error,
+      }));
   }
 
   ngOnDestroy(): void {

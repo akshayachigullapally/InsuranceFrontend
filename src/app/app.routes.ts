@@ -258,6 +258,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'users/:userId',
+        loadComponent: () =>
+          import('./features/components/admin-user-detail/admin-user-detail.component').then(
+            (m) => m.AdminUserDetailComponent,
+          ),
+      },
+      {
         path: 'policies',
         loadComponent: () =>
           import('./features/components/admin-policies/admin-policies.component').then(

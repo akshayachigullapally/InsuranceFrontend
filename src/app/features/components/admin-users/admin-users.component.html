@@ -146,9 +146,12 @@
               @for (user of users; track user.id) {
                 <tr class="transition-colors hover:bg-gray-50">
                   <td class="px-6 py-4">
-                    <p class="text-sm font-semibold text-gray-900">
+                    <a
+                      [routerLink]="['/admin/users', user.id]"
+                      class="text-sm font-semibold text-brand-600 hover:text-brand-700"
+                    >
                       {{ user.fullName }}
-                    </p>
+                    </a>
 
                     <p class="text-xs text-gray-400">
                       User #{{ user.id }}

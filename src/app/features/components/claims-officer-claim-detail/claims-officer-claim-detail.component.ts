@@ -8,7 +8,8 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ClaimResponse } from '../../dtos/claims/claim-response.dto';
 import {
   approveClaim,
@@ -24,6 +25,8 @@ import {
   selectClaimsSaving,
   selectSelectedClaim,
 } from '../../state/claims/claims.selectors';
+import { ZoneService } from '../../services/zone.service';
+import { parseLocalDateOnly } from '../../utils/local-date.util';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -89,13 +92,17 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
   protected rejectionOpen = false;
   protected invalidClaimId = false;
 
+  protected zoneName: string | null = null;
+
   private claimId = 0;
   private selectedClaim: ClaimResponse | null = null;
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly store: Store,
     private readonly datePipe: DatePipe,
+    private readonly zoneService: ZoneService,
   ) {
     this.claim$ = this.store.select(selectSelectedClaim);
     this.loading$ = this.store.select(selectClaimsLoading);
@@ -119,34 +126,54 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
     this.claimId = claimId;
     this.store.dispatch(loadReviewClaim({ claimId }));
 
-    this.claim$.subscribe(claim => {
-      this.selectedClaim = claim;
+    this.claim$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(claim => {
+        this.selectedClaim = claim;
 
-      if (
-        claim &&
-        this.approvalForm.controls.approvedAmount.value === null
-      ) {
-        this.approvalForm.controls.approvedAmount.setValue(
-          claim.claimedAmount,
-        );
-      }
+        if (
+          claim &&
+          this.approvalForm.controls.approvedAmount.value === null
+        ) {
+          this.approvalForm.controls.approvedAmount.setValue(
+            claim.claimedAmount,
+          );
+        }
 
-      if (claim) {
-        this.approvalForm.controls.approvedAmount.setValidators([
-          Validators.required,
-          Validators.min(0.01),
-          Validators.max(claim.claimedAmount),
-        ]);
+        if (claim) {
+          this.approvalForm.controls.approvedAmount.setValidators([
+            Validators.required,
+            Validators.min(0.01),
+            Validators.max(claim.claimedAmount),
+          ]);
 
-        this.approvalForm.controls.approvedAmount
-          .updateValueAndValidity({ emitEvent: false });
-      }
-    });
+          this.approvalForm.controls.approvedAmount
+            .updateValueAndValidity({ emitEvent: false });
+
+          this.loadZone(claim.locationZoneId);
+        }
+      });
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.store.dispatch(clearSelectedClaim());
     this.store.dispatch(clearClaimsError());
+  }
+
+  private loadZone(locationZoneId: number): void {
+    this.zoneService
+      .getZone(locationZoneId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: zone => {
+          this.zoneName = zone.zoneName;
+        },
+        error: () => {
+          this.zoneName = null;
+        },
+      });
   }
 
   protected claimDetails(claim: ClaimResponse): DetailRow[] {
@@ -165,7 +192,9 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       },
       {
         label: 'Location zone',
-        value: `Zone #${claim.locationZoneId}`,
+        value: this.zoneName
+          ? `${this.zoneName} (Zone #${claim.locationZoneId})`
+          : `Zone #${claim.locationZoneId}`,
       },
       {
         label: 'Incident type',
@@ -173,7 +202,7 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       },
       {
         label: 'Incident date',
-        value: this.formatDate(claim.incidentDate),
+        value: this.formatDateOnly(claim.incidentDate),
       },
       {
         label: 'Incident location',
@@ -371,11 +400,13 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
     })}`;
   }
 
-  private formatDate(value?: string | null): string {
-    if (!value) return 'Not available';
+  protected formatDateOnly(value?: string | null): string {
+    const date = parseLocalDateOnly(value);
+
+    if (!date) return 'Not available';
 
     return this.datePipe.transform(
-      value,
+      date,
       'mediumDate',
     ) ?? 'Not available';
   }

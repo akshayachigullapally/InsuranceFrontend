@@ -1,0 +1,238 @@
+<section class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <a
+    routerLink="/admin/users"
+    class="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
+  >
+    ← All users
+  </a>
+
+  @if (invalidUserId) {
+    <app-error-message error="Invalid user ID." />
+  }
+
+  @if (error) {
+    <app-error-message [error]="error" />
+  }
+
+  @if (loading) {
+    <app-loading-spinner label="Loading user..." />
+  } @else if (user; as user) {
+    <div class="card overflow-hidden">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 bg-gray-50/60 px-6 py-5">
+        <div>
+          <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+            Customer record
+          </p>
+          <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+            {{ user.fullName }}
+          </h1>
+          <p class="mt-1 text-sm text-gray-500">
+            User #{{ user.id }}
+          </p>
+        </div>
+
+        <span class="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+          {{ user.role.replace('ROLE_', '').replaceAll('_', ' ') }}
+        </span>
+      </div>
+
+      <dl class="grid grid-cols-1 gap-px bg-gray-100 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="bg-white px-6 py-4">
+          <dt class="text-xs font-medium text-gray-500">Email</dt>
+          <dd class="mt-1 text-sm font-semibold text-gray-900">{{ user.email }}</dd>
+        </div>
+
+        <div class="bg-white px-6 py-4">
+          <dt class="text-xs font-medium text-gray-500">Phone</dt>
+          <dd class="mt-1 text-sm font-semibold text-gray-900">
+            {{ user.phoneNumber || 'Not provided' }}
+          </dd>
+        </div>
+
+        <div class="bg-white px-6 py-4">
+          <dt class="text-xs font-medium text-gray-500">Profile status</dt>
+          <dd class="mt-1 text-sm font-semibold text-gray-900">
+            {{ user.profileStatus || 'Not completed' }}
+          </dd>
+        </div>
+
+        <div class="bg-white px-6 py-4">
+          <dt class="text-xs font-medium text-gray-500">Customer segment</dt>
+          <dd class="mt-1 text-sm font-semibold text-gray-900">
+            {{ user.customerSegment || 'Not completed' }}
+          </dd>
+        </div>
+
+        <div class="bg-white px-6 py-4">
+          <dt class="text-xs font-medium text-gray-500">Address</dt>
+          <dd class="mt-1 text-sm font-semibold text-gray-900">
+            {{ primaryAddress() }}
+          </dd>
+        </div>
+
+        <div class="bg-white px-6 py-4">
+          <dt class="text-xs font-medium text-gray-500">Joined</dt>
+          <dd class="mt-1 text-sm font-semibold text-gray-900">
+            {{ user.createdAt ? (user.createdAt | date:'mediumDate') : 'Not available' }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="card overflow-hidden">
+      <div class="border-b border-gray-100 px-6 py-5">
+        <h2 class="text-lg font-semibold text-gray-900">Policies</h2>
+        <p class="mt-1 text-sm text-gray-500">
+          All policies belonging to this customer.
+        </p>
+      </div>
+
+      @if (policies.length > 0) {
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Policy</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Product</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Location</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Coverage</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Sum insured</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Premium</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+              @for (policy of policies; track policy.id) {
+                <tr class="transition-colors hover:bg-gray-50">
+                  <td class="whitespace-nowrap px-6 py-3 text-sm font-semibold text-gray-900">
+                    {{ policy.policyNumber }}
+                  </td>
+
+                  <td class="px-6 py-3">
+                    <p class="text-sm font-medium text-gray-900">{{ policy.productName }}</p>
+                    <p class="text-xs text-gray-400">{{ policy.productCode }}</p>
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
+                    {{ zoneLabel(policy.locationZoneId) }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-xs text-gray-600">
+                    {{ formatDateOnly(policy.startDate) }} –
+                    {{ formatDateOnly(policy.endDate) }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
+                    ₹ {{ policy.sumInsured | number }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
+                    ₹ {{ policy.premiumAmount | number:'1.2-2' }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3">
+                    <app-status-badge [status]="policy.status" />
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-right text-sm">
+                    <a
+                      [routerLink]="['/admin/policies', policy.id]"
+                      class="font-semibold text-brand-600 hover:text-brand-700"
+                    >
+                      View
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="px-6 py-8">
+          <app-empty-state
+            title="No policies"
+            message="This customer has no policies yet."
+            icon="📄"
+          />
+        </div>
+      }
+    </div>
+
+    <div class="card overflow-hidden">
+      <div class="border-b border-gray-100 px-6 py-5">
+        <h2 class="text-lg font-semibold text-gray-900">Claims</h2>
+        <p class="mt-1 text-sm text-gray-500">
+          All claims submitted by this customer.
+        </p>
+      </div>
+
+      @if (claims.length > 0) {
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Claim</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Policy</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Location</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Incident</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Claimed amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+              @for (claim of claims; track claim.id) {
+                <tr class="transition-colors hover:bg-gray-50">
+                  <td class="whitespace-nowrap px-6 py-3 text-sm font-semibold text-gray-900">
+                    {{ claim.claimNumber }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
+                    {{ claim.policyNumber }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
+                    {{ zoneLabel(claim.locationZoneId) }}
+                  </td>
+
+                  <td class="px-6 py-3">
+                    <p class="text-sm font-medium text-gray-900">{{ claim.incidentType }}</p>
+                    <p class="text-xs text-gray-400">{{ formatDateOnly(claim.incidentDate) }}</p>
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
+                    ₹ {{ claim.claimedAmount | number:'1.2-2' }}
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3">
+                    <app-status-badge [status]="claim.status" />
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-3 text-right text-sm">
+                    <a
+                      [routerLink]="['/admin/claims', claim.id]"
+                      class="font-semibold text-brand-600 hover:text-brand-700"
+                    >
+                      View
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="px-6 py-8">
+          <app-empty-state
+            title="No claims"
+            message="This customer has no claims yet."
+            icon="🧾"
+          />
+        </div>
+      }
+    </div>
+  }
+</section>

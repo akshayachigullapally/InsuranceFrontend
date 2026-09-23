@@ -1,6 +1,7 @@
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import {
@@ -39,6 +40,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
     AsyncPipe,
     DatePipe,
     ReactiveFormsModule,
+    RouterLink,
     EmptyStateComponent,
     ErrorMessageComponent,
     LoadingSpinnerComponent,

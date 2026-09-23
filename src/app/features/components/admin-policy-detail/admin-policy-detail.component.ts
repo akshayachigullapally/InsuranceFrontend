@@ -24,6 +24,9 @@ import {
 } from '../../dtos/policies/policy-response.dto';
 import { TriggerCondition } from '../../dtos/triggers/trigger-condition.dto';
 import { PolicyService } from '../../services/policy.service';
+import { UserService } from '../../services/user.service';
+import { ZoneService } from '../../services/zone.service';
+import { parseLocalDateOnly } from '../../utils/local-date.util';
 import {
   clearPoliciesError,
   clearSelectedPolicy,
@@ -69,6 +72,8 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
   protected invalidPolicyId = false;
   protected snapshot: PolicyTriggerSnapshotResponse | null = null;
   protected snapshotLoading = false;
+  protected customerName: string | null = null;
+  protected zoneName: string | null = null;
 
   private readonly destroy$ = new Subject<void>();
 
@@ -77,6 +82,8 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
     private readonly store: Store,
     private readonly datePipe: DatePipe,
     private readonly policyService: PolicyService,
+    private readonly userService: UserService,
+    private readonly zoneService: ZoneService,
   ) {
     this.policy$ = this.store.select(selectSelectedPolicy);
     this.loading$ = this.store.select(selectPoliciesLoading);
@@ -106,6 +113,8 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
         }
 
         this.loadSnapshot(policy);
+        this.loadCustomer(policy.customerId);
+        this.loadZone(policy.locationZoneId);
       });
   }
 
@@ -119,8 +128,10 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
   protected details(policy: PolicyResponse): DetailRow[] {
     return [
       {
-        label: 'Customer ID',
-        value: `Customer #${policy.customerId}`,
+        label: 'Customer',
+        value: this.customerName
+          ? `${this.customerName} (Customer #${policy.customerId})`
+          : `Customer #${policy.customerId}`,
       },
       {
         label: 'Product ID',
@@ -128,7 +139,9 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
       },
       {
         label: 'Location zone',
-        value: `Zone #${policy.locationZoneId}`,
+        value: this.zoneName
+          ? `${this.zoneName} (Zone #${policy.locationZoneId})`
+          : `Zone #${policy.locationZoneId}`,
       },
       {
         label: 'Policy term',
@@ -136,11 +149,11 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
       },
       {
         label: 'Coverage start',
-        value: this.formatDate(policy.startDate),
+        value: this.formatDateOnly(policy.startDate),
       },
       {
         label: 'Coverage end',
-        value: this.formatDate(policy.endDate),
+        value: this.formatDateOnly(policy.endDate),
       },
       {
         label: 'Created',
@@ -220,6 +233,34 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  private loadCustomer(customerId: number): void {
+    this.userService
+      .getUser(customerId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: user => {
+          this.customerName = user.fullName;
+        },
+        error: () => {
+          this.customerName = null;
+        },
+      });
+  }
+
+  private loadZone(locationZoneId: number): void {
+    this.zoneService
+      .getZone(locationZoneId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: zone => {
+          this.zoneName = zone.zoneName;
+        },
+        error: () => {
+          this.zoneName = null;
+        },
+      });
+  }
+
   private formatDate(value?: string | null): string {
     if (!value) {
       return 'Not available';
@@ -228,6 +269,19 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
     return this.datePipe.transform(
       value,
       'medium',
+    ) ?? 'Not available';
+  }
+
+  protected formatDateOnly(value?: string | null): string {
+    const date = parseLocalDateOnly(value);
+
+    if (!date) {
+      return 'Not available';
+    }
+
+    return this.datePipe.transform(
+      date,
+      'mediumDate',
     ) ?? 'Not available';
   }
 }

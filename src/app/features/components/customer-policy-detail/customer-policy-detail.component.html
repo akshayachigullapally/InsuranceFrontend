@@ -122,9 +122,9 @@
           <p class="mt-0.5 text-xs text-gray-500">
             @if (policy.startDate && policy.endDate) {
               Covered from
-              {{ policy.startDate | date:'mediumDate' }}
+              {{ formatDateOnly(policy.startDate) }}
               to
-              {{ policy.endDate | date:'mediumDate' }}.
+              {{ formatDateOnly(policy.endDate) }}.
             } @else {
               Your policy is active.
             }

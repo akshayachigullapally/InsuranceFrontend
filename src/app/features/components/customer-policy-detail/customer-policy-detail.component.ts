@@ -24,6 +24,8 @@ import {
 } from '../../dtos/policies/policy-response.dto';
 import { TriggerCondition } from '../../dtos/triggers/trigger-condition.dto';
 import { PolicyService } from '../../services/policy.service';
+import { ZoneService } from '../../services/zone.service';
+import { parseLocalDateOnly } from '../../utils/local-date.util';
 import {
   cancelPolicy,
   clearPoliciesError,
@@ -74,6 +76,7 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
   protected cancelOpen = false;
   protected snapshot: PolicyTriggerSnapshotResponse | null = null;
   protected snapshotLoading = false;
+  protected zoneName: string | null = null;
 
   private policyId = 0;
   private readonly destroy$ = new Subject<void>();
@@ -83,6 +86,7 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
     private readonly store: Store,
     private readonly datePipe: DatePipe,
     private readonly policyService: PolicyService,
+    private readonly zoneService: ZoneService,
   ) {
     this.policy$ = this.store.select(selectSelectedPolicy);
     this.loading$ = this.store.select(selectPoliciesLoading);
@@ -110,6 +114,7 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
         }
 
         this.loadSnapshot(policy);
+        this.loadZone(policy.locationZoneId);
       });
   }
 
@@ -139,14 +144,16 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
         value: `${policy.termMonths} months`,
       },
       {
-        label: 'Location zone ID',
-        value: `Zone #${policy.locationZoneId}`,
+        label: 'Location zone',
+        value: this.zoneName
+          ? `${this.zoneName} (Zone #${policy.locationZoneId})`
+          : `Zone #${policy.locationZoneId}`,
       },
       {
         label: 'Coverage period',
         value:
           policy.startDate && policy.endDate
-            ? `${this.formatDate(policy.startDate)} to ${this.formatDate(policy.endDate)}`
+            ? `${this.formatDateOnly(policy.startDate)} to ${this.formatDateOnly(policy.endDate)}`
             : 'Starts on approval',
       },
       {
@@ -239,6 +246,20 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  private loadZone(locationZoneId: number): void {
+    this.zoneService
+      .getZone(locationZoneId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: zone => {
+          this.zoneName = zone.zoneName;
+        },
+        error: () => {
+          this.zoneName = null;
+        },
+      });
+  }
+
   private formatDate(value?: string | null): string {
     if (!value) {
       return 'Not available';
@@ -246,6 +267,19 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
 
     return this.datePipe.transform(
       value,
+      'mediumDate',
+    ) ?? 'Not available';
+  }
+
+  protected formatDateOnly(value?: string | null): string {
+    const date = parseLocalDateOnly(value);
+
+    if (!date) {
+      return 'Not available';
+    }
+
+    return this.datePipe.transform(
+      date,
       'mediumDate',
     ) ?? 'Not available';
   }

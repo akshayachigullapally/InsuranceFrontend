@@ -19,7 +19,8 @@ import {
   RouterLink,
 } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PolicyResponse } from '../../dtos/policies/policy-response.dto';
 import {
   approvePolicy,
@@ -34,6 +35,8 @@ import {
   selectPoliciesSaving,
   selectSelectedPolicy,
 } from '../../state/policies/policies.selectors';
+import { ZoneService } from '../../services/zone.service';
+import { parseLocalDateOnly } from '../../utils/local-date.util';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -86,13 +89,16 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
   protected approveOpen = false;
   protected rejectOpen = false;
   protected invalidPolicyId = false;
+  protected zoneName: string | null = null;
 
   private policyId = 0;
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly store: Store,
     private readonly datePipe: DatePipe,
+    private readonly zoneService: ZoneService,
   ) {
     this.policy$ = this.store.select(selectSelectedPolicy);
     this.loading$ = this.store.select(selectPoliciesLoading);
@@ -115,11 +121,37 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
 
     this.policyId = policyId;
     this.store.dispatch(loadAdminPolicy({ policyId }));
+
+    this.policy$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(policy => {
+        if (!policy || policy.id !== policyId) {
+          return;
+        }
+
+        this.loadZone(policy.locationZoneId);
+      });
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.store.dispatch(clearSelectedPolicy());
     this.store.dispatch(clearPoliciesError());
+  }
+
+  private loadZone(locationZoneId: number): void {
+    this.zoneService
+      .getZone(locationZoneId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: zone => {
+          this.zoneName = zone.zoneName;
+        },
+        error: () => {
+          this.zoneName = null;
+        },
+      });
   }
 
   protected details(policy: PolicyResponse): DetailRow[] {
@@ -134,7 +166,9 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
       },
       {
         label: 'Location zone',
-        value: `Zone #${policy.locationZoneId}`,
+        value: this.zoneName
+          ? `${this.zoneName} (Zone #${policy.locationZoneId})`
+          : `Zone #${policy.locationZoneId}`,
       },
       {
         label: 'Sum insured',
@@ -161,11 +195,11 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
       },
       {
         label: 'Coverage start',
-        value: this.formatDate(policy.startDate),
+        value: this.formatDateOnly(policy.startDate),
       },
       {
         label: 'Coverage end',
-        value: this.formatDate(policy.endDate),
+        value: this.formatDateOnly(policy.endDate),
       },
     ];
   }
@@ -238,6 +272,19 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
     return this.datePipe.transform(
       value,
       'medium',
+    ) ?? 'Not available';
+  }
+
+  protected formatDateOnly(value?: string | null): string {
+    const date = parseLocalDateOnly(value);
+
+    if (!date) {
+      return 'Not available';
+    }
+
+    return this.datePipe.transform(
+      date,
+      'mediumDate',
     ) ?? 'Not available';
   }
 }

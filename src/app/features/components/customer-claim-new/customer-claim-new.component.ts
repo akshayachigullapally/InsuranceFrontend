@@ -32,6 +32,8 @@ import {
   selectPoliciesError,
   selectPoliciesLoading,
 } from '../../state/policies/policies.selectors';
+import { ZoneService } from '../../services/zone.service';
+import { parseLocalDateOnly } from '../../utils/local-date.util';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -58,6 +60,7 @@ interface ClaimForm {
     ErrorMessageComponent,
     LoadingSpinnerComponent,
   ],
+  providers: [DatePipe],
   templateUrl: './customer-claim-new.component.html',
   styleUrl: './customer-claim-new.component.css',
 })
@@ -118,11 +121,14 @@ export class CustomerClaimNewComponent implements OnInit, OnDestroy {
 
   private policies: PolicyResponse[] = [];
   private requestedPolicyId: number | null = null;
+  private zoneNamesById: Record<number, string> = {};
   private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly store: Store,
+    private readonly datePipe: DatePipe,
+    private readonly zoneService: ZoneService,
   ) {
     this.policies$ = this.store.select(selectMyPolicies);
     this.policiesLoading$ = this.store.select(selectPoliciesLoading);
@@ -137,6 +143,16 @@ export class CustomerClaimNewComponent implements OnInit, OnDestroy {
     this.store.dispatch(loadMyPolicies({
       status: 'ACTIVE',
     }));
+
+    this.zoneService
+      .getActiveZones()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(zones => {
+        this.zoneNamesById = zones.reduce(
+          (map, zone) => ({ ...map, [zone.id]: zone.zoneName }),
+          {} as Record<number, string>,
+        );
+      });
 
     const policyId = Number(
       this.route.snapshot.queryParamMap.get('policyId'),
@@ -220,6 +236,22 @@ export class CustomerClaimNewComponent implements OnInit, OnDestroy {
 
     this.store.dispatch(clearClaimsError());
     this.store.dispatch(createClaim({ request }));
+  }
+
+  protected zoneLabel(locationZoneId: number): string {
+    const name = this.zoneNamesById[locationZoneId];
+
+    return name
+      ? `${name} (Zone #${locationZoneId})`
+      : `Zone #${locationZoneId}`;
+  }
+
+  protected formatDateOnly(value?: string | null): string {
+    const date = parseLocalDateOnly(value);
+
+    return date
+      ? this.datePipe.transform(date, 'mediumDate') ?? 'Not available'
+      : 'Not available';
   }
 
   private selectRequestedPolicy(): void {

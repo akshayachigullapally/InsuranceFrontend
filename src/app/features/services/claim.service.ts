@@ -117,10 +117,19 @@ export class ClaimService {
     );
   }
 
-  getAllClaims(status?: ClaimStatus): Observable<ClaimResponse[]> {
-    const params = status
-      ? new HttpParams().set('status', status)
-      : undefined;
+  getAllClaims(
+    status?: ClaimStatus,
+    customerId?: number,
+  ): Observable<ClaimResponse[]> {
+    let params = new HttpParams();
+
+    if (status) {
+      params = params.set('status', status);
+    }
+
+    if (customerId) {
+      params = params.set('customerId', customerId);
+    }
 
     return this.http.get<ClaimResponse[]>(
       API_ENDPOINTS.claims.adminAll,

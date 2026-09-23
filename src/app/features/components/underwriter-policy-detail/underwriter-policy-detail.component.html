@@ -132,9 +132,9 @@
           @if (policy.startDate && policy.endDate) {
             <p class="mt-1 text-xs text-gray-500">
               Coverage is valid from
-              {{ policy.startDate | date:'mediumDate' }}
+              {{ formatDateOnly(policy.startDate) }}
               to
-              {{ policy.endDate | date:'mediumDate' }}.
+              {{ formatDateOnly(policy.endDate) }}.
             </p>
           }
         </div>

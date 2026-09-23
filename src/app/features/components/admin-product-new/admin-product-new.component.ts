@@ -9,8 +9,10 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import {
   PRODUCT_CATEGORIES,
   ProductCategory,
@@ -19,11 +21,14 @@ import {
 import {
   clearProductsError,
   createProduct,
+  createProductFailure,
+  createProductSuccess,
 } from '../../state/products/products.actions';
 import {
   selectProductsError,
   selectProductsSaving,
 } from '../../state/products/products.selectors';
+import { ToastService } from '../../../shared/services/toast.service';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import {
   PRODUCT_MEASUREMENT_TYPES,
@@ -92,9 +97,13 @@ export class AdminProductNewComponent implements OnInit, OnDestroy {
   protected readonly aggregationTypes = TRIGGER_AGGREGATION_TYPES;
   protected rangeError: string | null = null;
 
+  private readonly destroy$ = new Subject<void>();
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly store: Store,
+    private readonly actions$: Actions,
+    private readonly toast: ToastService,
   ) {
     this.form = this.fb.group({
       productCode: [
@@ -211,9 +220,29 @@ export class AdminProductNewComponent implements OnInit, OnDestroy {
     this.applyTriggerValidation(
       Boolean(enabledControl?.value ?? true),
     );
+
+    this.actions$
+      .pipe(ofType(createProductSuccess), takeUntil(this.destroy$))
+      .subscribe(({ product }) => this.toast.show({
+        type: 'success',
+        icon: '✅',
+        title: 'Product created',
+        message: `${product.name} was created successfully.`,
+      }));
+
+    this.actions$
+      .pipe(ofType(createProductFailure), takeUntil(this.destroy$))
+      .subscribe(({ error }) => this.toast.show({
+        type: 'error',
+        icon: '⚠️',
+        title: 'Could not create product',
+        message: error,
+      }));
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.store.dispatch(clearProductsError());
   }
 

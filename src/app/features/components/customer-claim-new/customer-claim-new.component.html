@@ -114,9 +114,9 @@
 
               <p class="mt-1 text-sm font-semibold text-gray-900">
                 @if (policy.startDate && policy.endDate) {
-                  {{ policy.startDate | date:'mediumDate' }}
+                  {{ formatDateOnly(policy.startDate) }}
                   to
-                  {{ policy.endDate | date:'mediumDate' }}
+                  {{ formatDateOnly(policy.endDate) }}
                 } @else {
                   Active policy period
                 }
@@ -129,7 +129,7 @@
               </p>
 
               <p class="mt-1 text-sm font-semibold text-gray-900">
-                Zone #{{ policy.locationZoneId }}
+                {{ zoneLabel(policy.locationZoneId) }}
               </p>
             </div>
           </div>
