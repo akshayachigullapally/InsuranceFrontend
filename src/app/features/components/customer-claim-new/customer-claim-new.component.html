@@ -133,6 +133,17 @@
               </p>
             </div>
           </div>
+
+          @if (snapshotLoading) {
+            <app-loading-spinner label="Loading trigger condition..." />
+          } @else if (snapshotTrigger(); as trigger) {
+            <app-parametric-trigger-card
+              [trigger]="trigger"
+              mode="POLICY_SNAPSHOT"
+              [title]="'Trigger condition for this policy'"
+              [zoneName]="zoneLabel(policy.locationZoneId)"
+            />
+          }
         }
 
         <div class="grid gap-4 sm:grid-cols-2">

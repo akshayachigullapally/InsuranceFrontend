@@ -14,7 +14,11 @@ import {
   takeUntil,
 } from 'rxjs/operators';
 import { CreateClaimRequest } from '../../dtos/claims/claim-response.dto';
-import { PolicyResponse } from '../../dtos/policies/policy-response.dto';
+import {
+  PolicyResponse,
+  PolicyTriggerSnapshotResponse,
+} from '../../dtos/policies/policy-response.dto';
+import { TriggerCondition } from '../../dtos/triggers/trigger-condition.dto';
 import {
   clearClaimsError,
   createClaim,
@@ -32,11 +36,13 @@ import {
   selectPoliciesError,
   selectPoliciesLoading,
 } from '../../state/policies/policies.selectors';
+import { PolicyService } from '../../services/policy.service';
 import { ZoneService } from '../../services/zone.service';
 import { parseLocalDateOnly } from '../../utils/local-date.util';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { ParametricTriggerCardComponent } from '../../../shared/components/parametric-trigger-card/parametric-trigger-card.component';
 
 interface ClaimForm {
   policyId: FormControl<number | null>;
@@ -59,6 +65,7 @@ interface ClaimForm {
     EmptyStateComponent,
     ErrorMessageComponent,
     LoadingSpinnerComponent,
+    ParametricTriggerCardComponent,
   ],
   providers: [DatePipe],
   templateUrl: './customer-claim-new.component.html',
@@ -118,6 +125,8 @@ export class CustomerClaimNewComponent implements OnInit, OnDestroy {
   protected readonly maximumIncidentDate =
     CustomerClaimNewComponent.today();
   protected descriptionLength = 0;
+  protected snapshot: PolicyTriggerSnapshotResponse | null = null;
+  protected snapshotLoading = false;
 
   private policies: PolicyResponse[] = [];
   private requestedPolicyId: number | null = null;
@@ -129,6 +138,7 @@ export class CustomerClaimNewComponent implements OnInit, OnDestroy {
     private readonly store: Store,
     private readonly datePipe: DatePipe,
     private readonly zoneService: ZoneService,
+    private readonly policyService: PolicyService,
   ) {
     this.policies$ = this.store.select(selectMyPolicies);
     this.policiesLoading$ = this.store.select(selectPoliciesLoading);
@@ -288,6 +298,8 @@ export class CustomerClaimNewComponent implements OnInit, OnDestroy {
         Validators.min(0.01),
       ]);
       amountControl.updateValueAndValidity();
+      this.snapshot = null;
+      this.snapshotLoading = false;
       return;
     }
 
@@ -302,6 +314,67 @@ export class CustomerClaimNewComponent implements OnInit, OnDestroy {
     );
 
     amountControl.updateValueAndValidity();
+
+    this.loadSnapshot(this.selectedPolicy);
+  }
+
+  private loadSnapshot(policy: PolicyResponse): void {
+    if (!policy.triggerSnapshotId) {
+      this.snapshot = null;
+      this.snapshotLoading = false;
+      return;
+    }
+
+    this.snapshotLoading = true;
+
+    this.policyService
+      .getPolicySnapshot(policy.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: snapshot => {
+          this.snapshot = snapshot;
+          this.snapshotLoading = false;
+        },
+        error: () => {
+          this.snapshot = null;
+          this.snapshotLoading = false;
+        },
+      });
+  }
+
+  protected snapshotTrigger(): TriggerCondition | null {
+    const snapshot = this.snapshot;
+
+    if (!snapshot) {
+      return null;
+    }
+
+    const unit = snapshot.measurementUnit || snapshot.triggerMetric || null;
+
+    return {
+      perilCode: snapshot.perilCode,
+      measurementType: snapshot.measurementType || snapshot.triggerMetric,
+      measurementUnit: unit ?? undefined,
+      thresholdValue: snapshot.thresholdValue ??
+        snapshot.triggerThreshold ??
+        0,
+      comparisonOperator: snapshot.comparisonOperator ??
+        snapshot.triggerOperator ??
+        'GREATER_THAN_OR_EQUAL',
+      aggregationType: snapshot.aggregationType ??
+        snapshot.triggerAggregationType ??
+        'AVERAGE',
+      observationWindowHours: snapshot.observationWindowHours ??
+        snapshot.triggerDurationHours ??
+        24,
+      minimumObservationCount: snapshot.minimumObservationCount ??
+        snapshot.triggerMinObservationCount ??
+        2,
+      triggerDescription:
+        snapshot.triggerDescription ?? null,
+      humanReadableTrigger:
+        snapshot.humanReadableTrigger ?? null,
+    };
   }
 
   private static today(): string {
