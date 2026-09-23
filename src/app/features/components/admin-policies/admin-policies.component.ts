@@ -17,6 +17,7 @@ import {
   selectPoliciesError,
   selectPoliciesLoading,
 } from '../../state/policies/policies.selectors';
+import { ZoneService } from '../../services/zone.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -58,7 +59,12 @@ export class AdminPoliciesComponent implements OnInit {
 
   protected selectedStatus: PolicyStatus | null = null;
 
-  constructor(private readonly store: Store) {
+  private zoneNamesById: Record<number, string> = {};
+
+  constructor(
+    private readonly store: Store,
+    private readonly zoneService: ZoneService,
+  ) {
     this.policies$ = this.store.select(selectAdminPolicies);
     this.loading$ = this.store.select(selectPoliciesLoading);
     this.error$ = this.store.select(selectPoliciesError);
@@ -67,6 +73,21 @@ export class AdminPoliciesComponent implements OnInit {
   ngOnInit(): void {
     this.store.dispatch(clearPoliciesError());
     this.store.dispatch(loadAdminPolicies({}));
+
+    this.zoneService.getAllZones().subscribe(zones => {
+      this.zoneNamesById = zones.reduce(
+        (map, zone) => ({ ...map, [zone.id]: zone.zoneName }),
+        {} as Record<number, string>,
+      );
+    });
+  }
+
+  protected zoneLabel(locationZoneId: number): string {
+    const name = this.zoneNamesById[locationZoneId];
+
+    return name
+      ? `${name} (Zone #${locationZoneId})`
+      : `Zone #${locationZoneId}`;
   }
 
   protected applyFilter(status: PolicyStatus | null): void {

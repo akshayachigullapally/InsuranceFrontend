@@ -20,6 +20,7 @@ import {
   selectMyClaims,
   selectMySubmittedClaimCount,
 } from '../../state/claims/claims.selectors';
+import { ZoneService } from '../../services/zone.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -66,7 +67,12 @@ export class CustomerClaimsComponent implements OnInit {
 
   protected selectedStatus: ClaimStatus | null = null;
 
-  constructor(private readonly store: Store) {
+  private zoneNamesById: Record<number, string> = {};
+
+  constructor(
+    private readonly store: Store,
+    private readonly zoneService: ZoneService,
+  ) {
     this.claims$ = this.store.select(selectMyClaims);
     this.loading$ = this.store.select(selectClaimsLoading);
     this.error$ = this.store.select(selectClaimsError);
@@ -78,6 +84,21 @@ export class CustomerClaimsComponent implements OnInit {
   ngOnInit(): void {
     this.store.dispatch(clearClaimsError());
     this.store.dispatch(loadMyClaims({}));
+
+    this.zoneService.getActiveZones().subscribe(zones => {
+      this.zoneNamesById = zones.reduce(
+        (map, zone) => ({ ...map, [zone.id]: zone.zoneName }),
+        {} as Record<number, string>,
+      );
+    });
+  }
+
+  protected zoneLabel(locationZoneId: number): string {
+    const name = this.zoneNamesById[locationZoneId];
+
+    return name
+      ? `${name} (Zone #${locationZoneId})`
+      : `Zone #${locationZoneId}`;
   }
 
   protected applyFilter(status: ClaimStatus | null): void {

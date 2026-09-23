@@ -69,6 +69,10 @@
                 </th>
 
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Location
+                </th>
+
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Trigger
                 </th>
 
@@ -119,8 +123,12 @@
                     </p>
 
                     <p class="text-xs text-gray-400">
-                      {{ claim.incidentDate | date:'mediumDate' }}
+                      {{ formatDateOnly(claim.incidentDate) }}
                     </p>
+                  </td>
+
+                  <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                    {{ zoneLabel(claim.locationZoneId) }}
                   </td>
 
                   <td class="px-6 py-4">

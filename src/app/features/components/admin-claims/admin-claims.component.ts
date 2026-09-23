@@ -1,5 +1,6 @@
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { parseLocalDateOnly } from '../../utils/local-date.util';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -17,6 +18,7 @@ import {
   selectClaimsError,
   selectClaimsLoading,
 } from '../../state/claims/claims.selectors';
+import { ZoneService } from '../../services/zone.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -40,6 +42,7 @@ interface StatusFilter {
     LoadingSpinnerComponent,
     StatusBadgeComponent,
   ],
+  providers: [DatePipe],
   templateUrl: './admin-claims.component.html',
   styleUrl: './admin-claims.component.css',
 })
@@ -58,7 +61,13 @@ export class AdminClaimsComponent implements OnInit {
 
   protected selectedStatus: ClaimStatus | null = null;
 
-  constructor(private readonly store: Store) {
+  private zoneNamesById: Record<number, string> = {};
+
+  constructor(
+    private readonly store: Store,
+    private readonly zoneService: ZoneService,
+    private readonly datePipe: DatePipe,
+  ) {
     this.claims$ = this.store.select(selectAdminClaims);
     this.loading$ = this.store.select(selectClaimsLoading);
     this.error$ = this.store.select(selectClaimsError);
@@ -67,6 +76,29 @@ export class AdminClaimsComponent implements OnInit {
   ngOnInit(): void {
     this.store.dispatch(clearClaimsError());
     this.store.dispatch(loadAdminClaims({}));
+
+    this.zoneService.getAllZones().subscribe(zones => {
+      this.zoneNamesById = zones.reduce(
+        (map, zone) => ({ ...map, [zone.id]: zone.zoneName }),
+        {} as Record<number, string>,
+      );
+    });
+  }
+
+  protected zoneLabel(locationZoneId: number): string {
+    const name = this.zoneNamesById[locationZoneId];
+
+    return name
+      ? `${name} (Zone #${locationZoneId})`
+      : `Zone #${locationZoneId}`;
+  }
+
+  protected formatDateOnly(value?: string | null): string {
+    const date = parseLocalDateOnly(value);
+
+    return date
+      ? this.datePipe.transform(date, 'mediumDate') ?? 'Not available'
+      : 'Not available';
   }
 
   protected applyFilter(status: ClaimStatus | null): void {
