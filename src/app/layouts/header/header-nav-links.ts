@@ -26,9 +26,9 @@ export const ROLE_PRIMARY_NAV: Record<string, HeaderNavLink[]> = {
     { label: 'Claims', routerLink: '/claims-officer/claims' },
   ],
   [ROLES.ADMIN]: [
-    { label: 'Dashboard', routerLink: '/admin/dashboard' },
-    { label: 'Users', routerLink: '/admin/users' },
+    // { label: 'Dashboard', routerLink: '/admin/dashboard' },
     { label: 'Products', routerLink: '/admin/products' },
+    { label: 'Users', routerLink: '/admin/users' },
     { label: 'Measurements', routerLink: '/admin/current-measurements'},
     { label: 'Policies', routerLink: '/admin/policies' },
     { label: 'Claims', routerLink: '/admin/claims' },
