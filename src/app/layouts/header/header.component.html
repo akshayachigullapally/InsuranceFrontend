@@ -295,51 +295,77 @@
                 <div class="header-notifications-list">
                   @if ((latestNotifications$ | async)?.length) {
                     @for (notification of latestNotifications$ | async; track notification.id) {
-                      @if (notificationLink(notification, user) ; as path) {
-                        <a
-                          [routerLink]="path"
-                          role="menuitem"
-                          class="header-notifications-item"
-                          [class.header-notifications-item--unread]="!notification.read"
-                          (click)="onNotificationClick(notification)"
-                        >
-                          <span class="header-notifications-item-icon" aria-hidden="true">
-                            {{ notificationsIcon(notification.type) }}
-                          </span>
-                          <span class="header-notifications-item-body">
-                            <span class="header-notifications-item-title">
-                              @if (!notification.read) {
-                                <span class="header-notifications-item-dot" aria-hidden="true"></span>
-                              }
-                              {{ notification.title }}
+                      <div
+                        class="header-notifications-row"
+                        [class.header-notifications-row--unread]="!notification.read"
+                      >
+                        @if (notificationLink(notification, user) ; as path) {
+                          <a
+                            [routerLink]="path"
+                            role="menuitem"
+                            class="header-notifications-item"
+                            (click)="onNotificationClick(notification)"
+                          >
+                            <span class="header-notifications-item-icon" aria-hidden="true">
+                              {{ notificationsIcon(notification.type) }}
                             </span>
-                            <span class="header-notifications-item-message">{{ notification.message }}</span>
-                            <span class="header-notifications-item-time">{{ timeAgo(notification.createdAt) }}</span>
-                          </span>
-                        </a>
-                      } @else {
+                            <span class="header-notifications-item-body">
+                              <span class="header-notifications-item-title">
+                                @if (!notification.read) {
+                                  <span class="header-notifications-item-dot" aria-hidden="true"></span>
+                                }
+                                {{ notification.title }}
+                              </span>
+                              <span class="header-notifications-item-message">{{ notification.message }}</span>
+                              <span class="header-notifications-item-time">{{ timeAgo(notification.createdAt) }}</span>
+                            </span>
+                          </a>
+                        } @else {
+                          <button
+                            type="button"
+                            role="menuitem"
+                            class="header-notifications-item"
+                            (click)="onNotificationClick(notification)"
+                          >
+                            <span class="header-notifications-item-icon" aria-hidden="true">
+                              {{ notificationsIcon(notification.type) }}
+                            </span>
+                            <span class="header-notifications-item-body">
+                              <span class="header-notifications-item-title">
+                                @if (!notification.read) {
+                                  <span class="header-notifications-item-dot" aria-hidden="true"></span>
+                                }
+                                {{ notification.title }}
+                              </span>
+                              <span class="header-notifications-item-message">{{ notification.message }}</span>
+                              <span class="header-notifications-item-time">{{ timeAgo(notification.createdAt) }}</span>
+                            </span>
+                          </button>
+                        }
+
                         <button
                           type="button"
-                          role="menuitem"
-                          class="header-notifications-item"
-                          [class.header-notifications-item--unread]="!notification.read"
-                          (click)="onNotificationClick(notification)"
+                          class="header-notifications-delete"
+                          title="Delete notification"
+                          aria-label="Delete notification"
+                          (click)="deleteNotificationItem($event, notification)"
                         >
-                          <span class="header-notifications-item-icon" aria-hidden="true">
-                            {{ notificationsIcon(notification.type) }}
-                          </span>
-                          <span class="header-notifications-item-body">
-                            <span class="header-notifications-item-title">
-                              @if (!notification.read) {
-                                <span class="header-notifications-item-dot" aria-hidden="true"></span>
-                              }
-                              {{ notification.title }}
-                            </span>
-                            <span class="header-notifications-item-message">{{ notification.message }}</span>
-                            <span class="header-notifications-item-time">{{ timeAgo(notification.createdAt) }}</span>
-                          </span>
+                          <svg
+                            class="header-notifications-delete-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            aria-hidden="true"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
                         </button>
-                      }
+                      </div>
                     }
                   } @else {
                     <p class="header-notifications-empty">No notifications yet.</p>

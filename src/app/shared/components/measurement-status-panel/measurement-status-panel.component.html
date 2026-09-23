@@ -15,7 +15,8 @@
 
                 <p class="ms-card-live">
                   @if (card.latestValue !== null && card.latestValue !== undefined) {
-                    <span class="ms-card-live-value">
+                    <span class="ms-card-live-label">Current value</span>
+                    <span class="ms-card-live-value-chip">
                       {{ formatValue(card.latestValue) }} {{ unitLabel(card.unit) }}
                     </span>
                     <span class="ms-card-live-time">· {{ lastUpdated(card.observedAt) }}</span>

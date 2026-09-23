@@ -157,6 +157,13 @@ export const routes: Routes = [
             (m) => m.UnderwriterPolicyDetailComponent,
           ),
       },
+      {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./features/components/staff-notifications/staff-notifications.component').then(
+            (m) => m.StaffNotificationsComponent,
+          ),
+      },
     ],
   },
   {
@@ -184,6 +191,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/components/claims-officer-claim-detail/claims-officer-claim-detail.component').then(
             (m) => m.ClaimsOfficerClaimDetailComponent,
+          ),
+      },
+      {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./features/components/staff-notifications/staff-notifications.component').then(
+            (m) => m.StaffNotificationsComponent,
           ),
       },
     ],

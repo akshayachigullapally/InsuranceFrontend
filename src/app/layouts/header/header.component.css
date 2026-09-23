@@ -877,12 +877,30 @@
   overflow-y: auto;
 }
 
-.header-notifications-item {
+.header-notifications-row {
   display: flex;
   align-items: flex-start;
-  width: 100%;
+  gap: 2px;
+  padding: 0 6px 0 0;
+  border-radius: 10px;
+  transition: background-color 0.1s ease;
+}
+
+.header-notifications-row:hover {
+  background: rgba(0, 104, 245, 0.06);
+}
+
+.header-notifications-row--unread {
+  background: rgba(0, 104, 245, 0.04);
+}
+
+.header-notifications-item {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: flex-start;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 10px 0 10px 12px;
   color: #334155;
   font-family: inherit;
   text-align: left;
@@ -906,8 +924,47 @@
   outline-offset: -2px;
 }
 
-.header-notifications-item--unread {
-  background: rgba(0, 104, 245, 0.04);
+.header-notifications-delete {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  width: 28px;
+  height: 28px;
+  margin-top: 8px;
+  padding: 0;
+  color: #94a3b8;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    color 0.1s ease,
+    background-color 0.1s ease,
+    opacity 0.1s ease;
+}
+
+.header-notifications-row:hover .header-notifications-delete,
+.header-notifications-delete:focus-visible {
+  opacity: 1;
+}
+
+.header-notifications-delete:hover {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.header-notifications-delete:focus-visible {
+  outline: 2px solid #ef2d56;
+  outline-offset: 1px;
+}
+
+.header-notifications-delete-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
 }
 
 .header-notifications-item-icon {

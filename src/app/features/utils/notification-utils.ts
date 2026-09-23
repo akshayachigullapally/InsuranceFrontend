@@ -249,23 +249,29 @@ export function isImportantNotificationType(type: string): boolean {
 }
 
 const ROLE_NOTIFICATIONS_ROUTE: Record<string, string> = {
-  CUSTOMER: '/customer/notifications',
-  ADMIN: '/admin/notifications',
+  ROLE_CUSTOMER: '/customer/notifications',
+  ROLE_UNDERWRITER: '/underwriter/notifications',
+  ROLE_CLAIMS_OFFICER: '/claims-officer/notifications',
+  ROLE_ADMIN: '/admin/notifications',
 };
 
 type RelatedEntityTypeValue = RelatedEntityType;
 
+function hasRole(role: string | null | undefined, expected: string): boolean {
+  return role === expected || role === `ROLE_${expected}`;
+}
+
 const RELATED_ENTITY_ROUTES: Record<RelatedEntityTypeValue, (role: string, entityId?: number | null) => string | null> = {
   POLICY: (role, id) => {
-    const prefix = role === 'ADMIN' ? '/admin/policies' : role === 'UNDERWRITER' ? '/underwriter/policies' : '/customer/policies';
+    const prefix = hasRole(role, 'ADMIN') ? '/admin/policies' : hasRole(role, 'UNDERWRITER') ? '/underwriter/policies' : '/customer/policies';
     return id ? `${prefix}/${id}` : prefix;
   },
   CLAIM: (role, id) => {
-    const prefix = role === 'ADMIN' ? '/admin/claims' : role === 'CLAIMS_OFFICER' ? '/claims-officer/claims' : '/customer/claims';
+    const prefix = hasRole(role, 'ADMIN') ? '/admin/claims' : hasRole(role, 'CLAIMS_OFFICER') ? '/claims-officer/claims' : '/customer/claims';
     return id ? `${prefix}/${id}` : prefix;
   },
-  TRIGGER_EVENT: (role) => (role === 'ADMIN' ? '/admin/trigger-events' : null),
-  PRODUCT: (role, id) => (role === 'ADMIN' ? (id ? `/admin/products/${id}` : '/admin/products') : null),
+  TRIGGER_EVENT: (role) => (hasRole(role, 'ADMIN') ? '/admin/trigger-events' : null),
+  PRODUCT: (role, id) => (hasRole(role, 'ADMIN') ? (id ? `/admin/products/${id}` : '/admin/products') : null),
   PAYMENT: () => null,
   PAYOUT: () => null,
   QUOTE: () => null,
@@ -274,12 +280,34 @@ const RELATED_ENTITY_ROUTES: Record<RelatedEntityTypeValue, (role: string, entit
   USER: () => null,
 };
 
+function notificationsRoute(role: string | null | undefined): string | null {
+  if (!role) {
+    return null;
+  }
+  const route = ROLE_NOTIFICATIONS_ROUTE[role];
+  if (route) {
+    return route;
+  }
+  const prefixes = [
+    'ROLE_CUSTOMER',
+    'ROLE_UNDERWRITER',
+    'ROLE_CLAIMS_OFFICER',
+    'ROLE_ADMIN',
+  ];
+  for (const key of prefixes) {
+    if (hasRole(role, key.replace('ROLE_', ''))) {
+      return ROLE_NOTIFICATIONS_ROUTE[key];
+    }
+  }
+  return null;
+}
+
 export function notificationDestinationRoute(
   notification: Pick<NotificationResponse, 'relatedEntityType' | 'relatedEntityId'>,
   role?: string | null,
 ): string | null {
   if (!notification.relatedEntityType) {
-    return role ? ROLE_NOTIFICATIONS_ROUTE[role] ?? null : null;
+    return notificationsRoute(role);
   }
   const resolver = RELATED_ENTITY_ROUTES[notification.relatedEntityType];
   return resolver ? resolver(role ?? '', notification.relatedEntityId) : null;
