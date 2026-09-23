@@ -8,6 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ClaimResponse } from '../../dtos/claims/claim-response.dto';
+import { TriggerEventResponse } from '../../dtos/trigger-events/trigger-event-response.dto';
 import {
   clearClaimsError,
   loadSubmittedClaims,
@@ -17,6 +18,19 @@ import {
   selectSubmittedClaims,
   selectSubmittedReviewCount,
 } from '../../state/claims/claims.selectors';
+import {
+  loadTriggerEvents,
+} from '../../state/trigger-events/trigger-events.actions';
+import {
+  selectTriggerEvents,
+  selectTriggerEventsLoading,
+} from '../../state/trigger-events/trigger-events.selectors';
+
+const ACTIVE_TRIGGER_STATUSES = ['DETECTED', 'UNDER_VALIDATION', 'VERIFIED'];
+
+function isActiveTriggerEvent(event: TriggerEventResponse): boolean {
+  return ACTIVE_TRIGGER_STATUSES.includes(event.status);
+}
 
 @Component({
   selector: 'app-claims-officer-dashboard',
@@ -31,6 +45,10 @@ export class ClaimsOfficerDashboardComponent implements OnInit {
   readonly manualClaimCount$: Observable<number>;
   readonly totalClaimedAmount$: Observable<number>;
   readonly averageClaimAmount$: Observable<number>;
+  readonly triggerEvents$: Observable<TriggerEventResponse[]>;
+  readonly activeTriggerEvents$: Observable<TriggerEventResponse[]>;
+  readonly activeTriggerCount$: Observable<number>;
+  readonly triggerEventsLoading$: Observable<boolean>;
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -48,17 +66,27 @@ export class ClaimsOfficerDashboardComponent implements OnInit {
         return Math.round((total / claims.length) * 100) / 100;
       }),
     );
+    this.triggerEvents$ = this.store.select(selectTriggerEvents);
+    this.triggerEventsLoading$ = this.store.select(selectTriggerEventsLoading);
+    this.activeTriggerEvents$ = this.triggerEvents$.pipe(
+      map(events => events.filter(isActiveTriggerEvent)),
+    );
+    this.activeTriggerCount$ = this.activeTriggerEvents$.pipe(map(events => events.length));
   }
 
   ngOnInit(): void {
     this.store.dispatch(clearClaimsError());
     this.store.dispatch(loadSubmittedClaims());
+    this.store.dispatch(loadTriggerEvents());
 
     merge(
       interval(30_000),
       fromEvent(window, 'focus'),
     )
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.store.dispatch(loadSubmittedClaims()));
+      .subscribe(() => {
+        this.store.dispatch(loadSubmittedClaims());
+        this.store.dispatch(loadTriggerEvents());
+      });
   }
 }

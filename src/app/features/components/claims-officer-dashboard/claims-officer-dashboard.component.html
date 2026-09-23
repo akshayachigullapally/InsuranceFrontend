@@ -30,24 +30,70 @@
   <section class="relative overflow-hidden rounded-2xl bg-navy-950 px-8 py-8 text-white shadow-elevated">
     <div class="absolute inset-0 animate-blob bg-[radial-gradient(ellipse_at_top_right,rgba(30,139,255,0.3),transparent_55%)]"></div>
     <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(0,80,219,0.2),transparent_50%)]"></div>
-    <div class="relative flex flex-wrap items-center justify-between gap-6">
-      <div class="flex items-center gap-4">
-        <span class="inline-flex size-10 items-center justify-center rounded-xl bg-emerald-500/20 text-lg backdrop-blur">⚡</span>
-        <div>
-          <p class="text-[11px] font-semibold tracking-widest text-emerald-300 uppercase">Trigger engine · Live</p>
-          <h2 class="mt-0.5 text-lg font-semibold">No active trigger events</h2>
-          <p class="mt-0.5 text-sm text-navy-200">
-            When weather observations breach a threshold, evaluation records appear here automatically.
-          </p>
+    <div class="relative">
+      <div class="flex flex-wrap items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+          <span class="inline-flex size-10 items-center justify-center rounded-xl bg-emerald-500/20 text-lg backdrop-blur">⚡</span>
+          <div>
+            <p class="text-[11px] font-semibold tracking-widest text-emerald-300 uppercase">Trigger engine · Live</p>
+            <h2 class="mt-0.5 text-lg font-semibold">
+              @if (triggerEventsLoading$ | async) {
+                Refreshing trigger events…
+              } @else if (((activeTriggerCount$ | async) ?? 0) > 0) {
+                {{ activeTriggerCount$ | async }} active trigger {{ (activeTriggerCount$ | async) === 1 ? 'event' : 'events' }}
+              } @else {
+                No active trigger events
+              }
+            </h2>
+            <p class="mt-0.5 text-sm text-navy-200">
+              When weather observations breach a threshold, evaluation records appear here automatically.
+            </p>
+          </div>
         </div>
+        @if (triggerEventsLoading$ | async) {
+          <span class="inline-flex items-center gap-2 rounded-full bg-navy-800/80 px-4 py-2 text-sm font-medium text-navy-200 backdrop-blur">Checking engine…</span>
+        } @else if (((activeTriggerCount$ | async) ?? 0) > 0) {
+          <span class="inline-flex items-center gap-2 rounded-full bg-amber-400/15 px-4 py-2 text-sm font-medium text-amber-300 backdrop-blur">
+            <span class="relative flex size-2">
+              <span class="absolute inline-flex size-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
+              <span class="relative inline-flex size-2 rounded-full bg-amber-400"></span>
+            </span>
+            {{ activeTriggerCount$ | async }} awaiting decision
+          </span>
+        } @else {
+          <span class="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-4 py-2 text-sm font-medium text-emerald-300 backdrop-blur">
+            <span class="relative flex size-2">
+              <span class="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex size-2 rounded-full bg-emerald-400"></span>
+            </span>
+            All systems normal
+          </span>
+        }
       </div>
-      <span class="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-4 py-2 text-sm font-medium text-emerald-300 backdrop-blur">
-        <span class="relative flex size-2">
-          <span class="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex size-2 rounded-full bg-emerald-400"></span>
-        </span>
-        All systems normal
-      </span>
+
+      @if (triggerEvents$ | async; as events) {
+        @if (events.length > 0) {
+          <ul class="mt-6 divide-y divide-white/10 rounded-xl bg-navy-900/60 backdrop-blur">
+            @for (evt of events; track evt.id) {
+              <li class="flex items-center justify-between gap-4 px-4 py-3">
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-semibold text-white">
+                    {{ evt.eventReference }}
+                    <span class="ml-2 text-xs font-normal text-navy-300">Product {{ evt.productId }}</span>
+                  </p>
+                  <p class="mt-0.5 truncate text-xs text-navy-300">
+                    {{ evt.measurementType }} {{ evt.aggregatedValue }}{{ evt.measurementUnit }} vs threshold {{ evt.thresholdValue }}{{ evt.measurementUnit }}
+                    · {{ evt.zoneName || 'Zone ' + evt.locationZoneId }}
+                  </p>
+                </div>
+                <div class="flex shrink-0 items-center gap-3">
+                  <app-status-badge [status]="evt.status" />
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      }
     </div>
   </section>
 

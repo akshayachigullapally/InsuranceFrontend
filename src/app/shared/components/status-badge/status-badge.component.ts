@@ -28,7 +28,7 @@ export class StatusBadgeComponent {
     if (['REJECTED', 'FAILED', 'NOT_MATCHED', 'INSUFFICIENT_OBSERVATIONS'].includes(s)) {
       return 'bg-red-100 text-red-800';
     }
-    if (['CANCELLED', 'INACTIVE', 'ARCHIVED', 'DRAFT', 'EXPIRED'].includes(s)) {
+    if (['CANCELLED', 'INACTIVE', 'ARCHIVED', 'DRAFT', 'EXPIRED', 'PROCESSED'].includes(s)) {
       return 'bg-gray-100 text-gray-800';
     }
     return 'bg-gray-100 text-gray-700';
