@@ -360,6 +360,48 @@
                 }
               </div>
             }
+
+            @if (bellToast; as toast) {
+              <div class="header-bell-toast" role="status" aria-live="polite">
+                @if (notificationLink(toast, user); as toastPath) {
+                  <a
+                    [routerLink]="toastPath"
+                    class="header-bell-toast-body"
+                    (click)="onNotificationClick(toast)"
+                  >
+                    <span class="header-notifications-item-icon" aria-hidden="true">
+                      {{ notificationsIcon(toast.type) }}
+                    </span>
+                    <span class="header-notifications-item-body">
+                      <span class="header-notifications-item-title">{{ toast.title }}</span>
+                      <span class="header-notifications-item-message">{{ toast.message }}</span>
+                    </span>
+                  </a>
+                } @else {
+                  <button
+                    type="button"
+                    class="header-bell-toast-body"
+                    (click)="onNotificationClick(toast)"
+                  >
+                    <span class="header-notifications-item-icon" aria-hidden="true">
+                      {{ notificationsIcon(toast.type) }}
+                    </span>
+                    <span class="header-notifications-item-body">
+                      <span class="header-notifications-item-title">{{ toast.title }}</span>
+                      <span class="header-notifications-item-message">{{ toast.message }}</span>
+                    </span>
+                  </button>
+                }
+                <button
+                  type="button"
+                  class="header-bell-toast-close"
+                  aria-label="Dismiss notification"
+                  (click)="dismissBellToast()"
+                >
+                  ✕
+                </button>
+              </div>
+            }
           </div>
 
           <div

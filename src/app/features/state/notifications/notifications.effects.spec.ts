@@ -5,7 +5,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Subject, of, throwError } from 'rxjs';
 import { NotificationResponse } from '../../dtos/notifications/notification-response.dto';
 import { NotificationService } from '../../services/notification.service';
-import { ToastService } from '../../../shared/services/toast.service';
 import { notificationsReducer } from './notifications.reducer';
 import { authReducer } from '../auth/auth.reducer';
 import { NotificationsEffects } from './notifications.effects';
@@ -68,7 +67,6 @@ describe('NotificationsEffects', () => {
   let actions$: Subject<Action>;
   let effects: NotificationsEffects;
   let service: NotificationService;
-  let toastService: ToastService;
 
   beforeEach(() => {
     actions$ = new Subject<Action>();
@@ -77,14 +75,12 @@ describe('NotificationsEffects', () => {
       serviceMock[method] = vi.fn().mockReturnValue(of([]));
     }
     service = serviceMock as unknown as NotificationService;
-    toastService = { show: vi.fn() } as unknown as ToastService;
 
     TestBed.configureTestingModule({
       providers: [
         provideStore({ notifications: notificationsReducer, auth: authReducer }),
         provideMockActions(() => actions$),
         { provide: NotificationService, useValue: service },
-        { provide: ToastService, useValue: toastService },
         NotificationsEffects,
       ],
     });
@@ -253,24 +249,4 @@ describe('NotificationsEffects', () => {
     sub.unsubscribe();
   });
 
-  it('shows a toast only for important unread notifications', () => {
-    const important = makeNotification(3, '2026-09-01T00:00:00Z', {
-      type: 'PAYOUT_SUCCESS',
-      title: 'Payout released',
-      message: 'Your payout of 500.00 is on its way.',
-    });
-
-    const sub = effects.showToastsForNewNotifications$.subscribe();
-    actions$.next(
-      NotificationsActions.mergeNewNotifications({
-        notifications: [important, makeNotification(4, '2026-09-01T00:00:00Z')],
-      }),
-    );
-
-    expect(toastService.show).toHaveBeenCalledTimes(1);
-    expect(toastService.show).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Payout released' }),
-    );
-    sub.unsubscribe();
-  });
 });

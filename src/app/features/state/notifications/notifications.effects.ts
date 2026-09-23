@@ -16,8 +16,6 @@ import {
 } from 'rxjs/operators';
 import { NotificationResponse } from '../../dtos/notifications/notification-response.dto';
 import { NotificationService } from '../../services/notification.service';
-import { ToastService } from '../../../shared/services/toast.service';
-import { getNotificationIcon, isImportantNotificationType } from '../../utils/notification-utils';
 import * as NotificationsActions from './notifications.actions';
 import * as AuthActions from '../auth/auth.actions';
 import * as AuthSelectors from '../auth/auth.selectors';
@@ -31,7 +29,6 @@ export class NotificationsEffects {
   constructor(
     private readonly actions$: Actions,
     private readonly notificationService: NotificationService,
-    private readonly toastService: ToastService,
     private readonly store: Store,
     private readonly push: NotificationPushService,
   ) {}
@@ -185,24 +182,9 @@ export class NotificationsEffects {
     ),
   );
 
-  showToastsForNewNotifications$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(NotificationsActions.mergeNewNotifications),
-        tap(({ notifications }) => {
-          for (const notification of notifications) {
-            if (!notification.read && isImportantNotificationType(notification.type)) {
-              this.toastService.show({
-                icon: getNotificationIcon(notification.type),
-                title: notification.title,
-                message: notification.message,
-              });
-            }
-          }
-        }),
-      ),
-    { dispatch: false },
-  );
+  // New-notification popup is rendered by HeaderComponent, anchored directly
+  // below the notification bell (see mergeNewNotifications subscription there),
+  // so it is not duplicated here via the generic ToastService.
 
   loadUnreadNotifications$ = createEffect(() =>
     this.actions$.pipe(

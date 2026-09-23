@@ -1,13 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { Observable, combineLatest, filter, map, Subscription, take } from 'rxjs';
+import { Observable, filter, map, Subscription, take } from 'rxjs';
 import {
   NotificationResponse,
-  NOTIFICATION_TYPES,
   NotificationType,
-  DELIVERY_STATUSES,
   NotificationPreferenceResponse,
 } from '../../dtos/notifications/notification-response.dto';
 import {
@@ -30,23 +27,16 @@ import {
 import {
   getNotificationIcon,
   getNotificationColor,
-  getDeliveryStatusColor,
   formatNotificationType,
   formatTimeAgo,
 } from '../../utils/notification-utils';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { selectIsAuthenticated } from '../../state/auth/auth.selectors';
 
-interface NotificationFilters {
-  type: string;
-  status: string;
-  unreadOnly: boolean;
-}
-
 @Component({
   selector: 'app-customer-notifications',
   standalone: true,
-  imports: [CommonModule, FormsModule, EmptyStateComponent],
+  imports: [CommonModule, EmptyStateComponent],
   templateUrl: './customer-notifications.component.html',
   styleUrl: './customer-notifications.component.css',
 })
@@ -58,17 +48,7 @@ export class CustomerNotificationsComponent implements OnInit, OnDestroy {
   error$: Observable<string | null>;
   preferences$: Observable<NotificationPreferenceResponse[]>;
 
-  filteredNotifications$: Observable<NotificationResponse[]>;
-  unreadNotifications$: Observable<NotificationResponse[]>;
-  readNotifications$: Observable<NotificationResponse[]>;
-
-  notificationTypes = NOTIFICATION_TYPES;
-  deliveryStatuses = DELIVERY_STATUSES;
-  filters: NotificationFilters = {
-    type: '',
-    status: '',
-    unreadOnly: false,
-  };
+  sortedNotifications$: Observable<NotificationResponse[]>;
 
   private preferences: NotificationPreferenceResponse[] = [];
   private preferencesSub: Subscription = Subscription.EMPTY;
@@ -81,30 +61,12 @@ export class CustomerNotificationsComponent implements OnInit, OnDestroy {
     this.error$ = this.store.select(selectNotificationsError);
     this.preferences$ = this.store.select(selectPreferences);
 
-    this.filteredNotifications$ = this.notifications$.pipe(
-      map((notifications) => {
-        let filtered = [...notifications];
-        if (this.filters.unreadOnly) {
-          filtered = filtered.filter((n) => !n.read);
-        }
-        if (this.filters.type) {
-          filtered = filtered.filter((n) => n.type === this.filters.type);
-        }
-        if (this.filters.status) {
-          filtered = filtered.filter((n) => n.deliveryStatus === this.filters.status);
-        }
-        return filtered.sort(
+    this.sortedNotifications$ = this.notifications$.pipe(
+      map((notifications) =>
+        [...notifications].sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        );
-      }),
-    );
-
-    this.unreadNotifications$ = this.filteredNotifications$.pipe(
-      map((notifications) => notifications.filter((n) => !n.read)),
-    );
-
-    this.readNotifications$ = this.filteredNotifications$.pipe(
-      map((notifications) => notifications.filter((n) => n.read)),
+        ),
+      ),
     );
   }
 
@@ -142,45 +104,6 @@ export class CustomerNotificationsComponent implements OnInit, OnDestroy {
     this.store.dispatch(deleteNotification({ notificationId }));
   }
 
-  onFilterChange(): void {
-    this.filteredNotifications$ = this.notifications$.pipe(
-      map((notifications) => {
-        let filtered = [...notifications];
-        if (this.filters.unreadOnly) {
-          filtered = filtered.filter((n) => !n.read);
-        }
-        if (this.filters.type) {
-          filtered = filtered.filter((n) => n.type === this.filters.type);
-        }
-        if (this.filters.status) {
-          filtered = filtered.filter((n) => n.deliveryStatus === this.filters.status);
-        }
-        return filtered.sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        );
-      }),
-    );
-    this.unreadNotifications$ = this.filteredNotifications$.pipe(
-      map((notifications) => notifications.filter((n) => !n.read)),
-    );
-    this.readNotifications$ = this.filteredNotifications$.pipe(
-      map((notifications) => notifications.filter((n) => n.read)),
-    );
-  }
-
-  clearFilters(): void {
-    this.filters = { type: '', status: '', unreadOnly: false };
-    this.onFilterChange();
-  }
-
-  hasActiveFilters(): boolean {
-    return (
-      this.filters.unreadOnly ||
-      this.filters.type !== '' ||
-      this.filters.status !== ''
-    );
-  }
-
   isChannelEnabled(type: NotificationType, channel: 'inAppEnabled' | 'emailEnabled' | 'smsEnabled'): boolean {
     const pref = this.preferences.find((p) => p.notificationType === type);
     if (!pref) return true;
@@ -200,10 +123,6 @@ export class CustomerNotificationsComponent implements OnInit, OnDestroy {
 
   getNotificationColor(type: string): string {
     return getNotificationColor(type);
-  }
-
-  getDeliveryStatusColor(status: string): string {
-    return getDeliveryStatusColor(status);
   }
 
   formatNotificationType(type: string): string {
