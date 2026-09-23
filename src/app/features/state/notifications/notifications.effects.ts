@@ -42,9 +42,12 @@ export class NotificationsEffects {
         AuthActions.refreshTokenSuccess,
       ),
       filter((action: any) => {
-        // only start polling for customers (avoid staff triggering notifications immediately)
+        // Start polling/SSE for every authenticated role, not just customers -
+        // staff (e.g. ROLE_ADMIN) also receive real notifications (see
+        // FinancialService.notifyRole("ADMIN", ...) for reconciliation events)
+        // and the header bell is shared across all authenticated layouts.
         const role = action?.auth?.user?.role ?? action?.user?.role ?? null;
-        return role === 'ROLE_CUSTOMER';
+        return !!role;
       }),
       map(() => NotificationsActions.startNotificationPolling()),
     ),
