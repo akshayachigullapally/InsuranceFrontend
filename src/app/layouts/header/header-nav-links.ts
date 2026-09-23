@@ -29,7 +29,7 @@ export const ROLE_PRIMARY_NAV: Record<string, HeaderNavLink[]> = {
     { label: 'Dashboard', routerLink: '/admin/dashboard' },
     { label: 'Users', routerLink: '/admin/users' },
     // { label: 'Products', routerLink: '/admin/products' },
-    { label: 'Measurements', routerLink: '/admin/current-measurements', icon: '📊' },
+    { label: 'Measurements', routerLink: '/admin/current-measurements'},
     { label: 'Policies', routerLink: '/admin/policies' },
     { label: 'Claims', routerLink: '/admin/claims' },
   ],
