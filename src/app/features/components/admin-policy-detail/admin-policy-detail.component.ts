@@ -73,6 +73,7 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
   protected snapshot: PolicyTriggerSnapshotResponse | null = null;
   protected snapshotLoading = false;
   protected customerName: string | null = null;
+  protected reviewerName: string | null = null;
   protected zoneName: string | null = null;
 
   private readonly destroy$ = new Subject<void>();
@@ -115,6 +116,12 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
         this.loadSnapshot(policy);
         this.loadCustomer(policy.customerId);
         this.loadZone(policy.locationZoneId);
+
+        if (policy.reviewedBy) {
+          this.loadReviewer(policy.reviewedBy);
+        } else {
+          this.reviewerName = null;
+        }
       });
   }
 
@@ -166,7 +173,9 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
       {
         label: 'Reviewed by',
         value: policy.reviewedBy
-          ? `User #${policy.reviewedBy}`
+          ? (this.reviewerName
+              ? `${this.reviewerName} (User #${policy.reviewedBy})`
+              : `User #${policy.reviewedBy}`)
           : 'Not reviewed',
       },
       {
@@ -257,6 +266,20 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.zoneName = null;
+        },
+      });
+  }
+
+  private loadReviewer(reviewerId: number): void {
+    this.userService
+      .getUser(reviewerId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: user => {
+          this.reviewerName = user.fullName;
+        },
+        error: () => {
+          this.reviewerName = null;
         },
       });
   }

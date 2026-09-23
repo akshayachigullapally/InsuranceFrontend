@@ -65,6 +65,7 @@ export class AdminClaimDetailComponent implements OnInit, OnDestroy {
   protected policy: PolicyResponse | null = null;
   protected policyLoading = false;
   protected customerName: string | null = null;
+  protected reviewerName: string | null = null;
   protected zoneName: string | null = null;
 
   private readonly destroy$ = new Subject<void>();
@@ -107,6 +108,12 @@ export class AdminClaimDetailComponent implements OnInit, OnDestroy {
         this.loadPolicy(claim.policyId);
         this.loadCustomer(claim.customerId);
         this.loadZone(claim.locationZoneId);
+
+        if (claim.reviewedBy) {
+          this.loadReviewer(claim.reviewedBy);
+        } else {
+          this.reviewerName = null;
+        }
       });
   }
 
@@ -242,7 +249,9 @@ export class AdminClaimDetailComponent implements OnInit, OnDestroy {
       {
         label: 'Reviewed by',
         value: claim.reviewedBy
-          ? `User #${claim.reviewedBy}`
+          ? (this.reviewerName
+              ? `${this.reviewerName} (User #${claim.reviewedBy})`
+              : `User #${claim.reviewedBy}`)
           : 'Not reviewed',
       },
       {
@@ -306,6 +315,20 @@ export class AdminClaimDetailComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.zoneName = null;
+        },
+      });
+  }
+
+  private loadReviewer(reviewerId: number): void {
+    this.userService
+      .getUser(reviewerId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: user => {
+          this.reviewerName = user.fullName;
+        },
+        error: () => {
+          this.reviewerName = null;
         },
       });
   }

@@ -11,6 +11,7 @@ import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ClaimResponse } from '../../dtos/claims/claim-response.dto';
+import { ProductResponse } from '../../dtos/products/product-response.dto';
 import {
   approveClaim,
   clearClaimsError,
@@ -25,6 +26,8 @@ import {
   selectClaimsSaving,
   selectSelectedClaim,
 } from '../../state/claims/claims.selectors';
+import { ProductService } from '../../services/product.service';
+import { UserService } from '../../services/user.service';
 import { ZoneService } from '../../services/zone.service';
 import { parseLocalDateOnly } from '../../utils/local-date.util';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -93,6 +96,10 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
   protected invalidClaimId = false;
 
   protected zoneName: string | null = null;
+  protected customerName: string | null = null;
+  protected reviewerName: string | null = null;
+  protected product: ProductResponse | null = null;
+  protected productLoading = false;
 
   private claimId = 0;
   private selectedClaim: ClaimResponse | null = null;
@@ -103,6 +110,8 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
     private readonly store: Store,
     private readonly datePipe: DatePipe,
     private readonly zoneService: ZoneService,
+    private readonly userService: UserService,
+    private readonly productService: ProductService,
   ) {
     this.claim$ = this.store.select(selectSelectedClaim);
     this.loading$ = this.store.select(selectClaimsLoading);
@@ -151,6 +160,14 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
             .updateValueAndValidity({ emitEvent: false });
 
           this.loadZone(claim.locationZoneId);
+          this.loadCustomer(claim.customerId);
+          this.loadProduct(claim.productId);
+
+          if (claim.reviewedBy) {
+            this.loadReviewer(claim.reviewedBy);
+          } else {
+            this.reviewerName = null;
+          }
         }
       });
   }
@@ -176,11 +193,59 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  private loadCustomer(customerId: number): void {
+    this.userService
+      .getUser(customerId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: user => {
+          this.customerName = user.fullName;
+        },
+        error: () => {
+          this.customerName = null;
+        },
+      });
+  }
+
+  private loadReviewer(reviewerId: number): void {
+    this.userService
+      .getUser(reviewerId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: user => {
+          this.reviewerName = user.fullName;
+        },
+        error: () => {
+          this.reviewerName = null;
+        },
+      });
+  }
+
+  private loadProduct(productId: number): void {
+    this.productLoading = true;
+
+    this.productService
+      .getProduct(productId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: product => {
+          this.product = product;
+          this.productLoading = false;
+        },
+        error: () => {
+          this.product = null;
+          this.productLoading = false;
+        },
+      });
+  }
+
   protected claimDetails(claim: ClaimResponse): DetailRow[] {
     return [
       {
         label: 'Customer',
-        value: `Customer #${claim.customerId}`,
+        value: this.customerName
+          ? `${this.customerName} (Customer #${claim.customerId})`
+          : `Customer #${claim.customerId}`,
       },
       {
         label: 'Policy',
@@ -262,7 +327,9 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       {
         label: 'Reviewed by',
         value: claim.reviewedBy
-          ? `User #${claim.reviewedBy}`
+          ? (this.reviewerName
+              ? `${this.reviewerName} (User #${claim.reviewedBy})`
+              : `User #${claim.reviewedBy}`)
           : 'Not assigned',
       },
       {
