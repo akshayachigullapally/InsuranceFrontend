@@ -67,26 +67,9 @@
         } @else {
           @if (publicProducts$ | async; as products) {
             @if (products.length > 0) {
-              @for (product of products; track product.id) {
-                <div
-                  class="rounded-xl border border-gray-200 bg-white p-4"
-                >
-                  <div class="mb-3 min-w-0">
-                    <p class="truncate text-sm font-semibold text-gray-900">
-                      {{ product.name }}
-                    </p>
-
-                    <p class="text-xs text-gray-400">
-                      {{ product.productCode }}
-                    </p>
-                  </div>
-
-                  <app-parametric-trigger-card
-                    [trigger]="triggerCondition(product)"
-                    mode="PRODUCT"
-                  />
-                </div>
-              }
+              <app-measurement-status-panel
+                [products]="products"
+              />
             } @else {
               <app-empty-state
                 title="No products available"

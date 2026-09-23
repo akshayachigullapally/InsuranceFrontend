@@ -20,7 +20,6 @@ import {
 } from 'rxjs';
 import { ROLES } from '../../../core/constants/roles';
 import { ProductResponse } from '../../../features/dtos/products/product-response.dto';
-import { TriggerCondition } from '../../../features/dtos/triggers/trigger-condition.dto';
 import { selectAuthUser } from '../../../features/state/auth/auth.selectors';
 import {
   clearProductsError,
@@ -37,7 +36,6 @@ import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { MeasurementStatusPanelComponent } from '../measurement-status-panel/measurement-status-panel.component';
-import { ParametricTriggerCardComponent } from '../parametric-trigger-card/parametric-trigger-card.component';
 
 @Component({
   selector: 'app-measurement-thresholds',
@@ -48,7 +46,6 @@ import { ParametricTriggerCardComponent } from '../parametric-trigger-card/param
     ErrorMessageComponent,
     EmptyStateComponent,
     MeasurementStatusPanelComponent,
-    ParametricTriggerCardComponent,
   ],
   templateUrl: './measurement-thresholds.component.html',
   styleUrl: './measurement-thresholds.component.css',
@@ -105,21 +102,6 @@ export class MeasurementThresholdsComponent
 
   protected close(): void {
     this.closed.emit();
-  }
-
-  protected triggerCondition(product: ProductResponse): TriggerCondition {
-    return {
-      perilCode: product.perilCode,
-      measurementType: product.measurementType,
-      measurementUnit: product.measurementUnit,
-      thresholdValue: product.thresholdValue,
-      comparisonOperator: product.comparisonOperator,
-      aggregationType: product.aggregationType,
-      observationWindowHours: product.observationWindowHours,
-      minimumObservationCount: product.minimumObservationCount,
-      triggerDescription: product.triggerDescription,
-      humanReadableTrigger: product.humanReadableTrigger,
-    };
   }
 
   protected onOverlayClick(event: MouseEvent): void {

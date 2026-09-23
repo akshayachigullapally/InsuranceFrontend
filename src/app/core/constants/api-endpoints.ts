@@ -31,6 +31,7 @@ export const API_ENDPOINTS = {
     threshold: (productId: number) => `${BASE}/api/products/admin/${productId}/threshold`,
     thresholdHistory: (productId: number) => `${BASE}/api/products/admin/${productId}/threshold-history`,
     adminMeasurementStatus: `${BASE}/api/products/admin/measurement-status`,
+    measurementStatus: `${BASE}/api/products/measurement-status`,
   },
   policies: {
     base: `${BASE}/api/policies`,

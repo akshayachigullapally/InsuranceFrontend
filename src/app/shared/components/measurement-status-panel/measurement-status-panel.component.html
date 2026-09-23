@@ -51,43 +51,45 @@
                       </p>
                     </div>
 
-                    @if (editingProductId === row.productId) {
-                      <div class="ms-edit-actions">
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0.01"
-                          class="input-base !w-28 !px-2 !py-1.5 text-sm"
-                          [(ngModel)]="editingValue"
-                          aria-label="New threshold value"
-                        />
+                    @if (isAdmin$ | async) {
+                      @if (editingProductId === row.productId) {
+                        <div class="ms-edit-actions">
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            class="input-base !w-28 !px-2 !py-1.5 text-sm"
+                            [(ngModel)]="editingValue"
+                            aria-label="New threshold value"
+                          />
 
-                        <button
-                          type="button"
-                          class="btn-brand !px-3 !py-1.5 text-xs"
-                          [disabled]="saving || !isValidEdit()"
-                          (click)="onSave(card)"
-                        >
-                          {{ saving ? 'Saving…' : 'Save' }}
-                        </button>
+                          <button
+                            type="button"
+                            class="btn-brand !px-3 !py-1.5 text-xs"
+                            [disabled]="saving || !isValidEdit()"
+                            (click)="onSave(card)"
+                          >
+                            {{ saving ? 'Saving…' : 'Save' }}
+                          </button>
 
+                          <button
+                            type="button"
+                            class="btn-outline !px-3 !py-1.5 text-xs"
+                            [disabled]="saving"
+                            (click)="onCancelEdit()"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      } @else {
                         <button
                           type="button"
                           class="btn-outline !px-3 !py-1.5 text-xs"
-                          [disabled]="saving"
-                          (click)="onCancelEdit()"
+                          (click)="onEdit(row)"
                         >
-                          Cancel
+                          Edit threshold
                         </button>
-                      </div>
-                    } @else {
-                      <button
-                        type="button"
-                        class="btn-outline !px-3 !py-1.5 text-xs"
-                        (click)="onEdit(row)"
-                      >
-                        Edit threshold
-                      </button>
+                      }
                     }
                   </li>
                 }

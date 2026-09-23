@@ -52,6 +52,12 @@ export class ProductService {
     );
   }
 
+  getMeasurementStatus(): Observable<AdminMeasurementStatusCard[]> {
+    return this.http.get<AdminMeasurementStatusCard[]>(
+      API_ENDPOINTS.products.measurementStatus,
+    );
+  }
+
   getAdminProduct(productId: number): Observable<ProductResponse> {
     return this.http.get<ProductResponse>(
       API_ENDPOINTS.products.adminById(productId),

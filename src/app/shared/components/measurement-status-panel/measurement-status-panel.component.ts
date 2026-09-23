@@ -32,6 +32,8 @@ import {
 } from '../../../features/dtos/triggers/trigger-condition.dto';
 import { AdminMeasurementStatusCard } from '../../../features/dtos/triggers/measurement-status.dto';
 import { ProductService } from '../../../features/services/product.service';
+import { ROLES } from '../../../core/constants/roles';
+import { selectAuthUser } from '../../../features/state/auth/auth.selectors';
 import {
   updateProductThreshold,
   updateProductThresholdFailure,
@@ -82,6 +84,7 @@ export class MeasurementStatusPanelComponent
   @Input() products: ProductResponse[] | null = [];
 
   readonly cards$: Observable<MeasurementCard[]>;
+  protected readonly isAdmin$: Observable<boolean>;
 
   protected editingProductId: number | null = null;
   protected editingValue: number | null = null;
@@ -96,12 +99,23 @@ export class MeasurementStatusPanelComponent
     private readonly productService: ProductService,
     private readonly toast: ToastService,
   ) {
+    this.isAdmin$ = this.store.select(selectAuthUser).pipe(
+      map(user => user?.role === ROLES.ADMIN),
+    );
+
     this.cards$ = combineLatest([
       this.products$,
-      timer(0, POLL_INTERVAL_MS).pipe(
-        switchMap(() =>
-          this.productService.getAdminMeasurementStatus().pipe(
-            catchError(() => of<AdminMeasurementStatusCard[]>([])),
+      this.isAdmin$.pipe(
+        switchMap(isAdmin =>
+          timer(0, POLL_INTERVAL_MS).pipe(
+            switchMap(() =>
+              (isAdmin
+                ? this.productService.getAdminMeasurementStatus()
+                : this.productService.getMeasurementStatus()
+              ).pipe(
+                catchError(() => of<AdminMeasurementStatusCard[]>([])),
+              ),
+            ),
           ),
         ),
       ),
