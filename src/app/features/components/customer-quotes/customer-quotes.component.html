@@ -175,7 +175,6 @@
               id="quoteZoneId"
               class="input-base"
               formControlName="locationZoneId"
-              [disabled]="zonesLoading || zones.length === 0"
             >
               <option [ngValue]="null" disabled>
                 {{ zonesLoading ? 'Loading zones...' : 'Select your zone' }}

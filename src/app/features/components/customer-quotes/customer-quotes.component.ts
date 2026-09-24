@@ -193,6 +193,7 @@ export class CustomerQuotesComponent implements OnInit, OnDestroy {
   private loadZones(): void {
     this.zonesLoading = true;
     this.zonesError = null;
+    this.form.controls.locationZoneId.disable();
 
     this.zoneService
       .getActiveZones()
@@ -201,10 +202,12 @@ export class CustomerQuotesComponent implements OnInit, OnDestroy {
         next: zones => {
           this.zones = zones;
           this.zonesLoading = false;
+          this.form.controls.locationZoneId.enable();
         },
         error: () => {
           this.zones = [];
           this.zonesLoading = false;
+          this.form.controls.locationZoneId.disable();
           this.zonesError = 'Location zones could not be loaded.';
         },
       });
