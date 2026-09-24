@@ -15,9 +15,9 @@ export const ROLE_PRIMARY_NAV: Record<string, HeaderNavLink[]> = {
   [ROLES.CUSTOMER]: [
     { label: 'Dashboard', routerLink: '/customer/dashboard' },
     { label: 'Policies', routerLink: '/customer/policies' },
-    { label: 'Quotes', routerLink: '/customer/quotes' },
-    { label: 'Payments', routerLink: '/customer/payments' },
     { label: 'Claims', routerLink: '/customer/claims' },
+    { label: 'Payments', routerLink: '/customer/payments' },
+    { label: 'Payouts', routerLink: '/customer/payouts' },
   ],
   [ROLES.UNDERWRITER]: [
     { label: 'Dashboard', routerLink: '/underwriter/dashboard' },
@@ -43,6 +43,7 @@ export const ROLE_MORE_MENU: Record<string, HeaderMoreGroup[]> = {
       items: [
         // { label: 'My Profile', routerLink: '/customer/profile', icon: '👤' },
         { label: 'New Policy', routerLink: '/customer/policies/new', icon: '➕' },
+        { label: 'Get a Quote', routerLink: '/customer/quotes', icon: '💬' },
         { label: 'New Claim', routerLink: '/customer/claims/new', icon: '📋' },
         { label: 'Notifications', routerLink: '/customer/notifications', icon: '🔔' },
       ],

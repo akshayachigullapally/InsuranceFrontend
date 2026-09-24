@@ -142,6 +142,13 @@ export const routes: Routes = [
             (m) => m.CustomerPaymentsComponent,
           ),
       },
+      {
+        path: 'payouts',
+        loadComponent: () =>
+          import('./features/components/customer-payouts/customer-payouts.component').then(
+            (m) => m.CustomerPayoutsComponent,
+          ),
+      },
     ],
   },
   {
