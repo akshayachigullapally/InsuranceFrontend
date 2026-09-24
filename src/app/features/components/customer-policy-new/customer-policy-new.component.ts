@@ -77,12 +77,16 @@ interface CustomPolicyForm {
   name: FormControl<string>;
   description: FormControl<string>;
   category: FormControl<ProductCategory>;
+  otherCategoryDetail: FormControl<string>;
   sumInsured: FormControl<number | null>;
   termMonths: FormControl<number | null>;
   locationZoneId: FormControl<number | null>;
   perilCode: FormControl<string>;
+  otherPerilDetail: FormControl<string>;
   measurementType: FormControl<string>;
+  otherMeasurementTypeDetail: FormControl<string>;
   measurementUnit: FormControl<string>;
+  otherMeasurementUnitDetail: FormControl<string>;
   thresholdValue: FormControl<number | null>;
   comparisonOperator: FormControl<string>;
   aggregationType: FormControl<string>;
@@ -90,6 +94,8 @@ interface CustomPolicyForm {
   minimumObservationCount: FormControl<number | null>;
   triggerDescription: FormControl<string>;
 }
+
+const OTHER_VALUE = 'OTHER';
 
 export const CUSTOM_PERILS = [
   { value: 'EXCESS_RAINFALL', label: 'Excess Rainfall', measurementType: 'RAINFALL', measurementUnit: 'MM' },
@@ -159,6 +165,10 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       nonNullable: true,
       validators: [Validators.required],
     }),
+    otherCategoryDetail: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(150)],
+    }),
     sumInsured: new FormControl<number | null>(
       null,
       [Validators.required, Validators.min(1)],
@@ -175,13 +185,25 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       nonNullable: true,
       validators: [Validators.required],
     }),
+    otherPerilDetail: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(150)],
+    }),
     measurementType: new FormControl('RAINFALL', {
       nonNullable: true,
       validators: [Validators.required],
     }),
+    otherMeasurementTypeDetail: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(150)],
+    }),
     measurementUnit: new FormControl('MM', {
       nonNullable: true,
       validators: [Validators.required],
+    }),
+    otherMeasurementUnitDetail: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(150)],
     }),
     thresholdValue: new FormControl<number | null>(
       null,
@@ -335,12 +357,60 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
         this.applyPerilDefaults(perilCode);
       });
 
+    this.watchOtherDetail(
+      this.customForm.controls.category,
+      this.customForm.controls.otherCategoryDetail,
+    );
+    this.watchOtherDetail(
+      this.customForm.controls.perilCode,
+      this.customForm.controls.otherPerilDetail,
+    );
+    this.watchOtherDetail(
+      this.customForm.controls.measurementType,
+      this.customForm.controls.otherMeasurementTypeDetail,
+    );
+    this.watchOtherDetail(
+      this.customForm.controls.measurementUnit,
+      this.customForm.controls.otherMeasurementUnitDetail,
+    );
+
     this.loadZones();
   }
 
   protected setMode(mode: 'PRODUCT' | 'CUSTOM'): void {
     this.mode = mode;
     this.store.dispatch(clearPoliciesError());
+  }
+
+  protected isOtherSelected(value: string | null): boolean {
+    return value === OTHER_VALUE;
+  }
+
+  private watchOtherDetail<T extends string>(
+    selectControl: FormControl<T>,
+    detailControl: FormControl<string>,
+  ): void {
+    const sync = (value: string): void => {
+      if (value === OTHER_VALUE) {
+        detailControl.setValidators([
+          Validators.required,
+          Validators.maxLength(150),
+        ]);
+      } else {
+        detailControl.setValidators([Validators.maxLength(150)]);
+        detailControl.setValue('');
+      }
+      detailControl.updateValueAndValidity();
+    };
+
+    sync(selectControl.value);
+
+    selectControl.valueChanges
+      .pipe(
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(sync);
   }
 
   protected customTrigger(): TriggerCondition {
@@ -459,10 +529,37 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
 
     this.store.dispatch(clearPoliciesError());
 
+    const description = CustomerPolicyNewComponent.appendOtherDetail(
+      raw.description,
+      raw.category === OTHER_VALUE ? raw.otherCategoryDetail : '',
+      'Category',
+    );
+
+    const triggerDescription = [
+      CustomerPolicyNewComponent.appendOtherDetail(
+        '',
+        raw.perilCode === OTHER_VALUE ? raw.otherPerilDetail : '',
+        'Peril',
+      ),
+      CustomerPolicyNewComponent.appendOtherDetail(
+        '',
+        raw.measurementType === OTHER_VALUE ? raw.otherMeasurementTypeDetail : '',
+        'Measurement type',
+      ),
+      CustomerPolicyNewComponent.appendOtherDetail(
+        '',
+        raw.measurementUnit === OTHER_VALUE ? raw.otherMeasurementUnitDetail : '',
+        'Measurement unit',
+      ),
+      raw.triggerDescription.trim(),
+    ]
+      .filter(part => part.length > 0)
+      .join(' | ');
+
     this.store.dispatch(createCustomPolicy({
       request: {
         name: raw.name.trim() || undefined,
-        description: raw.description.trim() || undefined,
+        description: description || undefined,
         category: raw.category,
         sumInsured: raw.sumInsured,
         termMonths: raw.termMonths,
@@ -475,9 +572,25 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
         aggregationType: raw.aggregationType,
         observationWindowHours: raw.observationWindowHours,
         minimumObservationCount: raw.minimumObservationCount,
-        triggerDescription: raw.triggerDescription.trim() || undefined,
+        triggerDescription: triggerDescription || undefined,
       },
     }));
+  }
+
+  private static appendOtherDetail(
+    base: string,
+    otherDetail: string,
+    label: string,
+  ): string {
+    const trimmedBase = base.trim();
+    const trimmedDetail = otherDetail.trim();
+
+    if (!trimmedDetail) {
+      return trimmedBase;
+    }
+
+    const note = `${label} (Other): ${trimmedDetail}`;
+    return trimmedBase ? `${trimmedBase} | ${note}` : note;
   }
 
   protected selectedTrigger(): TriggerCondition {

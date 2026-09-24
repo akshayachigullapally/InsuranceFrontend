@@ -347,6 +347,26 @@
               </option>
             }
           </select>
+
+          @if (isOtherSelected(customForm.controls.category.value)) {
+            <input
+              id="customOtherCategoryDetail"
+              type="text"
+              formControlName="otherCategoryDetail"
+              class="input-base mt-2"
+              maxlength="150"
+              placeholder="Please specify the category"
+            />
+
+            @if (
+              customForm.controls.otherCategoryDetail.invalid &&
+              customForm.controls.otherCategoryDetail.touched
+            ) {
+              <p class="mt-1 text-xs text-danger-500">
+                Please specify the category.
+              </p>
+            }
+          }
         </div>
       </div>
 
@@ -497,6 +517,26 @@
                 </option>
               }
             </select>
+
+            @if (isOtherSelected(customForm.controls.perilCode.value)) {
+              <input
+                id="customOtherPerilDetail"
+                type="text"
+                formControlName="otherPerilDetail"
+                class="input-base mt-2"
+                maxlength="150"
+                placeholder="Please specify the peril"
+              />
+
+              @if (
+                customForm.controls.otherPerilDetail.invalid &&
+                customForm.controls.otherPerilDetail.touched
+              ) {
+                <p class="mt-1 text-xs text-danger-500">
+                  Please specify the peril.
+                </p>
+              }
+            }
           </div>
 
           <div>
@@ -534,6 +574,26 @@
                 </option>
               }
             </select>
+
+            @if (isOtherSelected(customForm.controls.measurementType.value)) {
+              <input
+                id="customOtherMeasurementTypeDetail"
+                type="text"
+                formControlName="otherMeasurementTypeDetail"
+                class="input-base mt-2"
+                maxlength="150"
+                placeholder="Please specify the measurement type"
+              />
+
+              @if (
+                customForm.controls.otherMeasurementTypeDetail.invalid &&
+                customForm.controls.otherMeasurementTypeDetail.touched
+              ) {
+                <p class="mt-1 text-xs text-danger-500">
+                  Please specify the measurement type.
+                </p>
+              }
+            }
           </div>
 
           <div>
@@ -553,6 +613,26 @@
                 </option>
               }
             </select>
+
+            @if (isOtherSelected(customForm.controls.measurementUnit.value)) {
+              <input
+                id="customOtherMeasurementUnitDetail"
+                type="text"
+                formControlName="otherMeasurementUnitDetail"
+                class="input-base mt-2"
+                maxlength="150"
+                placeholder="Please specify the measurement unit"
+              />
+
+              @if (
+                customForm.controls.otherMeasurementUnitDetail.invalid &&
+                customForm.controls.otherMeasurementUnitDetail.touched
+              ) {
+                <p class="mt-1 text-xs text-danger-500">
+                  Please specify the measurement unit.
+                </p>
+              }
+            }
           </div>
 
           <div>
