@@ -28,8 +28,8 @@ export const ROLE_PRIMARY_NAV: Record<string, HeaderNavLink[]> = {
   [ROLES.ADMIN]: [
     // { label: 'Dashboard', routerLink: '/admin/dashboard' },
     { label: 'Products', routerLink: '/admin/products' },
+    { label: 'Environmental Measurements', routerLink: '/admin/current-measurements', icon: '🌡️' },
     { label: 'Users', routerLink: '/admin/users' },
-    { label: 'Measurements', routerLink: '/admin/current-measurements'},
     { label: 'Policies', routerLink: '/admin/policies' },
     { label: 'Claims', routerLink: '/admin/claims' },
   ],

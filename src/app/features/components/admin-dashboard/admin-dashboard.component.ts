@@ -38,14 +38,14 @@ export class AdminDashboardComponent implements OnInit {
   readonly totalPayouts$: Observable<number>;
 
   protected readonly adminLinks: AdminLink[] = [
-    { icon: '👥', label: 'Users', description: 'Provision & manage accounts', routerLink: '/admin/users', color: 'bg-blue-50' },
     { icon: '📦', label: 'Products', description: 'Insurance product catalogue', routerLink: '/admin/products', color: 'bg-emerald-50' },
+    { icon: '🌡️', label: 'Environmental Measurements', description: 'View current values & thresholds, update readings', routerLink: '/admin/current-measurements', color: 'bg-teal-50' },
+    { icon: '👥', label: 'Users', description: 'Provision & manage accounts', routerLink: '/admin/users', color: 'bg-blue-50' },
     { icon: '📄', label: 'Policies', description: 'All policy applications', routerLink: '/admin/policies', color: 'bg-indigo-50' },
     { icon: '📋', label: 'Claims', description: 'Platform-wide claim activity', routerLink: '/admin/claims', color: 'bg-amber-50' },
     { icon: '🌍', label: 'Zones', description: 'Trigger zones & boundaries', routerLink: '/admin/zones', color: 'bg-cyan-50' },
     { icon: '🌀', label: 'Perils', description: 'Peril catalogue', routerLink: '/admin/perils', color: 'bg-violet-50' },
     { icon: '⚙️', label: 'Product Thresholds', description: 'Insurance rules for new policies', routerLink: '/admin/product-thresholds', color: 'bg-rose-50' },
-    { icon: '📊', label: 'Current Measurements', description: 'Process the latest value', routerLink: '/admin/current-measurements', color: 'bg-teal-50' },
     { icon: '✅', label: 'Trigger Events', description: 'Verified event history', routerLink: '/admin/trigger-events', color: 'bg-green-50' },
     { icon: '🚨', label: 'Events', description: 'Trigger event history', routerLink: '/admin/trigger-events', color: 'bg-orange-50' },
     { icon: '🔔', label: 'Notifications', description: 'Outbound message log', routerLink: '/admin/notifications', color: 'bg-slate-100' },
