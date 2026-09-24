@@ -29,7 +29,7 @@ export const MEASUREMENT_UNIT_LABELS: Record<string, string> = {
   KM_PER_HOUR: 'km/h',
   METERS_PER_SECOND: 'm/s',
   PERCENTAGE: '%',
-  OTHER: '',
+  OTHER: 'units',
 };
 
 const MEASUREMENT_UNIT_ALIASES: Record<string, string> = {
