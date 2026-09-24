@@ -1,0 +1,144 @@
+<section class="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+        Billing
+      </p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+        Payments
+      </h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Pay the premium for a policy created from an accepted quote, and
+        track your payment history.
+      </p>
+    </div>
+
+    <button type="button" class="btn-brand" (click)="openCreate()">
+      + Make a payment
+    </button>
+  </div>
+
+  @if (error$ | async; as error) {
+    <app-error-message [error]="error" />
+  }
+
+  @if (loading$ | async) {
+    <app-loading-spinner label="Loading your payments..." />
+  } @else if (payments$ | async; as payments) {
+    @if (payments.length > 0) {
+      <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Reference</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Policy</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Method</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Created</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              @for (payment of payments; track payment.id) {
+                <tr class="hover:bg-gray-50">
+                  <td class="whitespace-nowrap px-6 py-3 text-sm font-semibold text-gray-900">
+                    {{ payment.paymentReference }}
+                  </td>
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
+                    {{ payment.policyNumber }}
+                  </td>
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-900">
+                    ₹ {{ payment.amount | number:'1.2-2' }}
+                  </td>
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
+                    {{ payment.method }}
+                  </td>
+                  <td class="whitespace-nowrap px-6 py-3">
+                    <app-status-badge [status]="payment.status" />
+                  </td>
+                  <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-500">
+                    {{ payment.createdAt | date: 'medium' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <app-empty-state
+        title="No payments yet"
+        message="Once you accept a quote and apply for the policy, you can pay its premium here."
+        icon="💳"
+      >
+        <button type="button" class="btn-brand mt-4" (click)="openCreate()">
+          Make a payment
+        </button>
+      </app-empty-state>
+    }
+  }
+
+  @if (formOpen) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-950/50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="payment-form-title"
+    >
+      <div class="my-8 w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+        <h2 id="payment-form-title" class="text-xl font-bold text-gray-900">
+          Make a payment
+        </h2>
+
+        <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+          <div>
+            <label class="label-base" for="paymentPolicyId">Policy</label>
+            <select id="paymentPolicyId" class="input-base" formControlName="policyId">
+              <option [ngValue]="null" disabled>Select a policy</option>
+              @for (policy of activePolicies((policies$ | async) ?? []); track policy.id) {
+                <option [ngValue]="policy.id">
+                  {{ policy.policyNumber }} · ₹ {{ policy.premiumAmount | number:'1.2-2' }}
+                </option>
+              }
+            </select>
+            @if (form.controls.policyId.invalid && form.controls.policyId.touched) {
+              <p class="mt-1 text-xs text-danger-500">Select a policy.</p>
+            }
+            <p class="mt-1 text-xs text-gray-400">
+              Only active policies created from an accepted quote can be paid.
+            </p>
+          </div>
+
+          <div>
+            <label class="label-base" for="paymentMethod">Payment method</label>
+            <select id="paymentMethod" class="input-base" formControlName="method">
+              @for (method of methods; track method) {
+                <option [ngValue]="method">{{ method.replaceAll('_', ' ') }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              class="btn-outline"
+              [disabled]="(saving$ | async) ?? false"
+              (click)="closeForm()"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="btn-brand"
+              [disabled]="form.invalid || ((saving$ | async) ?? false)"
+            >
+              {{ (saving$ | async) ? 'Submitting...' : 'Pay premium' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</section>

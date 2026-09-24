@@ -15,6 +15,8 @@ export const ROLE_PRIMARY_NAV: Record<string, HeaderNavLink[]> = {
   [ROLES.CUSTOMER]: [
     { label: 'Dashboard', routerLink: '/customer/dashboard' },
     { label: 'Policies', routerLink: '/customer/policies' },
+    { label: 'Quotes', routerLink: '/customer/quotes' },
+    { label: 'Payments', routerLink: '/customer/payments' },
     { label: 'Claims', routerLink: '/customer/claims' },
   ],
   [ROLES.UNDERWRITER]: [
@@ -28,6 +30,7 @@ export const ROLE_PRIMARY_NAV: Record<string, HeaderNavLink[]> = {
   [ROLES.ADMIN]: [
     // { label: 'Dashboard', routerLink: '/admin/dashboard' },
     { label: 'Products', routerLink: '/admin/products' },
+    { label: 'Environmental Measurements', routerLink: '/admin/current-measurements', icon: '🌡️' },
     { label: 'Users', routerLink: '/admin/users' },
     { label: 'Policies', routerLink: '/admin/policies' },
     { label: 'Claims', routerLink: '/admin/claims' },
@@ -54,6 +57,14 @@ export const ROLE_MORE_MENU: Record<string, HeaderMoreGroup[]> = {
       items: [
         { label: 'Perils', routerLink: '/admin/perils', icon: '⚡' },
         { label: 'Zones', routerLink: '/admin/zones', icon: '📍' },
+      ],
+    },
+    {
+      label: 'Finance',
+      items: [
+        { label: 'Pricing Rules', routerLink: '/admin/pricing-rules', icon: '⚙️' },
+        { label: 'Payments', routerLink: '/admin/payments', icon: '💳' },
+        { label: 'Payouts', routerLink: '/admin/payouts', icon: '🏦' },
       ],
     },
     {

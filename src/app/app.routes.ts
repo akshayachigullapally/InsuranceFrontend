@@ -128,6 +128,20 @@ export const routes: Routes = [
             (m) => m.CustomerNotificationsComponent,
           ),
       },
+      {
+        path: 'quotes',
+        loadComponent: () =>
+          import('./features/components/customer-quotes/customer-quotes.component').then(
+            (m) => m.CustomerQuotesComponent,
+          ),
+      },
+      {
+        path: 'payments',
+        loadComponent: () =>
+          import('./features/components/customer-payments/customer-payments.component').then(
+            (m) => m.CustomerPaymentsComponent,
+          ),
+      },
     ],
   },
   {
@@ -311,6 +325,27 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/components/admin-current-measurements/admin-current-measurements.component').then(
             (m) => m.AdminCurrentMeasurementsComponent,
+          ),
+      },
+      {
+        path: 'pricing-rules',
+        loadComponent: () =>
+          import('./features/components/admin-pricing-rules/admin-pricing-rules.component').then(
+            (m) => m.AdminPricingRulesComponent,
+          ),
+      },
+      {
+        path: 'payments',
+        loadComponent: () =>
+          import('./features/components/admin-payments/admin-payments.component').then(
+            (m) => m.AdminPaymentsComponent,
+          ),
+      },
+      {
+        path: 'payouts',
+        loadComponent: () =>
+          import('./features/components/admin-payouts/admin-payouts.component').then(
+            (m) => m.AdminPayoutsComponent,
           ),
       },
       {

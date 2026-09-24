@@ -65,6 +65,18 @@
         [formGroup]="form"
         (ngSubmit)="onSubmit()"
       >
+        @if (appliedQuote; as quote) {
+          <div class="rounded-xl border border-brand-200 bg-brand-50 px-4 py-3">
+            <p class="text-xs font-semibold tracking-wide text-brand-700 uppercase">
+              Applying with quote {{ quote.quoteReference }}
+            </p>
+            <p class="mt-1 text-sm text-brand-800">
+              Product, sum insured, term and zone are locked to this quote's
+              premium of ₹ {{ quote.premiumAmount | number:'1.2-2' }}.
+            </p>
+          </div>
+        }
+
         <div>
           <label class="label-base" for="productId">
             Product

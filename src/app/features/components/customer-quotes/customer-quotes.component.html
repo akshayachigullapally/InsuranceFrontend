@@ -1,0 +1,253 @@
+<section class="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+        Get covered
+      </p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+        Quotes
+      </h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Request a premium quote for a product before applying. Accept a quote
+        to lock its premium, then apply for the policy.
+      </p>
+    </div>
+
+    <button type="button" class="btn-brand" (click)="openCreate()">
+      + Request a quote
+    </button>
+  </div>
+
+  @if (error$ | async; as error) {
+    <app-error-message [error]="error" />
+  }
+
+  @if (zonesError) {
+    <app-error-message [error]="zonesError" />
+  }
+
+  @if (loading$ | async) {
+    <app-loading-spinner label="Loading your quotes..." />
+  } @else if (quotes$ | async; as quotes) {
+    @if (quotes.length > 0) {
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        @for (quote of quotes; track quote.id) {
+          <div class="card flex flex-col gap-3 p-5">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-xs font-semibold tracking-wide text-brand-600 uppercase">
+                  {{ quote.quoteReference }}
+                </p>
+                <p class="mt-0.5 text-sm text-gray-500">
+                  {{ productName((products$ | async) ?? [], quote.productId) }}
+                  · {{ zoneName(quote.locationZoneId) }}
+                </p>
+              </div>
+
+              <app-status-badge
+                [status]="isExpired(quote) ? 'EXPIRED' : quote.status"
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <p class="text-xs text-gray-500">Sum insured</p>
+                <p class="font-semibold text-gray-900">
+                  ₹ {{ quote.sumInsured | number }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Term</p>
+                <p class="font-semibold text-gray-900">
+                  {{ quote.termMonths }} months
+                </p>
+              </div>
+            </div>
+
+            <div class="rounded-lg bg-brand-50 px-3 py-2">
+              <p class="text-xs font-medium text-brand-700 uppercase">
+                Premium
+              </p>
+              <p class="text-lg font-bold text-brand-800">
+                ₹ {{ quote.premiumAmount | number:'1.2-2' }}
+              </p>
+            </div>
+
+            @if (quote.expiresAt && quote.status === 'CREATED') {
+              <p class="text-xs text-gray-400">
+                Expires {{ quote.expiresAt | date: 'medium' }}
+              </p>
+            }
+
+            @if (quote.status === 'CONSUMED' && quote.policyNumber) {
+              <p class="text-xs text-gray-500">
+                Linked to policy {{ quote.policyNumber }}
+              </p>
+            }
+
+            <div class="mt-1 flex flex-wrap items-center gap-3 text-sm">
+              @if (quote.status === 'CREATED' && !isExpired(quote)) {
+                <button
+                  type="button"
+                  class="font-semibold text-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="(saving$ | async) ?? false"
+                  (click)="accept(quote)"
+                >
+                  Accept
+                </button>
+
+                <button
+                  type="button"
+                  class="font-semibold text-danger-500 hover:text-danger-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="(saving$ | async) ?? false"
+                  (click)="cancel(quote)"
+                >
+                  Cancel
+                </button>
+              }
+
+              @if (quote.status === 'ACCEPTED') {
+                <a
+                  [routerLink]="['/customer/policies/new']"
+                  [queryParams]="{ productId: quote.productId, quoteId: quote.id }"
+                  class="btn-brand !px-3 !py-1.5 text-xs"
+                >
+                  Apply for policy →
+                </a>
+
+                <button
+                  type="button"
+                  class="font-semibold text-danger-500 hover:text-danger-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="(saving$ | async) ?? false"
+                  (click)="cancel(quote)"
+                >
+                  Cancel
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <app-empty-state
+        title="No quotes yet"
+        message="Request a quote for a product to see its premium before applying."
+        icon="💬"
+      >
+        <button type="button" class="btn-brand mt-4" (click)="openCreate()">
+          Request a quote
+        </button>
+      </app-empty-state>
+    }
+  }
+
+  @if (formOpen) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-950/50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quote-form-title"
+    >
+      <div class="my-8 w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+        <h2 id="quote-form-title" class="text-xl font-bold text-gray-900">
+          Request a quote
+        </h2>
+
+        <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+          <div>
+            <label class="label-base" for="quoteProductId">Product</label>
+            <select id="quoteProductId" class="input-base" formControlName="productId">
+              <option [ngValue]="null" disabled>Select a product</option>
+              @for (product of products$ | async; track product.id) {
+                <option [ngValue]="product.id">
+                  {{ product.name }} ({{ product.productCode }})
+                </option>
+              }
+            </select>
+            @if (form.controls.productId.invalid && form.controls.productId.touched) {
+              <p class="mt-1 text-xs text-danger-500">Product is required.</p>
+            }
+          </div>
+
+          <div>
+            <label class="label-base" for="quoteZoneId">Location zone</label>
+            <select
+              id="quoteZoneId"
+              class="input-base"
+              formControlName="locationZoneId"
+              [disabled]="zonesLoading || zones.length === 0"
+            >
+              <option [ngValue]="null" disabled>
+                {{ zonesLoading ? 'Loading zones...' : 'Select your zone' }}
+              </option>
+              @for (zone of zones; track zone.id) {
+                <option [ngValue]="zone.id">
+                  {{ zone.zoneName }}
+                  @if (zone.district) { - {{ zone.district }} }
+                </option>
+              }
+            </select>
+            @if (form.controls.locationZoneId.invalid && form.controls.locationZoneId.touched) {
+              <p class="mt-1 text-xs text-danger-500">Location zone is required.</p>
+            }
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="label-base" for="quoteSumInsured">Sum insured (₹)</label>
+              <input
+                id="quoteSumInsured"
+                type="number"
+                min="1"
+                class="input-base"
+                formControlName="sumInsured"
+              />
+              @if (form.controls.sumInsured.invalid && form.controls.sumInsured.touched) {
+                <p class="mt-1 text-xs text-danger-500">Required, must be greater than zero.</p>
+              }
+            </div>
+
+            <div>
+              <label class="label-base" for="quoteTermMonths">Term (months)</label>
+              <input
+                id="quoteTermMonths"
+                type="number"
+                min="1"
+                max="60"
+                class="input-base"
+                formControlName="termMonths"
+              />
+              @if (form.controls.termMonths.invalid && form.controls.termMonths.touched) {
+                <p class="mt-1 text-xs text-danger-500">Must be between 1 and 60 months.</p>
+              }
+            </div>
+          </div>
+
+          <p class="text-xs text-gray-500">
+            The premium is calculated from the pricing rule configured by the
+            admin for this product and zone.
+          </p>
+
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              class="btn-outline"
+              [disabled]="(saving$ | async) ?? false"
+              (click)="closeForm()"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="btn-brand"
+              [disabled]="form.invalid || ((saving$ | async) ?? false)"
+            >
+              {{ (saving$ | async) ? 'Requesting...' : 'Get quote' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</section>

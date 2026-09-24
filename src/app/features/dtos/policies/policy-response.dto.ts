@@ -35,6 +35,7 @@ export interface CreatePolicyRequest {
   locationZoneId: number;
   sumInsured: number;
   termMonths: number;
+  quoteId?: number;
   perilCode?: string;
   triggerMetric?: string;
   triggerOperator?: string;

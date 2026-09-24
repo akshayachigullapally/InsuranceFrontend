@@ -47,6 +47,8 @@ export class CustomerDashboardComponent implements OnInit {
   protected readonly quickActions: QuickAction[] = [
     { icon: '🛒', label: 'Get new coverage', description: 'Browse parametric products', routerLink: '/products', color: 'bg-brand-50' },
     { icon: '➕', label: 'Apply for a policy', description: 'Choose sum insured & term', routerLink: '/customer/policies/new', color: 'bg-emerald-50' },
+    { icon: '💬', label: 'Get a quote', description: 'Preview a premium before applying', routerLink: '/customer/quotes', color: 'bg-fuchsia-50' },
+    { icon: '💳', label: 'Pay a premium', description: 'Settle a policy payment', routerLink: '/customer/payments', color: 'bg-sky-50' },
     { icon: '👤', label: 'Update my profile', description: 'Addresses & contact details', routerLink: '/customer/profile', color: 'bg-indigo-50' },
     { icon: '📋', label: 'Report a claim', description: 'Manual claims intake', routerLink: '/customer/claims/new', color: 'bg-amber-50' },
   ];

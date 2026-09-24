@@ -43,6 +43,8 @@ import {
 } from '../../dtos/triggers/trigger-condition.dto';
 import { ZoneResponse } from '../../dtos/zones/zone-response.dto';
 import { ZoneService } from '../../services/zone.service';
+import { QuoteResponse } from '../../dtos/financial/quote-response.dto';
+import { QuoteService } from '../../services/quote.service';
 import {
   clearPoliciesError,
   createCustomPolicy,
@@ -252,14 +254,19 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
   protected zonesLoading = false;
   protected zonesError: string | null = null;
 
+  protected appliedQuote: QuoteResponse | null = null;
+  protected quoteId: number | null = null;
+
   private products: ProductResponse[] = [];
   private requestedProductId: number | null = null;
+  private pendingQuoteZoneId: number | null = null;
   private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly store: Store,
     private readonly zoneService: ZoneService,
+    private readonly quoteService: QuoteService,
   ) {
     this.products$ = this.store.select(selectProducts);
     this.productsLoading$ = this.store.select(selectProductsLoading);
@@ -331,6 +338,22 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       Number.isInteger(queryProductId) && queryProductId > 0
         ? queryProductId
         : null;
+
+    const queryQuoteId = Number(
+      this.route.snapshot.queryParamMap.get('quoteId'),
+    );
+
+    if (Number.isInteger(queryQuoteId) && queryQuoteId > 0) {
+      this.quoteService.getQuote(queryQuoteId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: quote => this.applyQuote(quote),
+          error: () => {
+            this.quoteId = null;
+            this.appliedQuote = null;
+          },
+        });
+    }
 
     this.products$
       .pipe(takeUntil(this.destroy$))
@@ -492,6 +515,7 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
         sumInsured,
         termMonths,
         locationZoneId,
+        quoteId: this.quoteId ?? undefined,
         perilCode: this.selectedProduct.perilCode || undefined,
         triggerMetric: this.selectedProduct.measurementType || undefined,
         triggerOperator: this.selectedProduct.comparisonOperator || undefined,
@@ -610,6 +634,26 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
     };
   }
 
+  private applyQuote(quote: QuoteResponse): void {
+    if (quote.status !== 'ACCEPTED') {
+      this.appliedQuote = null;
+      this.quoteId = null;
+      return;
+    }
+
+    this.appliedQuote = quote;
+    this.quoteId = quote.id;
+    this.requestedProductId = quote.productId;
+    this.pendingQuoteZoneId = quote.locationZoneId;
+
+    this.selectRequestedProduct();
+    this.form.controls.productId.disable();
+
+    if (this.selectedProduct?.id === quote.productId) {
+      this.updateSelectedProduct(quote.productId);
+    }
+  }
+
   private selectRequestedProduct(): void {
     if (
       !this.requestedProductId ||
@@ -664,13 +708,20 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       ),
     ]);
 
-    sumControl.setValue(
-      this.selectedProduct.minimumSumInsured,
-    );
+    if (this.appliedQuote && this.appliedQuote.productId === productId) {
+      sumControl.setValue(this.appliedQuote.sumInsured);
+      termControl.setValue(this.appliedQuote.termMonths);
+      sumControl.disable();
+      termControl.disable();
+    } else {
+      sumControl.setValue(
+        this.selectedProduct.minimumSumInsured,
+      );
 
-    termControl.setValue(
-      this.selectedProduct.minimumTermMonths,
-    );
+      termControl.setValue(
+        this.selectedProduct.minimumTermMonths,
+      );
+    }
 
     sumControl.updateValueAndValidity();
     termControl.updateValueAndValidity();
@@ -691,6 +742,13 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
           this.zonesLoading = false;
           this.form.controls.locationZoneId.enable();
           this.customForm.controls.locationZoneId.enable();
+
+          if (this.pendingQuoteZoneId !== null) {
+            this.form.controls.locationZoneId.setValue(
+              this.pendingQuoteZoneId,
+            );
+            this.form.controls.locationZoneId.disable();
+          }
         },
         error: () => {
           this.zones = [];

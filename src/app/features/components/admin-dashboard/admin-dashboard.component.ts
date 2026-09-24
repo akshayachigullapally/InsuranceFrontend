@@ -40,6 +40,9 @@ export class AdminDashboardComponent implements OnInit {
   protected readonly adminLinks: AdminLink[] = [
     { icon: '📦', label: 'Products', description: 'Insurance product catalogue', routerLink: '/admin/products', color: 'bg-emerald-50' },
     { icon: '🌡️', label: 'Environmental Measurements', description: 'View current values & thresholds, update readings', routerLink: '/admin/current-measurements', color: 'bg-teal-50' },
+    { icon: '⚙️', label: 'Pricing Rules', description: 'Premium formulas used for customer quotes', routerLink: '/admin/pricing-rules', color: 'bg-fuchsia-50' },
+    { icon: '💳', label: 'Payments', description: 'Premium payments from customers', routerLink: '/admin/payments', color: 'bg-sky-50' },
+    { icon: '🏦', label: 'Payouts', description: 'Claim payouts pending settlement', routerLink: '/admin/payouts', color: 'bg-lime-50' },
     { icon: '👥', label: 'Users', description: 'Provision & manage accounts', routerLink: '/admin/users', color: 'bg-blue-50' },
     { icon: '📄', label: 'Policies', description: 'All policy applications', routerLink: '/admin/policies', color: 'bg-indigo-50' },
     { icon: '📋', label: 'Claims', description: 'Platform-wide claim activity', routerLink: '/admin/claims', color: 'bg-amber-50' },
