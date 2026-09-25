@@ -11,6 +11,7 @@ import {
   MessageResponse,
   RejectClaimRequest,
   SettleClaimRequest,
+  ClaimReviewHistoryResponse,
 } from '../dtos/claims/claim-response.dto';
 
 @Injectable({ providedIn: 'root' })
@@ -51,6 +52,12 @@ export class ClaimService {
   getSubmittedClaims(): Observable<ClaimResponse[]> {
     return this.http.get<ClaimResponse[]>(
       API_ENDPOINTS.claims.reviewSubmitted,
+    );
+  }
+
+  getReviewHistory(): Observable<ClaimReviewHistoryResponse[]> {
+    return this.http.get<ClaimReviewHistoryResponse[]>(
+      API_ENDPOINTS.claims.reviewHistory,
     );
   }
 

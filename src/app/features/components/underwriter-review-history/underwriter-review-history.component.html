@@ -1,0 +1,147 @@
+<section class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+        Underwriting
+      </p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+        Review history
+      </h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Every policy application you have approved or rejected, newest first.
+      </p>
+    </div>
+
+    <button type="button" class="btn-outline" [disabled]="loading()" (click)="load()">
+      ↻ Refresh
+    </button>
+  </div>
+
+  @if (error(); as message) {
+    <app-error-message [error]="message" />
+  }
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <app-stat-card label="Decisions" [value]="entries().length" icon="🗂️" color="navy" hint="Policies reviewed" />
+    <app-stat-card label="Approved" [value]="approvedCount()" icon="✅" color="green" hint="Policies activated" />
+    <app-stat-card label="Rejected" [value]="rejectedCount()" icon="⛔" color="red" hint="Applications declined" />
+    <app-stat-card
+      label="Cover approved"
+      [value]="'₹ ' + approvedCover().toLocaleString('en-IN')"
+      icon="🛡️"
+      color="blue"
+      hint="Total sum insured"
+    />
+  </div>
+
+  <div class="card p-4">
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="md:col-span-2">
+        <label class="label-base" for="reviewSearch">Search</label>
+        <input
+          id="reviewSearch"
+          type="search"
+          class="input-base"
+          placeholder="Policy number, product, customer ID or reason"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+        />
+      </div>
+      <div>
+        <label class="label-base" for="reviewDecision">Decision</label>
+        <select
+          id="reviewDecision"
+          class="input-base"
+          [ngModel]="decision()"
+          (ngModelChange)="decision.set($event)"
+        >
+          <option value="">All decisions</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mt-4 flex items-center justify-between">
+      <p class="text-xs text-gray-500">Showing {{ filtered().length }} of {{ entries().length }} decisions</p>
+      @if (search() || decision()) {
+        <button type="button" class="text-sm font-semibold text-brand-600 hover:text-brand-700" (click)="clearFilters()">
+          Clear filters
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner label="Loading review history..." />
+  } @else if (filtered().length > 0) {
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Decided</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Policy</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Product</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Cover / premium</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Decision</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Now</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            @for (entry of filtered(); track entry.historyId) {
+              <tr class="align-top hover:bg-gray-50">
+                <td class="px-6 py-3 text-sm whitespace-nowrap text-gray-600">
+                  {{ entry.decidedAt | date: 'medium' }}
+                </td>
+                <td class="px-6 py-3 text-sm whitespace-nowrap">
+                  <a
+                    class="font-semibold text-brand-600 hover:text-brand-700"
+                    [routerLink]="['/underwriter/policies', entry.policyId]"
+                  >
+                    {{ entry.policyNumber }}
+                  </a>
+                  <span class="block text-xs text-gray-400">Customer #{{ entry.customerId }}</span>
+                </td>
+                <td class="px-6 py-3 text-sm text-gray-900">
+                  {{ entry.productName || '—' }}
+                  @if (entry.productCode) {
+                    <span class="block text-xs text-gray-400">{{ entry.productCode }}</span>
+                  }
+                </td>
+                <td class="px-6 py-3 text-sm whitespace-nowrap text-gray-600">
+                  ₹ {{ entry.sumInsured | number: '1.0-0' }}
+                  <span class="block text-xs text-gray-400">
+                    ₹ {{ entry.premiumAmount | number: '1.2-2' }} · {{ entry.termMonths }} months
+                  </span>
+                </td>
+                <td class="max-w-xs px-6 py-3 text-sm">
+                  <span
+                    class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                    [class]="entry.decision === 'APPROVED' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                  >
+                    {{ humanize(entry.decision) }}
+                  </span>
+                  @if (entry.reason) {
+                    <span class="mt-1 block break-words text-xs text-gray-500">{{ entry.reason }}</span>
+                  }
+                </td>
+                <td class="px-6 py-3 text-sm whitespace-nowrap text-gray-600">
+                  {{ humanize(entry.currentStatus) }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  } @else {
+    <app-empty-state
+      [title]="entries().length ? 'No matching decisions' : 'No decisions yet'"
+      [message]="entries().length
+        ? 'Try clearing the filters.'
+        : 'Policies you approve or reject from the review queue will appear here.'"
+      icon="🗂️"
+    />
+  }
+</section>

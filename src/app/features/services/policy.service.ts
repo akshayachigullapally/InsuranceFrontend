@@ -11,6 +11,7 @@ import {
   PolicyStatus,
   PolicyStatusHistoryResponse,
   PolicyTriggerSnapshotResponse,
+  PolicyReviewHistoryResponse,
 } from '../dtos/policies/policy-response.dto';
 
 @Injectable({ providedIn: 'root' })
@@ -60,6 +61,12 @@ export class PolicyService {
   getPendingPolicies(): Observable<PolicyResponse[]> {
     return this.http.get<PolicyResponse[]>(
       API_ENDPOINTS.policies.reviewPending,
+    );
+  }
+
+  getReviewHistory(): Observable<PolicyReviewHistoryResponse[]> {
+    return this.http.get<PolicyReviewHistoryResponse[]>(
+      API_ENDPOINTS.policies.reviewHistory,
     );
   }
 

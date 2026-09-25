@@ -22,10 +22,12 @@ export const ROLE_PRIMARY_NAV: Record<string, HeaderNavLink[]> = {
   [ROLES.UNDERWRITER]: [
     { label: 'Dashboard', routerLink: '/underwriter/dashboard' },
     { label: 'Policies', routerLink: '/underwriter/policies' },
+    { label: 'Review History', routerLink: '/underwriter/history' },
   ],
   [ROLES.CLAIMS_OFFICER]: [
     { label: 'Dashboard', routerLink: '/claims-officer/dashboard' },
     { label: 'Claims', routerLink: '/claims-officer/claims' },
+    { label: 'Review History', routerLink: '/claims-officer/history' },
   ],
   [ROLES.ADMIN]: [
     // { label: 'Dashboard', routerLink: '/admin/dashboard' },

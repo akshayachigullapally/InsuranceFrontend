@@ -41,6 +41,7 @@ export const API_ENDPOINTS = {
     getById: (policyId: number) => `${BASE}/api/policies/${policyId}`,
     cancel: (policyId: number) => `${BASE}/api/policies/${policyId}/cancel`,
     reviewPending: `${BASE}/api/policies/review/pending`,
+    reviewHistory: `${BASE}/api/policies/review/history`,
     approve: (policyId: number) => `${BASE}/api/policies/${policyId}/approve`,
     reject: (policyId: number) => `${BASE}/api/policies/${policyId}/reject`,
     adminAll: `${BASE}/api/policies/admin/all`,
@@ -57,6 +58,7 @@ export const API_ENDPOINTS = {
     cancel: (claimId: number) =>
       `${BASE}/api/claims/${claimId}/cancel`,
     reviewSubmitted: `${BASE}/api/claims/review/submitted`,
+    reviewHistory: `${BASE}/api/claims/review/history`,
     reviewById: (claimId: number) =>
       `${BASE}/api/claims/review/${claimId}`,
     startReview: (claimId: number) =>

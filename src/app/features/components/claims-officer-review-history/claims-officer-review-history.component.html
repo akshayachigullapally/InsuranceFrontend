@@ -1,0 +1,147 @@
+<section class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+        Claims
+      </p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+        Review history
+      </h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Every claim you have reviewed, approved, rejected or settled, newest first.
+      </p>
+    </div>
+
+    <button type="button" class="btn-outline" [disabled]="loading()" (click)="load()">
+      ↻ Refresh
+    </button>
+  </div>
+
+  @if (error(); as message) {
+    <app-error-message [error]="message" />
+  }
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+    <app-stat-card label="Claims handled" [value]="claimsHandled()" icon="🗂️" color="navy" hint="Distinct claims" />
+    <app-stat-card label="Approved" [value]="approvedCount()" icon="✅" color="green" hint="Claims approved" />
+    <app-stat-card label="Rejected" [value]="rejectedCount()" icon="⛔" color="red" hint="Claims declined" />
+    <app-stat-card label="Settled" [value]="settledCount()" icon="🏦" color="blue" hint="Claims closed" />
+    <app-stat-card
+      label="Amount approved"
+      [value]="'₹ ' + approvedAmount().toLocaleString('en-IN')"
+      icon="💰"
+      color="amber"
+      hint="Total approved payouts"
+    />
+  </div>
+
+  <div class="card p-4">
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="md:col-span-2">
+        <label class="label-base" for="claimHistorySearch">Search</label>
+        <input
+          id="claimHistorySearch"
+          type="search"
+          class="input-base"
+          placeholder="Claim number, policy number, customer ID or notes"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+        />
+      </div>
+      <div>
+        <label class="label-base" for="claimHistoryAction">Action</label>
+        <select
+          id="claimHistoryAction"
+          class="input-base"
+          [ngModel]="action()"
+          (ngModelChange)="action.set($event)"
+        >
+          <option value="">All actions</option>
+          @for (value of actionFilters; track value) {
+            <option [value]="value">{{ actionLabels[value] }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="mt-4 flex items-center justify-between">
+      <p class="text-xs text-gray-500">Showing {{ filtered().length }} of {{ entries().length }} actions</p>
+      @if (search() || action()) {
+        <button type="button" class="text-sm font-semibold text-brand-600 hover:text-brand-700" (click)="clearFilters()">
+          Clear filters
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner label="Loading review history..." />
+  } @else if (filtered().length > 0) {
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">When</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Claim</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Action</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Amount</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Notes</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Now</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            @for (entry of filtered(); track entry.timelineId) {
+              <tr class="align-top hover:bg-gray-50">
+                <td class="px-6 py-3 text-sm whitespace-nowrap text-gray-600">
+                  {{ entry.actedAt | date: 'medium' }}
+                </td>
+                <td class="px-6 py-3 text-sm whitespace-nowrap">
+                  <a
+                    class="font-semibold text-brand-600 hover:text-brand-700"
+                    [routerLink]="['/claims-officer/claims', entry.claimId]"
+                  >
+                    {{ entry.claimNumber }}
+                  </a>
+                  <span class="block text-xs text-gray-400">
+                    {{ entry.policyNumber || 'No policy number' }} · Customer #{{ entry.customerId }}
+                  </span>
+                </td>
+                <td class="px-6 py-3 text-sm whitespace-nowrap">
+                  <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold" [class]="actionTone(entry.action)">
+                    {{ actionLabel(entry.action) }}
+                  </span>
+                  <span class="block text-xs text-gray-400">
+                    {{ humanize(entry.oldStatus) }} → {{ humanize(entry.newStatus) }}
+                  </span>
+                </td>
+                <td class="px-6 py-3 text-sm whitespace-nowrap text-gray-600">
+                  @if (entry.claimedAmount !== null && entry.claimedAmount !== undefined) {
+                    Claimed ₹ {{ entry.claimedAmount | number: '1.2-2' }}
+                  }
+                  @if (entry.approvedAmount !== null && entry.approvedAmount !== undefined) {
+                    <span class="block text-xs text-green-700">Approved ₹ {{ entry.approvedAmount | number: '1.2-2' }}</span>
+                  }
+                </td>
+                <td class="max-w-xs px-6 py-3 text-sm break-words text-gray-500">
+                  {{ entry.notes || '—' }}
+                </td>
+                <td class="px-6 py-3 text-sm whitespace-nowrap text-gray-600">
+                  {{ humanize(entry.currentStatus) }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  } @else {
+    <app-empty-state
+      [title]="entries().length ? 'No matching actions' : 'No reviews yet'"
+      [message]="entries().length
+        ? 'Try clearing the filters.'
+        : 'Claims you start reviewing, approve, reject or settle will appear here.'"
+      icon="🗂️"
+    />
+  }
+</section>

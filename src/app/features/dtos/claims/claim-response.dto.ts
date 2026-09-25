@@ -77,3 +77,21 @@ export interface ClaimTimelineResponse {
 export interface MessageResponse {
   message: string;
 }
+
+/** An action the signed-in claims officer took on a claim. */
+export interface ClaimReviewHistoryResponse {
+  timelineId: number;
+  claimId: number;
+  claimNumber: string;
+  policyNumber?: string | null;
+  customerId: number;
+  claimSource?: string | null;
+  action: string;
+  oldStatus?: string | null;
+  newStatus: string;
+  notes?: string | null;
+  actedAt: string;
+  claimedAmount?: number | null;
+  approvedAmount?: number | null;
+  currentStatus: string;
+}

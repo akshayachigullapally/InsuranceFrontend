@@ -201,6 +201,13 @@ export const routes: Routes = [
             (m) => m.AuditHistoryComponent,
           ),
       },
+      {
+        path: 'history',
+        loadComponent: () =>
+          import('./features/components/underwriter-review-history/underwriter-review-history.component').then(
+            (m) => m.UnderwriterReviewHistoryComponent,
+          ),
+      },
     ],
   },
   {
@@ -243,6 +250,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/components/audit-history/audit-history.component').then(
             (m) => m.AuditHistoryComponent,
+          ),
+      },
+      {
+        path: 'history',
+        loadComponent: () =>
+          import('./features/components/claims-officer-review-history/claims-officer-review-history.component').then(
+            (m) => m.ClaimsOfficerReviewHistoryComponent,
           ),
       },
     ],

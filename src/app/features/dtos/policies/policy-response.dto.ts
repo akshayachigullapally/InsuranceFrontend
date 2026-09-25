@@ -105,3 +105,21 @@ export interface PolicyTriggerSnapshotResponse {
 export interface MessageResponse {
   message: string;
 }
+
+/** An approve/reject decision made by the signed-in underwriter. */
+export interface PolicyReviewHistoryResponse {
+  historyId: number;
+  policyId: number;
+  policyNumber: string;
+  customerId: number;
+  productId: number;
+  productCode?: string | null;
+  productName?: string | null;
+  sumInsured: number;
+  premiumAmount: number;
+  termMonths: number;
+  decision: 'APPROVED' | 'REJECTED';
+  reason?: string | null;
+  decidedAt: string;
+  currentStatus: string;
+}
