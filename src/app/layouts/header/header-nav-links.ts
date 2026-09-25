@@ -15,9 +15,9 @@ export const ROLE_PRIMARY_NAV: Record<string, HeaderNavLink[]> = {
   [ROLES.CUSTOMER]: [
     { label: 'Dashboard', routerLink: '/customer/dashboard' },
     { label: 'Policies', routerLink: '/customer/policies' },
-    { label: 'Claims', routerLink: '/customer/claims' },
+    { label: 'Quotes', routerLink: '/customer/quotes' },
     { label: 'Payments', routerLink: '/customer/payments' },
-    { label: 'Payouts', routerLink: '/customer/payouts' },
+    { label: 'Claims', routerLink: '/customer/claims' },
   ],
   [ROLES.UNDERWRITER]: [
     { label: 'Dashboard', routerLink: '/underwriter/dashboard' },
@@ -33,6 +33,7 @@ export const ROLE_PRIMARY_NAV: Record<string, HeaderNavLink[]> = {
     { label: 'Users', routerLink: '/admin/users' },
     { label: 'Policies', routerLink: '/admin/policies' },
     { label: 'Claims', routerLink: '/admin/claims' },
+    { label: 'Measurements', routerLink: '/admin/current-measurements', },
   ],
 };
 
@@ -43,31 +44,13 @@ export const ROLE_MORE_MENU: Record<string, HeaderMoreGroup[]> = {
       items: [
         // { label: 'My Profile', routerLink: '/customer/profile', icon: '👤' },
         { label: 'New Policy', routerLink: '/customer/policies/new', icon: '➕' },
-        { label: 'Get a Quote', routerLink: '/customer/quotes', icon: '💬' },
         { label: 'New Claim', routerLink: '/customer/claims/new', icon: '📋' },
         { label: 'Notifications', routerLink: '/customer/notifications', icon: '🔔' },
-        { label: 'My Activity', routerLink: '/customer/activity', icon: '🕘' },
       ],
     },
   ],
-  [ROLES.UNDERWRITER]: [
-    {
-      label: 'Account',
-      items: [
-        { label: 'Notifications', routerLink: '/underwriter/notifications', icon: '🔔' },
-        { label: 'My Activity', routerLink: '/underwriter/activity', icon: '🕘' },
-      ],
-    },
-  ],
-  [ROLES.CLAIMS_OFFICER]: [
-    {
-      label: 'Account',
-      items: [
-        { label: 'Notifications', routerLink: '/claims-officer/notifications', icon: '🔔' },
-        { label: 'My Activity', routerLink: '/claims-officer/activity', icon: '🕘' },
-      ],
-    },
-  ],
+  [ROLES.UNDERWRITER]: [],
+  [ROLES.CLAIMS_OFFICER]: [],
   [ROLES.ADMIN]: [
     {
       label: 'Reference Data',
@@ -89,8 +72,7 @@ export const ROLE_MORE_MENU: Record<string, HeaderMoreGroup[]> = {
       items: [
         { label: 'Trigger Events', routerLink: '/admin/trigger-events', icon: '🚨' },
         { label: 'Notifications', routerLink: '/admin/notifications', icon: '🔔' },
-        { label: 'Audit Log (all users)', routerLink: '/admin/audit', icon: '📝' },
-        { label: 'My Activity', routerLink: '/admin/activity', icon: '🕘' },
+        { label: 'Audit Log', routerLink: '/admin/audit', icon: '📝' },
       ],
     },
   ],
