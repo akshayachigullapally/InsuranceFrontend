@@ -21,7 +21,7 @@ import { Store } from '@ngrx/store';
 import {
   Observable,
   Subject,
-  combineLatest,
+  defer,
 } from 'rxjs';
 import {
   distinctUntilChanged,
@@ -274,35 +274,31 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
     this.submitting$ = this.store.select(selectPoliciesSaving);
     this.submitError$ = this.store.select(selectPoliciesError);
 
-    this.premium$ = combineLatest([
-      this.form.controls.sumInsured.valueChanges.pipe(
-        startWith(this.form.controls.sumInsured.value),
-      ),
-      this.form.controls.termMonths.valueChanges.pipe(
-        startWith(this.form.controls.termMonths.value),
-      ),
-    ]).pipe(
-      map(([sumInsured, termMonths]) =>
-        CustomerPolicyNewComponent.estimatePremium(
-          sumInsured,
-          termMonths,
-        ),
+    // defer() so the starting value is read when the template subscribes
+    // (after a product is selected), not at construction time.
+    this.premium$ = defer(() =>
+      this.form.valueChanges.pipe(
+        startWith(null),
+        map(() => {
+          const { sumInsured, termMonths } = this.form.getRawValue();
+          return CustomerPolicyNewComponent.estimatePremium(
+            sumInsured,
+            termMonths,
+          );
+        }),
       ),
     );
 
-    this.customPremium$ = combineLatest([
-      this.customForm.controls.sumInsured.valueChanges.pipe(
-        startWith(this.customForm.controls.sumInsured.value),
-      ),
-      this.customForm.controls.termMonths.valueChanges.pipe(
-        startWith(this.customForm.controls.termMonths.value),
-      ),
-    ]).pipe(
-      map(([sumInsured, termMonths]) =>
-        CustomerPolicyNewComponent.estimatePremium(
-          sumInsured,
-          termMonths,
-        ),
+    this.customPremium$ = defer(() =>
+      this.customForm.valueChanges.pipe(
+        startWith(null),
+        map(() => {
+          const { sumInsured, termMonths } = this.customForm.getRawValue();
+          return CustomerPolicyNewComponent.estimatePremium(
+            sumInsured,
+            termMonths,
+          );
+        }),
       ),
     );
   }
