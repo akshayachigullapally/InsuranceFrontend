@@ -172,4 +172,10 @@ export class NotificationService {
       API_ENDPOINTS.notifications.adminAudit,
     );
   }
+
+  getMyAuditEvents(): Observable<AuditEventResponse[]> {
+    return this.http.get<AuditEventResponse[]>(
+      API_ENDPOINTS.notifications.myAudit,
+    );
+  }
 }

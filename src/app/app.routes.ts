@@ -149,6 +149,14 @@ export const routes: Routes = [
             (m) => m.CustomerPayoutsComponent,
           ),
       },
+      {
+        path: 'activity',
+        data: { auditScope: 'MINE' },
+        loadComponent: () =>
+          import('./features/components/audit-history/audit-history.component').then(
+            (m) => m.AuditHistoryComponent,
+          ),
+      },
     ],
   },
   {
@@ -185,6 +193,14 @@ export const routes: Routes = [
             (m) => m.StaffNotificationsComponent,
           ),
       },
+      {
+        path: 'activity',
+        data: { auditScope: 'MINE' },
+        loadComponent: () =>
+          import('./features/components/audit-history/audit-history.component').then(
+            (m) => m.AuditHistoryComponent,
+          ),
+      },
     ],
   },
   {
@@ -219,6 +235,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/components/staff-notifications/staff-notifications.component').then(
             (m) => m.StaffNotificationsComponent,
+          ),
+      },
+      {
+        path: 'activity',
+        data: { auditScope: 'MINE' },
+        loadComponent: () =>
+          import('./features/components/audit-history/audit-history.component').then(
+            (m) => m.AuditHistoryComponent,
           ),
       },
     ],
@@ -371,9 +395,18 @@ export const routes: Routes = [
       },
       {
         path: 'audit',
+        data: { auditScope: 'ALL' },
         loadComponent: () =>
-          import('./features/components/admin-audit/admin-audit.component').then(
-            (m) => m.AdminAuditComponent,
+          import('./features/components/audit-history/audit-history.component').then(
+            (m) => m.AuditHistoryComponent,
+          ),
+      },
+      {
+        path: 'activity',
+        data: { auditScope: 'MINE' },
+        loadComponent: () =>
+          import('./features/components/audit-history/audit-history.component').then(
+            (m) => m.AuditHistoryComponent,
           ),
       },
     ],

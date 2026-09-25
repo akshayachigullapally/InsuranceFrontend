@@ -102,6 +102,7 @@ export const API_ENDPOINTS = {
     adminAll: `${BASE}/api/notifications/admin/all`,
     adminFailed: `${BASE}/api/notifications/admin/failed`,
     adminAudit: `${BASE}/api/notifications/admin/audit`,
+    myAudit: `${BASE}/api/notifications/audit/me`,
     myPreferences: `${BASE}/api/notifications/me/preferences`,
     upsertPreferences: `${BASE}/api/notifications/me/preferences`,
     fromTemplate: `${BASE}/api/notifications/from-template`,

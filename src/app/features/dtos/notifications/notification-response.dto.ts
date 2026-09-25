@@ -213,6 +213,7 @@ export interface MessageResponse {
 
 export interface AuditEventResponse {
   id: number;
+  eventReference?: string | null;
   eventType: string;
   actorUserId?: number | null;
   actorRole?: string | null;

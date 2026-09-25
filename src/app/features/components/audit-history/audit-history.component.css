@@ -1,0 +1,28 @@
+.action-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.125rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tone-neutral {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.tone-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.tone-danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.tone-info {
+  background-color: #e0f2fe;
+  color: #075985;
+}

@@ -254,6 +254,8 @@ export const deactivateTemplateFailure = createAction(
 
 export const loadAuditEvents = createAction('[Notifications] Load Audit Events');
 
+export const loadMyAuditEvents = createAction('[Notifications] Load My Audit Events');
+
 export const loadAuditEventsSuccess = createAction(
   '[Notifications] Load Audit Events Success',
   props<{ events: AuditEventResponse[] }>(),
