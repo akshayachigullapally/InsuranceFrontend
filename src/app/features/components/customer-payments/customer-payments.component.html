@@ -8,8 +8,8 @@
         Payments
       </h1>
       <p class="mt-1 text-sm text-gray-500">
-        Pay the premium for a policy created from an accepted quote, and
-        track your payment history.
+        Pay the premium for your active policies and track your payment
+        history.
       </p>
     </div>
 
@@ -69,7 +69,7 @@
     } @else {
       <app-empty-state
         title="No payments yet"
-        message="Once you accept a quote and apply for the policy, you can pay its premium here."
+        message="Once your policy is approved and active, you can pay its premium here."
         icon="💳"
       >
         <button type="button" class="btn-brand mt-4" (click)="openCreate()">
@@ -106,7 +106,7 @@
               <p class="mt-1 text-xs text-danger-500">Select a policy.</p>
             }
             <p class="mt-1 text-xs text-gray-400">
-              Only active policies created from an accepted quote can be paid.
+              Only active (underwriter-approved) policies can be paid.
             </p>
           </div>
 
