@@ -1,0 +1,69 @@
+import { TestBed } from '@angular/core/testing';
+import { Action } from '@ngrx/store';
+import { provideMockActions } from '@ngrx/effects/testing';
+import { Observable, of, throwError } from 'rxjs';
+import { PaymentsEffects } from './payments.effects';
+import * as PaymentsActions from './payments.actions';
+import { PaymentService } from '../../services/payment.service';
+import { PaymentResponse } from '../../dtos/financial/payment-response.dto';
+
+function collect(effect$: Observable<unknown>): unknown[] {
+  const results: unknown[] = [];
+  effect$.subscribe((action) => results.push(action));
+  return results;
+}
+
+describe('PaymentsEffects', () => {
+  let actions$: Observable<Action>;
+  let effects: PaymentsEffects;
+  let paymentService: Record<string, ReturnType<typeof vi.fn>>;
+  const payment = { id: 1, paymentReference: 'PAYM-1', status: 'PENDING' } as PaymentResponse;
+
+  beforeEach(() => {
+    paymentService = {
+      getAllPayments: vi.fn(),
+      getMyPayments: vi.fn(),
+      markSuccess: vi.fn(),
+      refundPayment: vi.fn(),
+    };
+
+    TestBed.configureTestingModule({
+      providers: [
+        PaymentsEffects,
+        provideMockActions(() => actions$),
+        { provide: PaymentService, useValue: paymentService },
+      ],
+    });
+    effects = TestBed.inject(PaymentsEffects);
+  });
+
+  it('loads all payments for admins', () => {
+    paymentService['getAllPayments'].mockReturnValue(of([payment]));
+    actions$ = of(PaymentsActions.loadPayments());
+
+    expect(collect(effects.loadPayments$)).toEqual([PaymentsActions.loadPaymentsSuccess({ payments: [payment] })]);
+  });
+
+  it('loads my payments', () => {
+    paymentService['getMyPayments'].mockReturnValue(of([payment]));
+    actions$ = of(PaymentsActions.loadMyPayments());
+
+    expect(collect(effects.loadMyPayments$)).toEqual([PaymentsActions.loadMyPaymentsSuccess({ payments: [payment] })]);
+  });
+
+  it('marks a payment successful', () => {
+    const request = { externalReference: 'TXN-1' } as never;
+    paymentService['markSuccess'].mockReturnValue(of(payment));
+    actions$ = of(PaymentsActions.markPaymentSuccess({ paymentId: 1, request }));
+
+    expect(collect(effects.markPaymentSuccess$)).toEqual([PaymentsActions.markPaymentSuccessSuccess({ payment })]);
+    expect(paymentService['markSuccess']).toHaveBeenCalledWith(1, request);
+  });
+
+  it('maps refund errors', () => {
+    paymentService['refundPayment'].mockReturnValue(throwError(() => ({ error: { message: 'Not refundable' } })));
+    actions$ = of(PaymentsActions.refundPayment({ paymentId: 1 }));
+
+    expect(collect(effects.refundPayment$)).toEqual([PaymentsActions.refundPaymentFailure({ error: 'Not refundable' })]);
+  });
+});

@@ -7,13 +7,13 @@ describe('ToastHostComponent', () => {
   let toastService: ToastService;
 
   beforeEach(async () => {
-    vi.useFakeTimers();
     await TestBed.configureTestingModule({
       imports: [ToastHostComponent],
     }).compileComponents();
     fixture = TestBed.createComponent(ToastHostComponent);
     toastService = TestBed.inject(ToastService);
     fixture.detectChanges();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
