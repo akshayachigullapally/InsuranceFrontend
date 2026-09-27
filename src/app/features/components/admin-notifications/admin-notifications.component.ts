@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, combineLatest, filter, map } from 'rxjs';
 import {
   NotificationResponse,
   NotificationTemplateResponse,
@@ -16,9 +16,13 @@ import {
   NotificationRequest,
 } from '../../dtos/notifications/notification-response.dto';
 import {
-  selectNotifications,
+  selectAdminNotifications,
+  selectAdminNotificationsLoading,
+  selectAdminNotificationsError,
+  selectAdminNotificationsMessage,
   selectNotificationsLoading,
   selectNotificationsError,
+  selectNotificationsSaving,
   selectTemplates,
   selectDeliveryAttempts,
 } from '../../state/notifications/notifications.selectors';
@@ -54,8 +58,11 @@ type AdminTab = 'all' | 'failed' | 'templates' | 'batch';
 })
 export class AdminNotificationsComponent implements OnInit, OnDestroy {
   notifications$: Observable<NotificationResponse[]>;
+  listLoading$: Observable<boolean>;
   isLoading$: Observable<boolean>;
+  isSaving$: Observable<boolean>;
   error$: Observable<string | null>;
+  message$: Observable<string | null>;
   templates$: Observable<NotificationTemplateResponse[]>;
   deliveryAttempts$ = this.store.select(selectDeliveryAttempts);
   activeTab: AdminTab = 'all';
@@ -104,14 +111,27 @@ export class AdminNotificationsComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   constructor(private readonly store: Store) {
-    this.notifications$ = this.store.select(selectNotifications);
+    this.notifications$ = this.store.select(selectAdminNotifications);
+    this.listLoading$ = this.store.select(selectAdminNotificationsLoading);
     this.isLoading$ = this.store.select(selectNotificationsLoading);
-    this.error$ = this.store.select(selectNotificationsError);
+    this.isSaving$ = this.store.select(selectNotificationsSaving);
+    this.error$ = combineLatest([
+      this.store.select(selectAdminNotificationsError),
+      this.store.select(selectNotificationsError),
+    ]).pipe(map(([adminError, error]) => adminError ?? error));
+    this.message$ = this.store.select(selectAdminNotificationsMessage);
     this.templates$ = this.store.select(selectTemplates);
   }
 
   ngOnInit(): void {
     this.loadNotifications();
+    // A success message means the last send went through: clear the send forms.
+    this.subscriptions.add(
+      this.message$.pipe(filter((message) => !!message)).subscribe(() => {
+        this.batchForm = { ...this.batchForm, userIds: '', subject: '', message: '' };
+        this.singleSendForm = { userId: '', templateCode: '' };
+      }),
+    );
   }
 
   ngOnDestroy(): void {
@@ -123,7 +143,7 @@ export class AdminNotificationsComponent implements OnInit, OnDestroy {
       this.store.dispatch(loadAllNotifications());
     } else if (this.activeTab === 'failed') {
       this.store.dispatch(loadFailedNotifications());
-    } else if (this.activeTab === 'templates') {
+    } else if (this.activeTab === 'templates' || this.activeTab === 'batch') {
       this.store.dispatch(loadTemplates());
     }
   }
@@ -194,8 +214,11 @@ export class AdminNotificationsComponent implements OnInit, OnDestroy {
       .split(',')
       .map((id) => id.trim())
       .filter((id) => id !== '')
-      .map((id) => Number(id));
-    if (userIds.length === 0) return;
+      .map((id) => Number(id))
+      .filter((id) => Number.isInteger(id) && id > 0);
+    if (userIds.length === 0 || !this.batchForm.subject.trim() || !this.batchForm.message.trim()) {
+      return;
+    }
 
     const notification: Omit<NotificationRequest, 'recipientUserId' | 'recipientCustomerId' | 'recipientRole'> = {
       type: this.batchForm.type as NotificationType,
@@ -209,9 +232,10 @@ export class AdminNotificationsComponent implements OnInit, OnDestroy {
 
   onSingleSend(): void {
     const userId = Number(this.singleSendForm.userId);
-    if (!userId || !this.singleSendForm.templateCode) return;
+    const templateCode = this.singleSendForm.templateCode.trim();
+    if (!userId || !templateCode) return;
     const request: TemplateNotificationRequest = {
-      templateCode: this.singleSendForm.templateCode,
+      templateCode,
       userId,
     };
     this.store.dispatch(createFromTemplate({ request }));

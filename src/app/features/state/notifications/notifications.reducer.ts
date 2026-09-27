@@ -166,36 +166,30 @@ export const notificationsReducer = createReducer(
     isSaving: false,
     error,
   })),
-  on(NotificationsActions.loadAllNotifications, (state) => ({
+  on(NotificationsActions.loadAllNotifications, NotificationsActions.loadFailedNotifications, (state) => ({
     ...state,
-    isLoading: true,
-    error: null,
+    adminLoading: true,
+    adminError: null,
+    adminMessage: null,
   })),
-  on(NotificationsActions.loadAllNotificationsSuccess, (state, { notifications }) => ({
-    ...state,
-    notifications: mergeNotifications([], notifications),
-    isLoading: false,
-  })),
-  on(NotificationsActions.loadAllNotificationsFailure, (state, { error }) => ({
-    ...state,
-    isLoading: false,
-    error,
-  })),
-  on(NotificationsActions.loadFailedNotifications, (state) => ({
-    ...state,
-    isLoading: true,
-    error: null,
-  })),
-  on(NotificationsActions.loadFailedNotificationsSuccess, (state, { notifications }) => ({
-    ...state,
-    notifications: mergeNotifications([], notifications),
-    isLoading: false,
-  })),
-  on(NotificationsActions.loadFailedNotificationsFailure, (state, { error }) => ({
-    ...state,
-    isLoading: false,
-    error,
-  })),
+  on(
+    NotificationsActions.loadAllNotificationsSuccess,
+    NotificationsActions.loadFailedNotificationsSuccess,
+    (state, { notifications }) => ({
+      ...state,
+      adminNotifications: mergeNotifications([], notifications),
+      adminLoading: false,
+    }),
+  ),
+  on(
+    NotificationsActions.loadAllNotificationsFailure,
+    NotificationsActions.loadFailedNotificationsFailure,
+    (state, { error }) => ({
+      ...state,
+      adminLoading: false,
+      adminError: error,
+    }),
+  ),
   on(NotificationsActions.loadPreferences, (state) => ({
     ...state,
     isLoading: true,
@@ -226,34 +220,31 @@ export const notificationsReducer = createReducer(
     isSaving: false,
     error,
   })),
-  on(NotificationsActions.createFromTemplate, (state) => ({
+  on(NotificationsActions.createFromTemplate, NotificationsActions.sendBatch, (state) => ({
     ...state,
     isSaving: true,
+    adminError: null,
+    adminMessage: null,
   })),
-  on(NotificationsActions.createFromTemplateSuccess, (state, { notification }) => ({
-    ...state,
-    notifications: mergeNotifications(state.notifications, [notification]),
-    unreadCount: state.unreadCount + 1,
-    isSaving: false,
-  })),
-  on(NotificationsActions.createFromTemplateFailure, (state, { error }) => ({
-    ...state,
-    isSaving: false,
-    error,
-  })),
-  on(NotificationsActions.sendBatch, (state) => ({
-    ...state,
-    isSaving: true,
-  })),
-  on(NotificationsActions.sendBatchSuccess, (state) => ({
-    ...state,
-    isSaving: false,
-  })),
-  on(NotificationsActions.sendBatchFailure, (state, { error }) => ({
-    ...state,
-    isSaving: false,
-    error,
-  })),
+  on(
+    NotificationsActions.createFromTemplateSuccess,
+    NotificationsActions.sendBatchSuccess,
+    (state, { notifications }) => ({
+      ...state,
+      adminNotifications: mergeNotifications(state.adminNotifications, notifications),
+      adminMessage: `Sent ${notifications.length} notification${notifications.length === 1 ? '' : 's'}.`,
+      isSaving: false,
+    }),
+  ),
+  on(
+    NotificationsActions.createFromTemplateFailure,
+    NotificationsActions.sendBatchFailure,
+    (state, { error }) => ({
+      ...state,
+      isSaving: false,
+      adminError: error,
+    }),
+  ),
   on(NotificationsActions.loadDeliveryAttempts, (state) => ({
     ...state,
     isLoading: true,

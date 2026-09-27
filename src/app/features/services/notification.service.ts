@@ -96,17 +96,34 @@ export class NotificationService {
 
   createFromTemplate(
     request: TemplateNotificationRequest,
-  ): Observable<NotificationResponse> {
-    return this.http.post<NotificationResponse>(
+  ): Observable<NotificationResponse[]> {
+    const variables = request.templateData
+      ? Object.fromEntries(
+          Object.entries(request.templateData).map(([key, value]) => [key, String(value ?? '')]),
+        )
+      : undefined;
+    return this.http.post<NotificationResponse[]>(
       API_ENDPOINTS.notifications.fromTemplate,
-      request,
+      {
+        templateCode: request.templateCode,
+        recipientUserId: request.userId ?? null,
+        recipientCustomerId: request.customerId ?? null,
+        recipientRole: request.role ?? null,
+        relatedEntityId: request.relatedEntityId ?? null,
+        variables,
+      },
     );
   }
 
-  sendBatch(request: BatchNotificationRequest): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(
+  sendBatch(request: BatchNotificationRequest): Observable<NotificationResponse[]> {
+    return this.http.post<NotificationResponse[]>(
       API_ENDPOINTS.notifications.adminBatch,
-      request,
+      {
+        notifications: request.userIds.map((recipientUserId) => ({
+          ...request.notification,
+          recipientUserId,
+        })),
+      },
     );
   }
 

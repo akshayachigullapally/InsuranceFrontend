@@ -160,7 +160,7 @@ export const createFromTemplate = createAction(
 
 export const createFromTemplateSuccess = createAction(
   '[Notifications] Create From Template Success',
-  props<{ notification: NotificationResponse }>(),
+  props<{ notifications: NotificationResponse[] }>(),
 );
 
 export const createFromTemplateFailure = createAction(
@@ -173,7 +173,10 @@ export const sendBatch = createAction(
   props<{ request: BatchNotificationRequest }>(),
 );
 
-export const sendBatchSuccess = createAction('[Notifications] Send Batch Success');
+export const sendBatchSuccess = createAction(
+  '[Notifications] Send Batch Success',
+  props<{ notifications: NotificationResponse[] }>(),
+);
 
 export const sendBatchFailure = createAction(
   '[Notifications] Send Batch Failure',

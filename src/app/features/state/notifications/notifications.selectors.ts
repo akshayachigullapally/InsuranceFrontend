@@ -163,3 +163,22 @@ export const selectPreferenceByType = (type: string) =>
   createSelector(selectPreferences, (preferences) =>
     preferences.find((p) => p.notificationType === type),
   );
+export const selectAdminNotifications = createSelector(
+  selectNotificationsState,
+  (state: NotificationsState) => state.adminNotifications,
+);
+
+export const selectAdminNotificationsLoading = createSelector(
+  selectNotificationsState,
+  (state: NotificationsState) => state.adminLoading,
+);
+
+export const selectAdminNotificationsError = createSelector(
+  selectNotificationsState,
+  (state: NotificationsState) => state.adminError,
+);
+
+export const selectAdminNotificationsMessage = createSelector(
+  selectNotificationsState,
+  (state: NotificationsState) => state.adminMessage,
+);

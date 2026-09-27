@@ -48,7 +48,10 @@
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="isLoading$ | async" class="flex justify-center py-12">
+  <div
+    *ngIf="(activeTab === 'all' || activeTab === 'failed') ? (listLoading$ | async) : (activeTab === 'templates' && (isLoading$ | async))"
+    class="flex justify-center py-12"
+  >
     <div class="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent"></div>
   </div>
 
@@ -64,6 +67,11 @@
         <p class="text-sm text-red-700">{{ error }}</p>
       </div>
     </div>
+  </div>
+
+  <!-- Success State -->
+  <div *ngIf="message$ | async as message" class="rounded-md bg-green-50 p-4">
+    <p class="text-sm text-green-700">{{ message }}</p>
   </div>
 
   <!-- Templates Tab -->
@@ -191,7 +199,7 @@
   </div>
 
   <!-- Batch Send Tab -->
-  <div *ngIf="activeTab === 'batch' && !(isLoading$ | async)" class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+  <div *ngIf="activeTab === 'batch'" class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
     <div class="mb-4 flex items-center justify-between">
       <div>
         <h2 class="text-lg font-semibold text-gray-900">Send batch notification</h2>
@@ -211,12 +219,17 @@
         <div>
           <label class="block text-sm font-medium text-gray-700">Template Code</label>
           <input type="text" [(ngModel)]="singleSendForm.templateCode" placeholder="e.g. POLICY_RENEWAL_REMINDER"
+                 list="adminTemplateCodes"
                  class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none" />
+          <datalist id="adminTemplateCodes">
+            <option *ngFor="let template of templates$ | async" [value]="template.templateCode"></option>
+          </datalist>
         </div>
         <div class="flex items-end">
           <button (click)="onSingleSend()"
-                  class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-            Send
+                  [disabled]="(isSaving$ | async) || !singleSendForm.userId || !singleSendForm.templateCode.trim()"
+                  class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50">
+            {{ (isSaving$ | async) ? 'Sending...' : 'Send' }}
           </button>
         </div>
       </div>
@@ -256,7 +269,8 @@
       </div>
       <div class="mt-4">
         <button (click)="onBatchSubmit()"
-                class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                [disabled]="(isSaving$ | async) || !batchForm.userIds.trim() || !batchForm.subject.trim() || !batchForm.message.trim()"
+                class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50">
           Send to {{ batchForm.userIds.split(',').filter((id) => id.trim() !== '').length }} user(s)
         </button>
       </div>
@@ -300,7 +314,7 @@
   </div>
 
   <!-- Notifications Tables (All / Failed) -->
-  <div *ngIf="(activeTab === 'all' || activeTab === 'failed') && !(isLoading$ | async)">
+  <div *ngIf="(activeTab === 'all' || activeTab === 'failed') && !(listLoading$ | async)">
     <div *ngIf="(notifications$ | async)?.length; else emptyState">
       <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow">
         <table class="min-w-full divide-y divide-gray-200">

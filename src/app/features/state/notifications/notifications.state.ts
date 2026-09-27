@@ -18,6 +18,12 @@ export interface NotificationsState {
   preferences: NotificationPreferenceResponse[];
   templates: NotificationTemplateResponse[];
   deliveryAttempts: DeliveryAttemptResponse[];
+  // Admin console list (All / Failed tabs). Kept apart from `notifications`,
+  // which holds the signed-in user's own inbox and is refreshed by polling.
+  adminNotifications: NotificationResponse[];
+  adminLoading: boolean;
+  adminError: string | null;
+  adminMessage: string | null;
   auditEvents: AuditEventResponse[];
   selectedNotificationId: number | null;
   filters: {
@@ -48,6 +54,10 @@ export const initialNotificationsState: NotificationsState = {
   preferences: [],
   templates: [],
   deliveryAttempts: [],
+  adminNotifications: [],
+  adminLoading: false,
+  adminError: null,
+  adminMessage: null,
   auditEvents: [],
   selectedNotificationId: null,
   filters: {

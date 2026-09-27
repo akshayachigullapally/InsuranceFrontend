@@ -290,7 +290,7 @@ export class NotificationsEffects {
       ofType(NotificationsActions.createFromTemplate),
       mergeMap(({ request }) =>
         this.notificationService.createFromTemplate(request).pipe(
-          map((notification) => NotificationsActions.createFromTemplateSuccess({ notification })),
+          map((notifications) => NotificationsActions.createFromTemplateSuccess({ notifications })),
           catchError((error) => of(NotificationsActions.createFromTemplateFailure({ error: this.errorMessage(error) }))),
         ),
       ),
@@ -302,7 +302,7 @@ export class NotificationsEffects {
       ofType(NotificationsActions.sendBatch),
       mergeMap(({ request }) =>
         this.notificationService.sendBatch(request).pipe(
-          map(() => NotificationsActions.sendBatchSuccess()),
+          map((notifications) => NotificationsActions.sendBatchSuccess({ notifications })),
           catchError((error) => of(NotificationsActions.sendBatchFailure({ error: this.errorMessage(error) }))),
         ),
       ),
