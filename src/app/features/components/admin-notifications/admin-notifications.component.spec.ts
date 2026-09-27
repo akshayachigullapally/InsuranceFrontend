@@ -3,6 +3,8 @@ import { MockStore } from '@ngrx/store/testing';
 import { AdminNotificationsComponent } from './admin-notifications.component';
 import { mockRootState, pageTestProviders } from '../../../../testing/test-helpers';
 import { loadAllNotifications } from '../../state/notifications/notifications.actions';
+import { NotificationService } from '../../services/notification.service';
+import { of } from 'rxjs';
 import { NotificationResponse } from '../../dtos/notifications/notification-response.dto';
 
 const notifications = [
@@ -15,13 +17,20 @@ const notifications = [
 describe('AdminNotificationsComponent', () => {
   let fixture: ComponentFixture<AdminNotificationsComponent>;
   let store: MockStore;
+  const notificationService = {
+    adminMarkAsRead: vi.fn().mockReturnValue(of({})),
+    adminDelete: vi.fn().mockReturnValue(of({ message: 'Notification deleted' })),
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AdminNotificationsComponent],
-      providers: pageTestProviders({
-        notifications: { ...mockRootState().notifications, adminNotifications: notifications },
-      }),
+      providers: [
+        ...pageTestProviders({
+          notifications: { ...mockRootState().notifications, adminNotifications: notifications },
+        }),
+        { provide: NotificationService, useValue: notificationService },
+      ],
     }).compileComponents();
 
     store = TestBed.inject(MockStore);
@@ -36,11 +45,37 @@ describe('AdminNotificationsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadAllNotifications());
   });
 
-  it('lists notifications with their recipient and read state', () => {
+  it('lists notifications with their recipient', () => {
     expect(text()).toContain('Policy Pending Review');
     expect(text()).toContain('All admins');
     expect(text()).toContain('User #42');
-    expect(text()).toContain('Unread');
+  });
+
+  const buttons = (label: string) => Array.from(
+    (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(`button[aria-label="${label}"]`),
+  );
+
+  it('offers mark-as-read only for unread notifications and delete for all', () => {
+    expect(buttons('Mark as read')).toHaveLength(1);
+    expect(buttons('Delete')).toHaveLength(2);
+  });
+
+  it('marks a notification as read and reloads the list', () => {
+    vi.mocked(store.dispatch).mockClear();
+    buttons('Mark as read')[0].click();
+
+    expect(notificationService.adminMarkAsRead).toHaveBeenCalledWith(1);
+    expect(store.dispatch).toHaveBeenCalledWith(loadAllNotifications());
+  });
+
+  it('asks before deleting, then deletes', () => {
+    buttons('Delete')[1].click();
+    fixture.detectChanges();
+    expect(text()).toContain('Delete this notification?');
+
+    (fixture.componentInstance as unknown as { confirmDelete(): void }).confirmDelete();
+
+    expect(notificationService.adminDelete).toHaveBeenCalledWith(2);
   });
 
   it('has no templates, batch send, failed deliveries or channel column', () => {

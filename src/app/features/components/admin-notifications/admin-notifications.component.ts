@@ -1,13 +1,16 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { NotificationResponse } from '../../dtos/notifications/notification-response.dto';
 import {
   selectAdminNotifications,
   selectAdminNotificationsError,
   selectAdminNotificationsLoading,
 } from '../../state/notifications/notifications.selectors';
-import { loadAllNotifications } from '../../state/notifications/notifications.actions';
+import { loadAllNotifications, loadUnreadCount } from '../../state/notifications/notifications.actions';
+import { NotificationService } from '../../services/notification.service';
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import {
   formatDateTime,
   formatNotificationType,
@@ -23,12 +26,17 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 @Component({
   selector: 'app-admin-notifications',
   standalone: true,
-  imports: [EmptyStateComponent, ErrorMessageComponent, LoadingSpinnerComponent],
+  imports: [EmptyStateComponent, ErrorMessageComponent, LoadingSpinnerComponent, ConfirmationDialogComponent],
   templateUrl: './admin-notifications.component.html',
   styleUrl: './admin-notifications.component.css',
 })
 export class AdminNotificationsComponent implements OnInit {
   protected readonly search = signal('');
+  protected readonly busyId = signal<number | null>(null);
+  protected readonly actionError = signal<string | null>(null);
+  protected readonly deleteTarget = signal<NotificationResponse | null>(null);
+
+  private readonly notificationService = inject(NotificationService);
 
   private readonly store: Store;
   protected readonly notifications;
@@ -59,6 +67,43 @@ export class AdminNotificationsComponent implements OnInit {
 
   protected refresh(): void {
     this.store.dispatch(loadAllNotifications());
+  }
+
+  protected markAsRead(notification: NotificationResponse): void {
+    this.run(notification.id, this.notificationService.adminMarkAsRead(notification.id), 'Could not mark it as read.');
+  }
+
+  protected askDelete(notification: NotificationResponse): void {
+    this.deleteTarget.set(notification);
+  }
+
+  protected confirmDelete(): void {
+    const target = this.deleteTarget();
+    this.deleteTarget.set(null);
+    if (target) {
+      this.run(target.id, this.notificationService.adminDelete(target.id), 'Could not delete the notification.');
+    }
+  }
+
+  protected dismissDelete(): void {
+    this.deleteTarget.set(null);
+  }
+
+  private run(id: number, request: Observable<unknown>, failure: string): void {
+    this.busyId.set(id);
+    this.actionError.set(null);
+    request.subscribe({
+      next: () => {
+        this.busyId.set(null);
+        this.refresh();
+        // The admin's own bell badge may have changed too.
+        this.store.dispatch(loadUnreadCount());
+      },
+      error: (error: unknown) => {
+        this.busyId.set(null);
+        this.actionError.set((error as { error?: { message?: string } })?.error?.message ?? failure);
+      },
+    });
   }
 
   protected onSearch(event: Event): void {

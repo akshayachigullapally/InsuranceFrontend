@@ -113,6 +113,8 @@ export const API_ENDPOINTS = {
     markAllRead: `${BASE}/api/notifications/me/read-all`,
     delete: (notificationId: number) => `${BASE}/api/notifications/${notificationId}`,
     adminAll: `${BASE}/api/notifications/admin/all`,
+    adminMarkRead: (notificationId: number) => `${BASE}/api/notifications/admin/${notificationId}/read`,
+    adminDelete: (notificationId: number) => `${BASE}/api/notifications/admin/${notificationId}`,
     adminFailed: `${BASE}/api/notifications/admin/failed`,
     adminAudit: `${BASE}/api/notifications/admin/audit`,
     myAudit: `${BASE}/api/notifications/audit/me`,

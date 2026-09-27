@@ -195,4 +195,14 @@ export class NotificationService {
       API_ENDPOINTS.notifications.myAudit,
     );
   }
+
+  /** Admin: mark any notification as read. */
+  adminMarkAsRead(notificationId: number): Observable<NotificationResponse> {
+    return this.http.put<NotificationResponse>(API_ENDPOINTS.notifications.adminMarkRead(notificationId), {});
+  }
+
+  /** Admin: delete any notification. */
+  adminDelete(notificationId: number): Observable<MessageResponse> {
+    return this.http.delete<MessageResponse>(API_ENDPOINTS.notifications.adminDelete(notificationId));
+  }
 }
