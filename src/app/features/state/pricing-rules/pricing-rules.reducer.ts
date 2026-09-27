@@ -139,10 +139,13 @@ export const pricingRulesReducer = createReducer(
     archivePricingRuleSuccess,
     (state, { ruleId }): PricingRulesState => ({
       ...state,
-      pricingRules: state.pricingRules.filter(rule => rule.id !== ruleId),
+      // The rule still exists (and is listed again on reload) as ARCHIVED.
+      pricingRules: state.pricingRules.map(rule =>
+        rule.id === ruleId ? { ...rule, status: 'ARCHIVED' as const } : rule,
+      ),
       selectedPricingRule:
         state.selectedPricingRule?.id === ruleId
-          ? null
+          ? { ...state.selectedPricingRule, status: 'ARCHIVED' as const }
           : state.selectedPricingRule,
       isSaving: false,
       updatingRuleId: null,

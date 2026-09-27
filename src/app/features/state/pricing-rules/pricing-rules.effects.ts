@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { catchError, exhaustMap, map, switchMap } from 'rxjs/operators';
+import { catchError, concatMap, exhaustMap, filter, map, switchMap } from 'rxjs/operators';
 import { PricingRuleService } from '../../services/pricing-rule.service';
 import { httpErrorMessage } from '../products/products.effects';
 import {
@@ -43,6 +43,15 @@ export class PricingRulesEffects {
           ),
         ),
       ),
+    ),
+  );
+
+  /** Activating a rule can retire the rule it replaces, so refresh the list. */
+  reloadAfterActivation$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(updatePricingRuleStatusSuccess),
+      filter(({ pricingRule }) => pricingRule.status === 'ACTIVE'),
+      map(() => loadPricingRules()),
     ),
   );
 
@@ -91,7 +100,7 @@ export class PricingRulesEffects {
   updatePricingRuleStatus$ = createEffect(() =>
     this.actions$.pipe(
       ofType(updatePricingRuleStatus),
-      exhaustMap(({ ruleId, status }) =>
+      concatMap(({ ruleId, status }) =>
         this.pricingRuleService.updateStatus(ruleId, status).pipe(
           map(pricingRule =>
             updatePricingRuleStatusSuccess({ pricingRule }),
@@ -111,7 +120,7 @@ export class PricingRulesEffects {
   archivePricingRule$ = createEffect(() =>
     this.actions$.pipe(
       ofType(archivePricingRule),
-      exhaustMap(({ ruleId }) =>
+      concatMap(({ ruleId }) =>
         this.pricingRuleService.archiveRule(ruleId).pipe(
           map(() => archivePricingRuleSuccess({ ruleId })),
           catchError(error =>

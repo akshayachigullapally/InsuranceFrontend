@@ -55,12 +55,13 @@ describe('pricingRulesReducer', () => {
     expect(state.pricingRules[0].status).toBe('INACTIVE');
   });
 
-  it('removes an archived rule', () => {
+  it('keeps an archived rule in the list as ARCHIVED', () => {
     const current: PricingRulesState = { ...initialPricingRulesState, pricingRules: [makeRule(1), makeRule(2)] };
 
     const state = pricingRulesReducer(current, PricingRulesActions.archivePricingRuleSuccess({ ruleId: 1 }));
 
-    expect(state.pricingRules.map((rule) => rule.id)).toEqual([2]);
+    expect(state.pricingRules.map((rule) => rule.id)).toEqual([1, 2]);
+    expect(state.pricingRules.find((rule) => rule.id === 1)?.status).toBe('ARCHIVED');
     expect(state.updatingRuleId).toBeNull();
   });
 

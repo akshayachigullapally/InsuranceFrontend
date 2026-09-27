@@ -118,7 +118,12 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     product: ProductResponse,
     event: Event,
   ): void {
-    const status = (event.target as HTMLSelectElement).value as ProductStatus;
+    const select = event.target as HTMLSelectElement;
+    const status = select.value as ProductStatus;
+
+    // Keep showing the saved status until the server confirms the change;
+    // the list re-renders with the new status on success.
+    select.value = product.status;
 
     if (status === product.status) {
       return;

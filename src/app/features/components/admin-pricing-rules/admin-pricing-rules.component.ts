@@ -224,8 +224,11 @@ export class AdminPricingRulesComponent implements OnInit, OnDestroy {
   }
 
   protected changeStatus(rule: PricingRuleResponse, event: Event): void {
-    const status = (event.target as HTMLSelectElement)
-      .value as PricingRuleManageableStatus;
+    const select = event.target as HTMLSelectElement;
+    const status = select.value as PricingRuleManageableStatus;
+
+    // Keep showing the saved status until the server confirms the change.
+    select.value = rule.status;
 
     if (status === rule.status) return;
 

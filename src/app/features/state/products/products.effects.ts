@@ -4,6 +4,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import {
   catchError,
+  concatMap,
   exhaustMap,
   map,
   switchMap,
@@ -199,7 +200,7 @@ export class ProductsEffects {
   updateProductStatus$ = createEffect(() =>
     this.actions$.pipe(
       ofType(updateProductStatus),
-      exhaustMap(({ productId, status }) =>
+      concatMap(({ productId, status }) =>
         this.productService.updateProductStatus(productId, status).pipe(
           map(product =>
             updateProductStatusSuccess({ product }),

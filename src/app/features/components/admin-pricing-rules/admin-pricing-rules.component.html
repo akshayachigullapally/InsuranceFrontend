@@ -77,12 +77,12 @@
                       @if (rule.status !== 'ARCHIVED') {
                         <select
                           class="rounded-lg border border-gray-300 px-2 py-1 text-xs disabled:opacity-50"
-                          [value]="rule.status"
+                          aria-label="Change pricing rule status"
                           [disabled]="isUpdating(rule.id, updatingRuleId$ | async)"
                           (change)="changeStatus(rule, $event)"
                         >
                           @for (status of statuses; track status) {
-                            <option [value]="status">{{ status }}</option>
+                            <option [value]="status" [selected]="status === rule.status">{{ status }}</option>
                           }
                         </select>
 
