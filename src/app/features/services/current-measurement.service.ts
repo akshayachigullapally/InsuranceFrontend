@@ -6,6 +6,7 @@ import {
   CurrentMeasurementRequest,
   CurrentMeasurementResult,
   CurrentMeasurementSnapshot,
+  ZoneMeasurement,
 } from '../dtos/triggers/current-measurement.dto';
 
 @Injectable({ providedIn: 'root' })
@@ -23,5 +24,10 @@ export class CurrentMeasurementService {
     return this.http.get<CurrentMeasurementSnapshot[]>(
       API_ENDPOINTS.triggers.currentMeasurementsList,
     );
+  }
+
+  /** Latest validated reading of every measurement type in every zone. */
+  getZoneMeasurements(): Observable<ZoneMeasurement[]> {
+    return this.http.get<ZoneMeasurement[]>(API_ENDPOINTS.triggers.zoneMeasurements);
   }
 }

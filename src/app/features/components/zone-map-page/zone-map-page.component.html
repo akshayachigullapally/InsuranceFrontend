@@ -71,12 +71,13 @@
                     <span class="text-xs text-gray-400">No live data</span>
                   } @else {
                     <ul class="space-y-0.5">
-                      @for (reading of zone.readings; track reading.productId) {
-                        <li class="text-xs text-gray-700">
-                          {{ reading.productName }}:
-                          <b>{{ reading.currentValue }} {{ reading.measurementUnit }}</b>
-                          @if (reading.thresholdValue !== null) {
-                            <span class="text-gray-400">/ trigger {{ reading.thresholdValue }}</span>
+                      @for (reading of zone.readings; track reading.measurementType) {
+                        <li class="flex flex-wrap items-center gap-1.5 text-xs text-gray-700">
+                          <span class="inline-block h-2 w-2 shrink-0 rounded-full" [style.background]="stateColors[reading.state]"></span>
+                          {{ reading.label }}:
+                          <b>{{ reading.currentValue }} {{ reading.unit }}</b>
+                          @for (trigger of reading.triggers; track trigger.productName) {
+                            <span class="text-gray-400">· {{ trigger.productName }} {{ trigger.thresholdText }}</span>
                           }
                         </li>
                       }

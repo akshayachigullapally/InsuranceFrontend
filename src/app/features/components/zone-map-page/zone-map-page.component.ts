@@ -65,7 +65,7 @@ export class ZoneMapPageComponent implements OnInit, OnDestroy {
     forkJoin({
       zones: safe(customer ? this.zoneService.getActiveZones() : this.zoneService.getAllZones(), 'zones'),
       products: safe(customer ? this.productService.getActiveProducts() : this.productService.getAdminProducts(), 'products'),
-      measurements: safe(this.measurementService.getCurrentMeasurements(), 'live readings'),
+      readings: safe(this.measurementService.getZoneMeasurements(), 'live readings'),
       policies: safe(customer ? this.policyService.getMyPolicies() : this.policyService.getAllPolicies(), 'policies'),
     }).subscribe(data => {
       this.zones.set(buildMapZones(data));

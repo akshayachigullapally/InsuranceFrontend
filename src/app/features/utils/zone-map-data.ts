@@ -1,16 +1,33 @@
 import { PolicyResponse } from '../dtos/policies/policy-response.dto';
 import { ProductResponse } from '../dtos/products/product-response.dto';
-import { CurrentMeasurementSnapshot } from '../dtos/triggers/current-measurement.dto';
+import { ZoneMeasurement } from '../dtos/triggers/current-measurement.dto';
 import { LiveConditionState } from '../dtos/triggers/trigger-condition.dto';
 import { ZoneResponse } from '../dtos/zones/zone-response.dto';
-import { liveConditionState } from './trigger-display';
+import {
+  comparisonOperatorSymbol,
+  liveConditionState,
+  measurementTypeLabel,
+  measurementUnitLabel,
+  normalizeMeasurementType,
+} from './trigger-display';
 
-export interface ZoneReading {
-  productId: number;
+/** A product trigger that uses the reading's measurement type. */
+export interface ReadingTrigger {
   productName: string;
-  measurementUnit: string;
+  /** e.g. "≥ 150" */
+  thresholdText: string;
+  state: LiveConditionState;
+}
+
+/** Latest reading of one measurement type in a zone, checked against product thresholds. */
+export interface ZoneReading {
+  measurementType: string;
+  label: string;
+  unit: string;
   currentValue: number;
-  thresholdValue: number | null;
+  observedAt: string | null;
+  triggers: ReadingTrigger[];
+  /** Worst state across the triggers; NORMAL when no product uses this measurement. */
   state: LiveConditionState;
 }
 
@@ -34,7 +51,7 @@ export interface MapZone {
 export interface MapInputs {
   zones: ZoneResponse[];
   products: ProductResponse[];
-  measurements: CurrentMeasurementSnapshot[];
+  readings: ZoneMeasurement[];
   policies: PolicyResponse[];
 }
 
@@ -45,10 +62,25 @@ const STATE_RANK: Record<LiveConditionState, number> = {
   THRESHOLD_EXCEEDED: 3,
 };
 
-export function buildMapZones(input: MapInputs): MapZone[] {
-  const productById = new Map(input.products.map(product => [product.id, product]));
-  const byZone = new Map<number, MapZone>();
+function worst(states: LiveConditionState[], fallback: LiveConditionState): LiveConditionState {
+  return states.reduce((current, state) => (STATE_RANK[state] > STATE_RANK[current] ? state : current), fallback);
+}
 
+export function buildMapZones(input: MapInputs): MapZone[] {
+  // Thresholds of live products, grouped by the measurement type they watch.
+  const productsByType = new Map<string, ProductResponse[]>();
+  for (const product of input.products) {
+    if (product.status !== 'ACTIVE' || product.thresholdValue === null || product.thresholdValue === undefined) {
+      continue;
+    }
+    const type = normalizeMeasurementType(product.measurementType);
+    if (!type) {
+      continue;
+    }
+    productsByType.set(type, [...(productsByType.get(type) ?? []), product]);
+  }
+
+  const byZone = new Map<number, MapZone>();
   for (const zone of input.zones) {
     if (zone.status === 'ARCHIVED') {
       continue;
@@ -75,25 +107,33 @@ export function buildMapZones(input: MapInputs): MapZone[] {
     }
   }
 
-  for (const measurement of input.measurements) {
-    const zone = byZone.get(measurement.locationZoneId);
-    if (!zone || measurement.productId === null || measurement.productId === undefined) {
+  for (const reading of input.readings) {
+    const zone = byZone.get(reading.locationZoneId);
+    if (!zone) {
       continue;
     }
-    const product = productById.get(measurement.productId);
-    const threshold = product?.thresholdValue ?? null;
-    const state = liveConditionState(Number(measurement.currentValue), threshold, product?.comparisonOperator ?? null);
+    const value = Number(reading.currentValue);
+    const type = normalizeMeasurementType(reading.measurementType);
+    const triggers: ReadingTrigger[] = (productsByType.get(type) ?? []).map(product => ({
+      productName: product.name,
+      thresholdText: `${comparisonOperatorSymbol(product.comparisonOperator ?? 'GREATER_THAN_OR_EQUAL')} ${product.thresholdValue}`,
+      state: liveConditionState(value, product.thresholdValue, product.comparisonOperator ?? null),
+    }));
+    const state = worst(triggers.map(trigger => trigger.state), 'NORMAL');
     zone.readings.push({
-      productId: measurement.productId,
-      productName: product?.name ?? `Product #${measurement.productId}`,
-      measurementUnit: measurement.measurementUnit,
-      currentValue: Number(measurement.currentValue),
-      thresholdValue: threshold,
+      measurementType: type,
+      label: measurementTypeLabel(reading.measurementType),
+      unit: measurementUnitLabel(reading.measurementUnit),
+      currentValue: value,
+      observedAt: reading.observedAt ?? null,
+      triggers,
       state,
     });
-    if (STATE_RANK[state] > STATE_RANK[zone.state]) {
-      zone.state = state;
-    }
+    zone.state = worst([zone.state, state], zone.state);
+  }
+
+  for (const zone of byZone.values()) {
+    zone.readings.sort((a, b) => a.label.localeCompare(b.label));
   }
 
   return [...byZone.values()].sort((a, b) =>

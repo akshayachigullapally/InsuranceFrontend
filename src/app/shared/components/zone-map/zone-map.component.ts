@@ -139,9 +139,11 @@ function popupHtml(zone: MapZone, customer: boolean): string {
   const readings = zone.readings.length === 0
     ? '<p class="zrm-muted">No live readings</p>'
     : zone.readings
-      .map(reading => `<p><span style="color:${ZONE_STATE_COLORS[reading.state]}">●</span> ${escapeHtml(reading.productName)}: `
-        + `<b>${reading.currentValue} ${escapeHtml(reading.measurementUnit ?? '')}</b>`
-        + (reading.thresholdValue !== null ? ` / trigger ${reading.thresholdValue}` : '')
+      .map(reading => `<p><span style="color:${ZONE_STATE_COLORS[reading.state]}">●</span> ${escapeHtml(reading.label)}: `
+        + `<b>${reading.currentValue} ${escapeHtml(reading.unit)}</b>`
+        + (reading.triggers.length > 0
+          ? ` <span class="zrm-muted">(trigger ${reading.triggers.map(t => escapeHtml(t.thresholdText)).join(' / ')})</span>`
+          : '')
         + '</p>')
       .join('');
   const policies = customer

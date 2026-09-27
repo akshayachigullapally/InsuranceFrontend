@@ -36,3 +36,14 @@ export interface CurrentMeasurementSnapshot {
   recordedAt?: string | null;
   updatedAt?: string | null;
 }
+
+/** Latest validated reading of one measurement type in one zone. */
+export interface ZoneMeasurement {
+  locationZoneId: number;
+  zoneCode?: string | null;
+  zoneName?: string | null;
+  measurementType: string;
+  measurementUnit: string;
+  currentValue: number;
+  observedAt?: string | null;
+}
