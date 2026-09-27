@@ -21,6 +21,8 @@ type ThresholdInternals = {
 const product = {
   id: 3,
   name: 'Rain Cover',
+  productCode: 'WEATHER-001',
+  category: 'WEATHER',
   perilCode: 'EXCESS_RAINFALL',
   measurementType: 'RAINFALL',
   measurementUnit: 'MM',

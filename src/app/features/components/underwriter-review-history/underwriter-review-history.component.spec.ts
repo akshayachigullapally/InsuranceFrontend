@@ -20,9 +20,9 @@ type HistoryInternals = {
 };
 
 const entries = [
-  { policyNumber: 'POL-1', productName: 'Rain Cover', productCode: 'WEATHER-001', decision: 'APPROVED', sumInsured: 100000, customerId: 7 },
-  { policyNumber: 'POL-2', productName: 'Flood Cover', productCode: 'FLOOD-001', decision: 'REJECTED', sumInsured: 50000, customerId: 8, reason: 'High risk zone' },
-  { policyNumber: 'POL-3', productName: 'Rain Cover', productCode: 'WEATHER-001', decision: 'APPROVED', sumInsured: 25000, customerId: 9 },
+  { historyId: 1, policyNumber: 'POL-1', productName: 'Rain Cover', productCode: 'WEATHER-001', decision: 'APPROVED', sumInsured: 100000, customerId: 7 },
+  { historyId: 2, policyNumber: 'POL-2', productName: 'Flood Cover', productCode: 'FLOOD-001', decision: 'REJECTED', sumInsured: 50000, customerId: 8, reason: 'High risk zone' },
+  { historyId: 3, policyNumber: 'POL-3', productName: 'Rain Cover', productCode: 'WEATHER-001', decision: 'APPROVED', sumInsured: 25000, customerId: 9 },
 ];
 
 async function setup(response = of(entries) as ReturnType<PolicyService['getReviewHistory']>) {

@@ -326,6 +326,17 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
     this.store.dispatch(clearPoliciesError());
     this.store.dispatch(loadProducts());
 
+    // Listen for product changes before the quote or store emits, so a product
+    // preselected from ?productId= or ?quoteId= still applies its limits.
+    this.form.controls.productId.valueChanges
+      .pipe(
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(productId => {
+        this.updateSelectedProduct(productId);
+      });
+
     const queryProductId = Number(
       this.route.snapshot.queryParamMap.get('productId'),
     );
@@ -356,15 +367,6 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       .subscribe(products => {
         this.products = products;
         this.selectRequestedProduct();
-      });
-
-    this.form.controls.productId.valueChanges
-      .pipe(
-        distinctUntilChanged(),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(productId => {
-        this.updateSelectedProduct(productId);
       });
 
     this.customForm.controls.perilCode.valueChanges

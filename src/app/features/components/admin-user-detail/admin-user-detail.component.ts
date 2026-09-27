@@ -1,4 +1,4 @@
-import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -20,7 +20,6 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
   selector: 'app-admin-user-detail',
   standalone: true,
   imports: [
-    AsyncPipe,
     DatePipe,
     DecimalPipe,
     RouterLink,

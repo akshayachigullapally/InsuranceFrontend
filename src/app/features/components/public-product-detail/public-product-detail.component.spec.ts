@@ -24,7 +24,7 @@ const product = {
   maximumSumInsured: 500000,
   minimumTermMonths: 3,
   maximumTermMonths: 12,
-  coverages: [{}, {}],
+  coverages: [{ id: 1 }, { id: 2 }],
   eligibilityDescription: 'Farmers in Telangana',
 } as unknown as ProductResponse;
 

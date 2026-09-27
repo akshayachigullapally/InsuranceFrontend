@@ -34,7 +34,6 @@ interface DetailRow {
   standalone: true,
   imports: [
     AsyncPipe,
-    DatePipe,
     DecimalPipe,
     RouterLink,
     ConfirmationDialogComponent,

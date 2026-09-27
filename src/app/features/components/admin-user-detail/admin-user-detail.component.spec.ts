@@ -30,11 +30,37 @@ const user = {
   ],
 };
 
+const policy = {
+  id: 1,
+  policyNumber: 'POL-0001',
+  productName: 'Rain Cover',
+  productCode: 'WEATHER-001',
+  locationZoneId: 1,
+  startDate: '2026-01-01',
+  endDate: '2026-12-31',
+  sumInsured: 100000,
+  premiumAmount: 2500,
+  status: 'ACTIVE',
+};
+
+function claim(id: number) {
+  return {
+    id,
+    claimNumber: `CLM-000${id}`,
+    policyNumber: 'POL-0001',
+    locationZoneId: 1,
+    incidentType: 'EXCESS_RAINFALL',
+    incidentDate: '2026-09-20',
+    claimedAmount: 25000,
+    status: 'SUBMITTED',
+  };
+}
+
 async function setup(url: string, userResponse = of(user) as ReturnType<UserService['getUser']>) {
   const services = {
     user: { getUser: vi.fn().mockReturnValue(userResponse) },
-    policy: { getAllPolicies: vi.fn().mockReturnValue(of([{ id: 1 }])) },
-    claim: { getAllClaims: vi.fn().mockReturnValue(of([{ id: 2 }, { id: 3 }])) },
+    policy: { getAllPolicies: vi.fn().mockReturnValue(of([policy])) },
+    claim: { getAllClaims: vi.fn().mockReturnValue(of([claim(2), claim(3)])) },
     zone: { getAllZones: vi.fn().mockReturnValue(of([{ id: 1, zoneName: 'Hyderabad Central Zone' }])) },
   };
   await TestBed.configureTestingModule({

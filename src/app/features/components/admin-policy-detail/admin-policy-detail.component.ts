@@ -52,7 +52,6 @@ interface DetailRow {
   standalone: true,
   imports: [
     AsyncPipe,
-    DatePipe,
     DecimalPipe,
     RouterLink,
     ErrorMessageComponent,

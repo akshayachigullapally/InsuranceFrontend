@@ -28,10 +28,20 @@ type AuditInternals = {
 };
 
 const auditEvents = [
-  { eventReference: 'AUD-1', eventType: 'POLICY_APPROVED', entityType: 'POLICY', entityId: 10, actorRole: 'ROLE_UNDERWRITER', actorUserId: 2, description: 'Approved policy' },
-  { eventReference: 'AUD-2', eventType: 'USER_LOGIN', entityType: 'USER', entityId: 1, actorRole: 'CUSTOMER', actorUserId: 1, description: 'Signed in' },
-  { eventReference: 'AUD-3', eventType: 'CLAIM_REJECTED', entityType: 'CLAIM', entityId: 5, actorRole: 'ROLE_CLAIMS_OFFICER', actorUserId: 3, description: 'Duplicate' },
+  { id: 1, eventReference: 'AUD-1', eventType: 'POLICY_APPROVED', entityType: 'POLICY', entityId: 10, actorRole: 'ROLE_UNDERWRITER', actorUserId: 2, description: 'Approved policy' },
+  { id: 2, eventReference: 'AUD-2', eventType: 'USER_LOGIN', entityType: 'USER', entityId: 1, actorRole: 'CUSTOMER', actorUserId: 1, description: 'Signed in' },
+  { id: 3, eventReference: 'AUD-3', eventType: 'CLAIM_REJECTED', entityType: 'CLAIM', entityId: 5, actorRole: 'ROLE_CLAIMS_OFFICER', actorUserId: 3, description: 'Duplicate' },
 ];
+
+/**
+ * events$ seeds each filter with startWith(control.value) when the component is
+ * created, so keep one subscription open and read the latest filtered list.
+ */
+function watchEvents(page: AuditInternals): () => string[] {
+  let latest: string[] = [];
+  page.events$.subscribe((events) => (latest = events.map((e) => e.eventReference)));
+  return () => latest;
+}
 
 async function setup(auditScope: 'ALL' | 'MINE') {
   await TestBed.configureTestingModule({
@@ -76,27 +86,29 @@ describe('AuditHistoryComponent', () => {
 
   it('filters by search text, entity type and role', async () => {
     const { page } = await setup('ALL');
+    const visible = watchEvents(page);
 
     page.searchControl.setValue('duplicate');
-    expect((await firstValueFrom(page.events$)).map((e) => e.eventReference)).toEqual(['AUD-3']);
+    expect(visible()).toEqual(['AUD-3']);
 
     page.clearFilters();
     page.entityControl.setValue('POLICY');
-    expect((await firstValueFrom(page.events$)).map((e) => e.eventReference)).toEqual(['AUD-1']);
+    expect(visible()).toEqual(['AUD-1']);
 
     page.clearFilters();
     page.roleControl.setValue('CUSTOMER');
-    expect((await firstValueFrom(page.events$)).map((e) => e.eventReference)).toEqual(['AUD-2']);
+    expect(visible()).toEqual(['AUD-2']);
   });
 
   it('filters to my own actions', async () => {
     const { page } = await setup('ALL');
+    const visible = watchEvents(page);
 
     page.showOnlyMine();
 
     expect(page.userIdControl.value).toBe('1');
     expect(page.hasFilters()).toBe(true);
-    expect((await firstValueFrom(page.events$)).map((e) => e.eventReference)).toEqual(['AUD-2']);
+    expect(visible()).toEqual(['AUD-2']);
   });
 
   it('labels roles and colours actions', async () => {

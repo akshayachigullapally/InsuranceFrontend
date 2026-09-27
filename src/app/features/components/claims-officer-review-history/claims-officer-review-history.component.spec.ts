@@ -23,10 +23,10 @@ type HistoryInternals = {
 };
 
 const entries = [
-  { claimId: 1, claimNumber: 'CLM-1', policyNumber: 'POL-1', action: 'REVIEW_STARTED', customerId: 7 },
-  { claimId: 1, claimNumber: 'CLM-1', policyNumber: 'POL-1', action: 'CLAIM_APPROVED', approvedAmount: 9000, customerId: 7 },
-  { claimId: 2, claimNumber: 'CLM-2', policyNumber: 'POL-2', action: 'CLAIM_REJECTED', notes: 'Duplicate claim', customerId: 8 },
-  { claimId: 3, claimNumber: 'CLM-3', policyNumber: 'POL-3', action: 'CLAIM_SETTLED', customerId: 9 },
+  { timelineId: 1, claimId: 1, claimNumber: 'CLM-1', policyNumber: 'POL-1', action: 'REVIEW_STARTED', customerId: 7 },
+  { timelineId: 2, claimId: 1, claimNumber: 'CLM-1', policyNumber: 'POL-1', action: 'CLAIM_APPROVED', approvedAmount: 9000, customerId: 7 },
+  { timelineId: 3, claimId: 2, claimNumber: 'CLM-2', policyNumber: 'POL-2', action: 'CLAIM_REJECTED', notes: 'Duplicate claim', customerId: 8 },
+  { timelineId: 4, claimId: 3, claimNumber: 'CLM-3', policyNumber: 'POL-3', action: 'CLAIM_SETTLED', customerId: 9 },
 ];
 
 async function setup(response: Observable<unknown> = of(entries)) {

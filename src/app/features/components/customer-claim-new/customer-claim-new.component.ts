@@ -58,7 +58,6 @@ interface ClaimForm {
   standalone: true,
   imports: [
     AsyncPipe,
-    DatePipe,
     DecimalPipe,
     ReactiveFormsModule,
     RouterLink,
@@ -173,13 +172,8 @@ export class CustomerClaimNewComponent implements OnInit, OnDestroy {
         ? policyId
         : null;
 
-    this.policies$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(policies => {
-        this.policies = policies;
-        this.selectRequestedPolicy();
-      });
-
+    // Listen for policy changes before the store emits, so a policy preselected
+    // from ?policyId= (with policies already cached) still applies its limits.
     this.form.controls.policyId.valueChanges
       .pipe(
         distinctUntilChanged(),
@@ -187,6 +181,13 @@ export class CustomerClaimNewComponent implements OnInit, OnDestroy {
       )
       .subscribe(selectedPolicyId => {
         this.updateSelectedPolicy(selectedPolicyId);
+      });
+
+    this.policies$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(policies => {
+        this.policies = policies;
+        this.selectRequestedPolicy();
       });
 
     this.form.controls.description.valueChanges

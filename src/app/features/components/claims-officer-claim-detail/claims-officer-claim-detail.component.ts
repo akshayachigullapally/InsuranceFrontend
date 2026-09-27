@@ -53,7 +53,6 @@ interface RejectionForm {
   standalone: true,
   imports: [
     AsyncPipe,
-    DatePipe,
     DecimalPipe,
     ReactiveFormsModule,
     RouterLink,
