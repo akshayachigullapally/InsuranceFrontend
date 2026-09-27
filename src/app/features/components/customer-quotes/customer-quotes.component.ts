@@ -212,4 +212,37 @@ export class CustomerQuotesComponent implements OnInit, OnDestroy {
         },
       });
   }
+
+  /**
+   * How the premium was calculated from the pricing rule:
+   * sum insured x annual rate x (months / 12) x term factor x zone factor,
+   * raised to the rule's minimum premium when lower.
+   */
+  protected breakdown(quote: QuoteResponse): PremiumBreakdown {
+    const years = quote.termMonths / 12;
+    const calculated = round2(
+      quote.sumInsured * quote.annualRate * years * quote.termFactor * quote.locationFactor,
+    );
+    return {
+      ratePercent: +(quote.annualRate * 100).toFixed(4),
+      years,
+      termFactor: quote.termFactor,
+      locationFactor: quote.locationFactor,
+      calculated,
+      minimumApplied: quote.premiumAmount > calculated + 0.01,
+    };
+  }
+}
+
+export interface PremiumBreakdown {
+  ratePercent: number;
+  years: number;
+  termFactor: number;
+  locationFactor: number;
+  calculated: number;
+  minimumApplied: boolean;
+}
+
+function round2(value: number): number {
+  return Math.round(value * 100) / 100;
 }

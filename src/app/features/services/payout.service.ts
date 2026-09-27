@@ -77,4 +77,12 @@ export class PayoutService {
       request,
     );
   }
+
+  downloadReceipt(payoutId: number): Observable<Blob> {
+    return this.http.get(API_ENDPOINTS.financial.payoutReceipt(payoutId), { responseType: 'blob' });
+  }
+
+  downloadAdminReceipt(payoutId: number): Observable<Blob> {
+    return this.http.get(API_ENDPOINTS.financial.adminPayoutReceipt(payoutId), { responseType: 'blob' });
+  }
 }

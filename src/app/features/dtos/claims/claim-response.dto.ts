@@ -37,7 +37,28 @@ export interface ClaimResponse {
   manualReviewRequired?: boolean | null;
   manualReviewReason?: string | null;
   evidenceDescription?: string | null;
+  createdFromTriggerEvent?: boolean | null;
+  triggerMeasurementType?: string | null;
+  triggerMeasurementUnit?: string | null;
+  triggerObservedValue?: number | null;
+  triggerThresholdValue?: number | null;
+  triggerComparisonOperator?: string | null;
+  triggerWindowStart?: string | null;
+  triggerWindowEnd?: string | null;
 }
+
+export interface ClaimDocumentResponse {
+  id: number;
+  claimId: number;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  uploadedAt: string;
+}
+
+export const MAX_CLAIM_DOCUMENTS = 3;
+export const MAX_CLAIM_DOCUMENT_BYTES = 5 * 1024 * 1024;
+export const CLAIM_DOCUMENT_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
 export interface CreateClaimRequest {
   policyId: number;

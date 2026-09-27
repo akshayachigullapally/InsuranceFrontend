@@ -1,3 +1,5 @@
+import { TriggerExplanationComponent } from '../../../shared/components/trigger-explanation/trigger-explanation.component';
+import { ClaimDocumentsComponent } from '../../../shared/components/claim-documents/claim-documents.component';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
@@ -60,6 +62,8 @@ interface RejectionForm {
     ErrorMessageComponent,
     LoadingSpinnerComponent,
     StatusBadgeComponent,
+    TriggerExplanationComponent,
+    ClaimDocumentsComponent,
   ],
   providers: [DatePipe],
   templateUrl: './claims-officer-claim-detail.component.html',

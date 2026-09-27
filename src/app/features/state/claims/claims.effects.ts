@@ -90,9 +90,22 @@ export class ClaimsEffects {
   createClaim$ = createEffect(() =>
     this.actions$.pipe(
       ofType(createClaim),
-      exhaustMap(({ request }) =>
+      exhaustMap(({ request, files }) =>
         this.claimService.createClaim(request).pipe(
-          map(claim => createClaimSuccess({ claim })),
+          switchMap(claim => {
+            if (!files || files.length === 0) {
+              return of(createClaimSuccess({ claim }));
+            }
+            // The claim exists even if the upload fails; the claim page lets the customer retry.
+            return this.claimService.uploadDocuments(claim.id, files).pipe(
+              map(() => createClaimSuccess({ claim, openClaim: true, uploadError: null })),
+              catchError(error => of(createClaimSuccess({
+                claim,
+                openClaim: true,
+                uploadError: httpErrorMessage(error),
+              }))),
+            );
+          }),
           catchError(error =>
             of(createClaimFailure({
               error: httpErrorMessage(error),
@@ -254,8 +267,12 @@ export class ClaimsEffects {
     () =>
       this.actions$.pipe(
         ofType(createClaimSuccess),
-        tap(() =>
-          void this.router.navigate(['/customer/claims']),
+        tap(({ claim, openClaim, uploadError }) =>
+          void (openClaim
+            ? this.router.navigate(['/customer/claims', claim.id], {
+                state: uploadError ? { uploadError } : {},
+              })
+            : this.router.navigate(['/customer/claims'])),
         ),
       ),
     { dispatch: false },

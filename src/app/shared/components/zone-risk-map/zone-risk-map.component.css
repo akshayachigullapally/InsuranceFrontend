@@ -1,0 +1,26 @@
+@import "leaflet/dist/leaflet.css";
+
+.zone-risk-map {
+  z-index: 0;
+}
+
+.zrm-popup p {
+  margin: 2px 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.zrm-popup .zrm-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.zrm-popup .zrm-muted {
+  color: #6b7280;
+}
+
+.zrm-popup .zrm-readings {
+  margin-top: 6px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 4px;
+}

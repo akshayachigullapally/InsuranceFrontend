@@ -1,3 +1,5 @@
+import { PayoutService } from '../../services/payout.service';
+import { blobErrorMessage, saveBlob } from '../../utils/file-download.util';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
@@ -43,7 +45,10 @@ export class AdminPayoutsComponent implements OnInit, OnDestroy {
   readonly saving$: Observable<boolean>;
   readonly error$: Observable<string | null>;
 
-  constructor(private readonly store: Store) {
+  constructor(
+    private readonly store: Store,
+    private readonly payoutService: PayoutService,
+  ) {
     this.payouts$ = this.store.select(selectPayouts);
     this.loading$ = this.store.select(selectPayoutsLoading);
     this.saving$ = this.store.select(selectPayoutsSaving);
@@ -97,5 +102,24 @@ export class AdminPayoutsComponent implements OnInit, OnDestroy {
       payoutId: payout.id,
       request: { externalReference: '' },
     }));
+  }
+
+
+  protected receiptBusyId: number | null = null;
+  protected receiptError: string | null = null;
+
+  protected downloadReceipt(payout: PayoutResponse): void {
+    this.receiptBusyId = payout.id;
+    this.receiptError = null;
+    this.payoutService.downloadAdminReceipt(payout.id).subscribe({
+      next: blob => {
+        this.receiptBusyId = null;
+        saveBlob(blob, `${payout.payoutReference}-receipt.pdf`);
+      },
+      error: async (error: unknown) => {
+        this.receiptBusyId = null;
+        this.receiptError = await blobErrorMessage(error, 'Could not download the receipt.');
+      },
+    });
   }
 }

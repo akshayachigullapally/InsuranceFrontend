@@ -48,6 +48,10 @@ export const API_ENDPOINTS = {
     adminById: (policyId: number) => `${BASE}/api/policies/admin/${policyId}`,
     history: (policyId: number) => `${BASE}/api/policies/${policyId}/history`,
     snapshot: (policyId: number) => `${BASE}/api/policies/${policyId}/snapshot`,
+    renew: (policyId: number) => `${BASE}/api/policies/${policyId}/renew`,
+    autoRenew: (policyId: number) => `${BASE}/api/policies/${policyId}/auto-renew`,
+    certificate: (policyId: number) => `${BASE}/api/policies/${policyId}/certificate`,
+    adminCertificate: (policyId: number) => `${BASE}/api/policies/admin/${policyId}/certificate`,
   },
   claims: {
     base: `${BASE}/api/claims`,
@@ -74,6 +78,12 @@ export const API_ENDPOINTS = {
     adminTimeline: (claimId: number) =>
       `${BASE}/api/claims/admin/${claimId}/timeline`,
     adminAll: `${BASE}/api/claims/admin/all`,
+    documents: (claimId: number) => `${BASE}/api/claims/${claimId}/documents`,
+    document: (claimId: number, documentId: number) =>
+      `${BASE}/api/claims/${claimId}/documents/${documentId}`,
+    reviewDocuments: (claimId: number) => `${BASE}/api/claims/review/${claimId}/documents`,
+    reviewDocument: (claimId: number, documentId: number) =>
+      `${BASE}/api/claims/review/${claimId}/documents/${documentId}`,
     adminById: (claimId: number) =>
       `${BASE}/api/claims/admin/${claimId}`,
   },
@@ -133,6 +143,8 @@ export const API_ENDPOINTS = {
     payouts: `${BASE}/api/financial/payouts`,
     myPayouts: `${BASE}/api/financial/payouts/me`,
     payoutById: (payoutId: number) => `${BASE}/api/financial/payouts/${payoutId}`,
+    payoutReceipt: (payoutId: number) => `${BASE}/api/financial/payouts/${payoutId}/receipt`,
+    adminPayoutReceipt: (payoutId: number) => `${BASE}/api/financial/payouts/admin/${payoutId}/receipt`,
     adminPayouts: `${BASE}/api/financial/payouts/admin/all`,
     payoutProcess: (payoutId: number) => `${BASE}/api/financial/payouts/${payoutId}/process`,
     payoutSuccess: (payoutId: number) => `${BASE}/api/financial/payouts/${payoutId}/success`,

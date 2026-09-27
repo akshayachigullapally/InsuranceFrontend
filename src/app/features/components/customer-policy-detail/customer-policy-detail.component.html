@@ -114,6 +114,105 @@
         </div>
       }
 
+      @if (policy.renewedFromPolicyId) {
+        <div class="border-t border-gray-100 px-6 py-3 text-sm text-gray-600">
+          Renewal of
+          <a
+            [routerLink]="['/customer/policies', policy.renewedFromPolicyId]"
+            class="font-semibold text-brand-600 hover:text-brand-700"
+          >
+            your previous policy
+          </a>.
+          @if (policy.status === 'PENDING') {
+            Once approved, cover continues from the day the previous policy ends.
+          }
+        </div>
+      }
+
+      @if (policy.status === 'ACTIVE' || policy.status === 'EXPIRED' || policy.status === 'PENDING') {
+        <div class="grid gap-4 border-t border-gray-100 px-6 py-5 md:grid-cols-3">
+          @if (policy.status === 'ACTIVE' || policy.status === 'EXPIRED') {
+            <div class="rounded-xl border border-gray-200 p-4">
+              <p class="text-sm font-semibold text-gray-900">Policy certificate</p>
+              <p class="mt-1 text-xs text-gray-500">Your certificate of insurance as a PDF.</p>
+              <button
+                type="button"
+                class="btn-outline mt-3 !px-3 !py-1.5 text-xs"
+                [disabled]="actionBusy !== null"
+                (click)="downloadCertificate(policy)"
+              >
+                {{ actionBusy === 'certificate' ? 'Preparing...' : '⬇ Download PDF' }}
+              </button>
+            </div>
+          }
+
+          @if (renewalState(policy); as renewal) {
+            <div class="rounded-xl border border-gray-200 p-4">
+              <p class="text-sm font-semibold text-gray-900">Renew</p>
+              @if (renewal === 'open') {
+                <p class="mt-1 text-xs text-gray-500">
+                  Apply to continue the same cover. The underwriter reviews it as usual.
+                </p>
+                <button
+                  type="button"
+                  class="btn-brand mt-3 !px-3 !py-1.5 text-xs"
+                  [disabled]="actionBusy !== null"
+                  (click)="renew(policy)"
+                >
+                  {{ actionBusy === 'renew' ? 'Renewing...' : 'Renew policy' }}
+                </button>
+              } @else if (renewal === 'notYet') {
+                <p class="mt-1 text-xs text-gray-500">
+                  Renewal opens on {{ renewalOpensOn(policy) }}, 30 days before the policy ends.
+                </p>
+              } @else {
+                <p class="mt-1 text-xs text-gray-500">
+                  This policy ended more than 30 days ago. Apply for a new policy instead.
+                </p>
+              }
+            </div>
+          }
+
+          @if (policy.status === 'ACTIVE' || policy.status === 'PENDING') {
+            <div class="rounded-xl border border-gray-200 p-4">
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-sm font-semibold text-gray-900">Auto-renew</p>
+                <button
+                  type="button"
+                  role="switch"
+                  [attr.aria-checked]="!!policy.autoRenew"
+                  aria-label="Auto-renew"
+                  class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-50"
+                  [class.bg-brand-600]="policy.autoRenew"
+                  [class.bg-gray-300]="!policy.autoRenew"
+                  [disabled]="actionBusy !== null"
+                  (click)="toggleAutoRenew(policy)"
+                >
+                  <span
+                    class="inline-block h-5 w-5 rounded-full bg-white shadow transition-transform"
+                    [class.translate-x-5]="policy.autoRenew"
+                    [class.translate-x-0.5]="!policy.autoRenew"
+                  ></span>
+                </button>
+              </div>
+              <p class="mt-1 text-xs text-gray-500">
+                @if (policy.autoRenew) {
+                  On: we will create your renewal application 14 days before the policy ends.
+                } @else {
+                  Off: we will remind you 14 and 3 days before the policy ends.
+                }
+              </p>
+            </div>
+          }
+        </div>
+
+        @if (actionError) {
+          <div class="px-6 pb-5">
+            <app-error-message [error]="actionError" />
+          </div>
+        }
+      }
+
       @if (policy.status === 'ACTIVE') {
         <div class="border-t border-success-100 bg-success-50 px-6 py-5">
           <p class="text-sm font-semibold text-success-700">

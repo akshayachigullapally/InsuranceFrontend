@@ -1,3 +1,5 @@
+import { MAX_CLAIM_DOCUMENTS } from '../../dtos/claims/claim-response.dto';
+import { validateClaimFiles } from '../../../shared/components/claim-documents/claim-documents.component';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
@@ -124,6 +126,9 @@ export class CustomerClaimNewComponent implements OnInit, OnDestroy {
   protected readonly maximumIncidentDate =
     CustomerClaimNewComponent.today();
   protected descriptionLength = 0;
+  protected selectedFiles: File[] = [];
+  protected filesError: string | null = null;
+  protected readonly maxFiles = MAX_CLAIM_DOCUMENTS;
   protected snapshot: PolicyTriggerSnapshotResponse | null = null;
   protected snapshotLoading = false;
 
@@ -246,7 +251,35 @@ export class CustomerClaimNewComponent implements OnInit, OnDestroy {
     };
 
     this.store.dispatch(clearClaimsError());
-    this.store.dispatch(createClaim({ request }));
+    this.store.dispatch(createClaim({
+      request,
+      files: this.selectedFiles.length > 0 ? [...this.selectedFiles] : undefined,
+    }));
+  }
+
+  protected onFilesSelected(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    const picked = Array.from(inputElement.files ?? []);
+    inputElement.value = '';
+    if (picked.length === 0) {
+      return;
+    }
+    const problem = validateClaimFiles(picked, MAX_CLAIM_DOCUMENTS - this.selectedFiles.length);
+    this.filesError = problem;
+    if (!problem) {
+      this.selectedFiles = [...this.selectedFiles, ...picked];
+    }
+  }
+
+  protected removeFile(index: number): void {
+    this.selectedFiles = this.selectedFiles.filter((_, i) => i !== index);
+    this.filesError = null;
+  }
+
+  protected fileSize(bytes: number): string {
+    return bytes >= 1024 * 1024
+      ? `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+      : `${Math.max(1, Math.round(bytes / 1024))} KB`;
   }
 
   protected zoneLabel(locationZoneId: number): string {

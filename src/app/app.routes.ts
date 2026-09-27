@@ -400,6 +400,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'risk',
+        loadComponent: () =>
+          import('./features/components/admin-risk-dashboard/admin-risk-dashboard.component').then(
+            (m) => m.AdminRiskDashboardComponent,
+          ),
+      },
+      {
         path: 'notifications',
         loadComponent: () =>
           import('./features/components/admin-notifications/admin-notifications.component').then(

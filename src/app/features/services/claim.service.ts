@@ -12,6 +12,7 @@ import {
   RejectClaimRequest,
   SettleClaimRequest,
   ClaimReviewHistoryResponse,
+  ClaimDocumentResponse,
 } from '../dtos/claims/claim-response.dto';
 
 @Injectable({ providedIn: 'root' })
@@ -148,5 +149,36 @@ export class ClaimService {
     return this.http.get<ClaimResponse>(
       API_ENDPOINTS.claims.adminById(claimId),
     );
+  }
+
+  uploadDocuments(claimId: number, files: File[]): Observable<ClaimDocumentResponse[]> {
+    const form = new FormData();
+    for (const file of files) {
+      form.append('files', file, file.name);
+    }
+    return this.http.post<ClaimDocumentResponse[]>(
+      API_ENDPOINTS.claims.documents(claimId),
+      form,
+    );
+  }
+
+  getMyDocuments(claimId: number): Observable<ClaimDocumentResponse[]> {
+    return this.http.get<ClaimDocumentResponse[]>(API_ENDPOINTS.claims.documents(claimId));
+  }
+
+  downloadMyDocument(claimId: number, documentId: number): Observable<Blob> {
+    return this.http.get(API_ENDPOINTS.claims.document(claimId, documentId), {
+      responseType: 'blob',
+    });
+  }
+
+  getReviewDocuments(claimId: number): Observable<ClaimDocumentResponse[]> {
+    return this.http.get<ClaimDocumentResponse[]>(API_ENDPOINTS.claims.reviewDocuments(claimId));
+  }
+
+  downloadReviewDocument(claimId: number, documentId: number): Observable<Blob> {
+    return this.http.get(API_ENDPOINTS.claims.reviewDocument(claimId, documentId), {
+      responseType: 'blob',
+    });
   }
 }

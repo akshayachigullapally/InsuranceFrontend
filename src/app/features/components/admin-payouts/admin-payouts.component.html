@@ -12,6 +12,10 @@
     </p>
   </div>
 
+  @if (receiptError) {
+    <app-error-message [error]="receiptError" />
+  }
+
   @if (error$ | async; as error) {
     <app-error-message [error]="error" />
   }
@@ -86,6 +90,16 @@
                           (click)="markFail(payout)"
                         >
                           Mark failed
+                        </button>
+                      }
+                      @if (payout.status === 'SUCCESS') {
+                        <button
+                          type="button"
+                          class="font-semibold text-brand-600 hover:text-brand-700 disabled:opacity-50"
+                          [disabled]="receiptBusyId === payout.id"
+                          (click)="downloadReceipt(payout)"
+                        >
+                          {{ receiptBusyId === payout.id ? 'Preparing...' : 'Receipt PDF' }}
                         </button>
                       }
                       @if (payout.status === 'FAILED') {

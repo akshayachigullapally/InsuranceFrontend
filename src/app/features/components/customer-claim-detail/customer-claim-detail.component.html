@@ -14,6 +14,12 @@
     <app-error-message [error]="error" />
   }
 
+  @if (uploadWarning) {
+    <app-error-message
+      [error]="'Your claim was submitted, but the files could not be uploaded: ' + uploadWarning + ' You can add them again below.'"
+    />
+  }
+
   @if (loading$ | async) {
     <app-loading-spinner label="Loading claim..." />
   } @else if (claim$ | async; as claim) {
@@ -81,6 +87,10 @@
         </div>
       </div>
 
+      <div class="px-6 pb-2">
+        <app-trigger-explanation [claim]="claim" [zoneName]="zoneName" audience="customer" />
+      </div>
+
       <div class="border-t border-gray-100 px-6 py-5">
         <h2 class="text-lg font-semibold text-gray-900">
           Claim information
@@ -111,6 +121,14 @@
             {{ claim.description }}
           </p>
         </div>
+      </div>
+
+      <div class="border-t border-gray-100 px-6 py-5">
+        <app-claim-documents
+          [claimId]="claim.id"
+          mode="customer"
+          [canUpload]="canAddDocuments(claim)"
+        />
       </div>
 
       <div class="border-t border-gray-100 px-6 py-5">

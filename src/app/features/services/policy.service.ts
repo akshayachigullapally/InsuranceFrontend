@@ -128,4 +128,20 @@ export class PolicyService {
       API_ENDPOINTS.policies.snapshot(policyId),
     );
   }
+
+  renewPolicy(policyId: number): Observable<PolicyResponse> {
+    return this.http.post<PolicyResponse>(API_ENDPOINTS.policies.renew(policyId), {});
+  }
+
+  setAutoRenew(policyId: number, enabled: boolean): Observable<PolicyResponse> {
+    return this.http.put<PolicyResponse>(API_ENDPOINTS.policies.autoRenew(policyId), { enabled });
+  }
+
+  downloadCertificate(policyId: number): Observable<Blob> {
+    return this.http.get(API_ENDPOINTS.policies.certificate(policyId), { responseType: 'blob' });
+  }
+
+  downloadAdminCertificate(policyId: number): Observable<Blob> {
+    return this.http.get(API_ENDPOINTS.policies.adminCertificate(policyId), { responseType: 'blob' });
+  }
 }

@@ -1,3 +1,5 @@
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { cancelClaim } from '../../state/claims/claims.actions';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -45,6 +47,7 @@ interface StatusFilter {
     LoadingSpinnerComponent,
     StatCardComponent,
     StatusBadgeComponent,
+    ConfirmationDialogComponent,
   ],
   templateUrl: './customer-claims.component.html',
   styleUrl: './customer-claims.component.css',
@@ -120,5 +123,24 @@ export class CustomerClaimsComponent implements OnInit {
       .replaceAll('_', ' ')
       .toLowerCase()
       .replace(/\b\w/g, character => character.toUpperCase());
+  }
+
+  /** Submitted claim the customer is about to withdraw. */
+  protected cancelTarget: ClaimResponse | null = null;
+
+  protected askCancel(claim: ClaimResponse): void {
+    this.store.dispatch(clearClaimsError());
+    this.cancelTarget = claim;
+  }
+
+  protected confirmCancel(): void {
+    if (this.cancelTarget) {
+      this.store.dispatch(cancelClaim({ claimId: this.cancelTarget.id }));
+    }
+    this.cancelTarget = null;
+  }
+
+  protected dismissCancel(): void {
+    this.cancelTarget = null;
   }
 }

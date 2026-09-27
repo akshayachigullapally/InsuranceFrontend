@@ -7,7 +7,8 @@ import {
   PolicyResponse,
   PolicyStatus,
 } from '../../dtos/policies/policy-response.dto';
-import { loadMyPolicies } from '../../state/policies/policies.actions';
+import { cancelPolicy, clearPoliciesError, loadMyPolicies } from '../../state/policies/policies.actions';
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import {
   selectActivePolicyCount,
   selectActiveSumInsured,
@@ -41,6 +42,7 @@ interface FilterChip {
     EmptyStateComponent,
     StatusBadgeComponent,
     StatCardComponent,
+    ConfirmationDialogComponent,
   ],
   templateUrl: './customer-policies.component.html',
   styleUrl: './customer-policies.component.css',
@@ -63,6 +65,8 @@ export class CustomerPoliciesComponent implements OnInit {
   ];
 
   protected activeFilter: PolicyStatus | null = null;
+  /** Pending application the customer is about to withdraw. */
+  protected cancelTarget: PolicyResponse | null = null;
 
   private zoneNamesById: Record<number, string> = {};
 
@@ -102,5 +106,31 @@ export class CustomerPoliciesComponent implements OnInit {
     return name
       ? `${name} (Zone #${locationZoneId})`
       : `Zone #${locationZoneId}`;
+  }
+
+  protected askCancel(policy: PolicyResponse): void {
+    this.store.dispatch(clearPoliciesError());
+    this.cancelTarget = policy;
+  }
+
+  protected confirmCancel(): void {
+    if (this.cancelTarget) {
+      this.store.dispatch(cancelPolicy({ policyId: this.cancelTarget.id }));
+    }
+    this.cancelTarget = null;
+  }
+
+  protected dismissCancel(): void {
+    this.cancelTarget = null;
+  }
+
+  /** Active in its last 30 days, or expired within the last 30 days. */
+  protected isRenewable(policy: PolicyResponse): boolean {
+    if (!policy.endDate || (policy.status !== 'ACTIVE' && policy.status !== 'EXPIRED')) {
+      return false;
+    }
+    const end = new Date(`${policy.endDate.substring(0, 10)}T00:00:00`).getTime();
+    const days = (end - Date.now()) / 86_400_000;
+    return policy.status === 'ACTIVE' ? days <= 30 : days >= -30;
   }
 }

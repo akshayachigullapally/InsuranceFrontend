@@ -70,6 +70,9 @@
   </div>
 
   @if (activeTab === 'payouts') {
+    @if (receiptError) {
+      <app-error-message [error]="receiptError" />
+    }
     @if (payoutsError$ | async; as payoutsError) {
       <app-error-message [error]="payoutsError" />
     }
@@ -89,6 +92,7 @@
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Requested</th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Processed</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Receipt</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
@@ -114,6 +118,20 @@
                     </td>
                     <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-500">
                       {{ payout.processedAt ? (payout.processedAt | date: 'medium') : '—' }}
+                    </td>
+                    <td class="whitespace-nowrap px-6 py-3 text-right text-sm">
+                      @if (payout.status === 'SUCCESS') {
+                        <button
+                          type="button"
+                          class="font-semibold text-brand-600 hover:text-brand-700 disabled:opacity-50"
+                          [disabled]="receiptBusyId === payout.id"
+                          (click)="downloadReceipt(payout)"
+                        >
+                          {{ receiptBusyId === payout.id ? 'Preparing...' : '⬇ PDF' }}
+                        </button>
+                      } @else {
+                        <span class="text-xs text-gray-400">After payment</span>
+                      }
                     </td>
                   </tr>
                 }

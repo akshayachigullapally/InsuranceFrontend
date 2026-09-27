@@ -37,12 +37,17 @@ export const loadMyClaimFailure = createAction(
 
 export const createClaim = createAction(
   '[Claims] Create Claim',
-  props<{ request: CreateClaimRequest }>(),
+  props<{ request: CreateClaimRequest; files?: File[] }>(),
 );
 
 export const createClaimSuccess = createAction(
   '[Claims] Create Claim Success',
-  props<{ claim: ClaimResponse }>(),
+  props<{
+    claim: ClaimResponse;
+    /** True when evidence files were attached: the customer is taken to the claim page. */
+    openClaim?: boolean;
+    uploadError?: string | null;
+  }>(),
 );
 
 export const createClaimFailure = createAction(

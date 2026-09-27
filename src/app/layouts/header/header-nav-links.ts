@@ -64,6 +64,7 @@ export const ROLE_MORE_MENU: Record<string, HeaderMoreGroup[]> = {
     {
       label: 'Finance',
       items: [
+        { label: 'Risk Dashboard', routerLink: '/admin/risk', icon: '📈' },
         { label: 'Pricing Rules', routerLink: '/admin/pricing-rules', icon: '⚙️' },
         { label: 'Payments', routerLink: '/admin/payments', icon: '💳' },
         { label: 'Payouts', routerLink: '/admin/payouts', icon: '🏦' },

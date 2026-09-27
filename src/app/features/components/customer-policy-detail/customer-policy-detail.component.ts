@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import {
   ActivatedRoute,
+  Router,
   RouterLink,
 } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -26,6 +27,7 @@ import { TriggerCondition } from '../../dtos/triggers/trigger-condition.dto';
 import { PolicyService } from '../../services/policy.service';
 import { ZoneService } from '../../services/zone.service';
 import { parseLocalDateOnly } from '../../utils/local-date.util';
+import { blobErrorMessage, saveBlob } from '../../utils/file-download.util';
 import {
   cancelPolicy,
   clearPoliciesError,
@@ -76,6 +78,8 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
   protected snapshot: PolicyTriggerSnapshotResponse | null = null;
   protected snapshotLoading = false;
   protected zoneName: string | null = null;
+  protected actionBusy: 'renew' | 'autoRenew' | 'certificate' | null = null;
+  protected actionError: string | null = null;
 
   private policyId = 0;
   private readonly destroy$ = new Subject<void>();
@@ -86,6 +90,7 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
     private readonly datePipe: DatePipe,
     private readonly policyService: PolicyService,
     private readonly zoneService: ZoneService,
+    private readonly router: Router,
   ) {
     this.policy$ = this.store.select(selectSelectedPolicy);
     this.loading$ = this.store.select(selectPoliciesLoading);
@@ -94,16 +99,22 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const policyId = Number(
-      this.route.snapshot.paramMap.get('policyId'),
-    );
+    // Follow the route param: renewing navigates from one policy page to another.
+    this.route.paramMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const policyId = Number(params.get('policyId'));
 
-    if (!Number.isInteger(policyId) || policyId <= 0) {
-      return;
-    }
+        if (!Number.isInteger(policyId) || policyId <= 0) {
+          return;
+        }
 
-    this.policyId = policyId;
-    this.store.dispatch(loadMyPolicy({ policyId }));
+        this.policyId = policyId;
+        this.snapshot = null;
+        this.zoneName = null;
+        this.actionError = null;
+        this.store.dispatch(loadMyPolicy({ policyId }));
+      });
 
     this.policy$
       .pipe(takeUntil(this.destroy$))
@@ -282,4 +293,87 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
       'mediumDate',
     ) ?? 'Not available';
   }
+
+  /** Active in its last 30 days, or expired within the last 30 days. */
+  protected renewalState(policy: PolicyResponse): 'open' | 'notYet' | 'closed' | null {
+    if (!policy.endDate || (policy.status !== 'ACTIVE' && policy.status !== 'EXPIRED')) {
+      return null;
+    }
+    const end = parseLocalDateOnly(policy.endDate);
+    if (!end) {
+      return null;
+    }
+    const days = (end.getTime() - Date.now()) / 86_400_000;
+    if (policy.status === 'ACTIVE') {
+      return days <= 30 ? 'open' : 'notYet';
+    }
+    return days >= -30 ? 'open' : 'closed';
+  }
+
+  protected renewalOpensOn(policy: PolicyResponse): string {
+    const end = parseLocalDateOnly(policy.endDate);
+    if (!end) {
+      return '';
+    }
+    end.setDate(end.getDate() - 30);
+    return this.datePipe.transform(end, 'mediumDate') ?? '';
+  }
+
+  protected renew(policy: PolicyResponse): void {
+    this.actionBusy = 'renew';
+    this.actionError = null;
+    this.policyService
+      .renewPolicy(policy.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: renewal => {
+          this.actionBusy = null;
+          void this.router.navigate(['/customer/policies', renewal.id]);
+        },
+        error: (error: unknown) => {
+          this.actionBusy = null;
+          this.actionError = errorMessage(error, 'Could not renew this policy.');
+        },
+      });
+  }
+
+  protected toggleAutoRenew(policy: PolicyResponse): void {
+    this.actionBusy = 'autoRenew';
+    this.actionError = null;
+    this.policyService
+      .setAutoRenew(policy.id, !policy.autoRenew)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.actionBusy = null;
+          this.store.dispatch(loadMyPolicy({ policyId: policy.id }));
+        },
+        error: (error: unknown) => {
+          this.actionBusy = null;
+          this.actionError = errorMessage(error, 'Could not change auto-renew.');
+        },
+      });
+  }
+
+  protected downloadCertificate(policy: PolicyResponse): void {
+    this.actionBusy = 'certificate';
+    this.actionError = null;
+    this.policyService
+      .downloadCertificate(policy.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: blob => {
+          this.actionBusy = null;
+          saveBlob(blob, `${policy.policyNumber}-certificate.pdf`);
+        },
+        error: async (error: unknown) => {
+          this.actionBusy = null;
+          this.actionError = await blobErrorMessage(error, 'Could not download the certificate.');
+        },
+      });
+  }
+}
+
+function errorMessage(error: unknown, fallback: string): string {
+  return (error as { error?: { message?: string } })?.error?.message ?? fallback;
 }

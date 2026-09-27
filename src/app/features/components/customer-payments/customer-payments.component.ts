@@ -1,3 +1,5 @@
+import { PayoutService } from '../../services/payout.service';
+import { blobErrorMessage, saveBlob } from '../../utils/file-download.util';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
@@ -97,6 +99,7 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
     private readonly store: Store,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
+    private readonly payoutService: PayoutService,
   ) {
     this.payments$ = this.store.select(selectPayments);
     this.loading$ = this.store.select(selectPaymentsLoading);
@@ -178,6 +181,25 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
   protected activePolicies(policies: PolicyResponse[]): PolicyResponse[] {
     return policies.filter(policy => policy.status === 'ACTIVE');
   }
+
+  protected receiptBusyId: number | null = null;
+  protected receiptError: string | null = null;
+
+  protected downloadReceipt(payout: PayoutResponse): void {
+    this.receiptBusyId = payout.id;
+    this.receiptError = null;
+    this.payoutService.downloadReceipt(payout.id).subscribe({
+      next: blob => {
+        this.receiptBusyId = null;
+        saveBlob(blob, `${payout.payoutReference}-receipt.pdf`);
+      },
+      error: async (error: unknown) => {
+        this.receiptBusyId = null;
+        this.receiptError = await blobErrorMessage(error, 'Could not download the receipt.');
+      },
+    });
+  }
+
 }
 
 function sumAmounts(items: { amount: number }[]): number {

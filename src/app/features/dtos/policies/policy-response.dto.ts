@@ -28,6 +28,8 @@ export interface PolicyResponse {
   createdAt?: string;
   updatedAt?: string;
   triggerSnapshotId?: number | null;
+  autoRenew?: boolean | null;
+  renewedFromPolicyId?: number | null;
 }
 
 export interface CreatePolicyRequest {

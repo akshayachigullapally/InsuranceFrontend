@@ -165,12 +165,23 @@
                     </td>
 
                     <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
-                      <a
-                        [routerLink]="['/customer/claims', claim.id]"
-                        class="font-semibold text-brand-600 hover:text-brand-700"
-                      >
-                        View
-                      </a>
+                      <div class="flex items-center justify-end gap-3">
+                        @if (claim.status === 'SUBMITTED') {
+                          <button
+                            type="button"
+                            class="font-semibold text-danger-500 hover:text-danger-700"
+                            (click)="askCancel(claim)"
+                          >
+                            Cancel
+                          </button>
+                        }
+                        <a
+                          [routerLink]="['/customer/claims', claim.id]"
+                          class="font-semibold text-brand-600 hover:text-brand-700"
+                        >
+                          View
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 }
@@ -193,5 +204,15 @@
         </app-empty-state>
       }
     }
-  </section>
+    @if (cancelTarget; as target) {
+    <app-confirmation-dialog
+      title="Cancel this claim?"
+      [message]="'Claim ' + target.claimNumber + ' will be cancelled and will not be reviewed.'"
+      confirmLabel="Yes, cancel claim"
+      [danger]="true"
+      (confirmed)="confirmCancel()"
+      (dismissed)="dismissCancel()"
+    />
+  }
+</section>
 </div>

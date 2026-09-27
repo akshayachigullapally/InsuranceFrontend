@@ -23,6 +23,8 @@ import { ConfirmationDialogComponent } from '../../../shared/components/confirma
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { TriggerExplanationComponent } from '../../../shared/components/trigger-explanation/trigger-explanation.component';
+import { ClaimDocumentsComponent } from '../../../shared/components/claim-documents/claim-documents.component';
 
 interface DetailRow {
   label: string;
@@ -40,6 +42,8 @@ interface DetailRow {
     ErrorMessageComponent,
     LoadingSpinnerComponent,
     StatusBadgeComponent,
+    TriggerExplanationComponent,
+    ClaimDocumentsComponent,
   ],
   providers: [DatePipe],
   templateUrl: './customer-claim-detail.component.html',
@@ -54,6 +58,8 @@ export class CustomerClaimDetailComponent implements OnInit, OnDestroy {
   protected cancelOpen = false;
   protected invalidClaimId = false;
   protected zoneName: string | null = null;
+  /** Set when evidence files failed to upload right after the claim was created. */
+  protected uploadWarning: string | null = null;
 
   private claimId = 0;
   private readonly destroy$ = new Subject<void>();
@@ -84,6 +90,8 @@ export class CustomerClaimDetailComponent implements OnInit, OnDestroy {
     }
 
     this.claimId = claimId;
+    this.uploadWarning =
+      (globalThis.history?.state as { uploadError?: string } | undefined)?.uploadError ?? null;
     this.store.dispatch(loadMyClaim({ claimId }));
 
     this.claim$
@@ -249,5 +257,9 @@ export class CustomerClaimDetailComponent implements OnInit, OnDestroy {
       value,
       'medium',
     ) ?? 'Not available';
+  }
+
+  protected canAddDocuments(claim: ClaimResponse): boolean {
+    return claim.status === 'SUBMITTED' || claim.status === 'UNDER_REVIEW';
   }
 }
