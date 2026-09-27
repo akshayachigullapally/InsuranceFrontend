@@ -1,0 +1,106 @@
+<section class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">Live conditions</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">Zone map</h1>
+      <p class="mt-1 text-sm text-gray-500">
+        @if (audience === 'customer') {
+          Live weather readings in each zone against the trigger thresholds. Your insured zones are outlined in bold.
+        } @else {
+          Every zone with its live readings against product trigger thresholds.
+        }
+      </p>
+    </div>
+    <div class="flex items-center gap-3">
+      @if (loadedAt(); as at) {
+        <span class="text-xs text-gray-400">Updated {{ at | date: 'mediumTime' }} · refreshes every 30 s</span>
+      }
+      <button type="button" class="btn-outline" (click)="load()">↻ Refresh</button>
+    </div>
+  </div>
+
+  @if (warnings().length > 0) {
+    <app-error-message [error]="'Some data could not be loaded (' + warnings().join(', ') + ').'" />
+  }
+
+  @if (zones(); as list) {
+    <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+      @for (state of legend; track state) {
+        <div class="card flex items-center gap-3 p-4">
+          <span class="inline-block h-3.5 w-3.5 shrink-0 rounded-full" [style.background]="stateColors[state]"></span>
+          <div>
+            <p class="text-xl font-bold text-gray-900">{{ count(list, state) }}</p>
+            <p class="text-xs text-gray-500">{{ stateLabels[state] }}</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="card p-5">
+      <app-zone-map [zones]="list" [audience]="audience" (zoneSelected)="selectZone($event)" />
+    </div>
+
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Zone</th>
+              <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Condition</th>
+              <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Live readings</th>
+              <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                {{ audience === 'customer' ? 'Your policies' : 'Active policies' }}
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            @for (zone of list; track zone.zoneId) {
+              <tr [id]="'zone-row-' + zone.zoneId" [class.bg-brand-50]="selectedZoneId() === zone.zoneId">
+                <td class="px-5 py-3">
+                  <p class="font-semibold text-gray-900">{{ zone.zoneName }}</p>
+                  <p class="text-xs text-gray-400">{{ zone.zoneCode }}</p>
+                </td>
+                <td class="px-5 py-3">
+                  <span class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700">
+                    <span class="inline-block h-2.5 w-2.5 rounded-full" [style.background]="stateColors[zone.state]"></span>
+                    {{ stateLabels[zone.state] }}
+                  </span>
+                </td>
+                <td class="px-5 py-3">
+                  @if (zone.readings.length === 0) {
+                    <span class="text-xs text-gray-400">No live data</span>
+                  } @else {
+                    <ul class="space-y-0.5">
+                      @for (reading of zone.readings; track reading.productId) {
+                        <li class="text-xs text-gray-700">
+                          {{ reading.productName }}:
+                          <b>{{ reading.currentValue }} {{ reading.measurementUnit }}</b>
+                          @if (reading.thresholdValue !== null) {
+                            <span class="text-gray-400">/ trigger {{ reading.thresholdValue }}</span>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  }
+                </td>
+                <td class="px-5 py-3 text-xs text-gray-700">
+                  @if (audience === 'customer') {
+                    {{ zone.policyNumbers.length > 0 ? zone.policyNumbers.join(', ') : '—' }}
+                  } @else {
+                    {{ zone.activePolicies }}
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="px-5 py-8 text-center text-sm text-gray-500">No zones yet.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  } @else {
+    <app-loading-spinner label="Loading zones..." />
+  }
+</section>

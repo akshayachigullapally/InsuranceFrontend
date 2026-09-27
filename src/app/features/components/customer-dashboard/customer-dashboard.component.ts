@@ -1,8 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AsyncPipe, DatePipe } from '@angular/common';
-import { Observable } from 'rxjs';
+import { Observable, Subject, interval, startWith, takeUntil } from 'rxjs';
+import { DecimalPipe } from '@angular/common';
+import { loadMyPayments } from '../../state/payments/payments.actions';
+import { selectTotalPremiumsPaid } from '../../state/payments/payments.selectors';
+import { loadMyPayouts } from '../../state/payouts/payouts.actions';
+import { selectTotalPayoutsReceived } from '../../state/payouts/payouts.selectors';
 import { map } from 'rxjs/operators';
 import { selectAuthUser } from '../../state/auth/auth.selectors';
 import { AuthUser } from '../../../core/models/auth-user.model';
@@ -31,11 +36,11 @@ interface QuickAction {
 @Component({
   selector: 'app-customer-dashboard',
   standalone: true,
-  imports: [RouterLink, AsyncPipe, DatePipe, StatCardComponent, StatusBadgeComponent],
+  imports: [RouterLink, AsyncPipe, DatePipe, DecimalPipe, StatCardComponent, StatusBadgeComponent],
   templateUrl: './customer-dashboard.component.html',
   styleUrl: './customer-dashboard.component.css',
 })
-export class CustomerDashboardComponent implements OnInit {
+export class CustomerDashboardComponent implements OnInit, OnDestroy {
   readonly user$: Observable<AuthUser | null>;
   readonly policies$: Observable<PolicyResponse[]>;
   readonly claims$: Observable<ClaimResponse[]>;
@@ -43,6 +48,9 @@ export class CustomerDashboardComponent implements OnInit {
   readonly sumInsured$: Observable<number>;
   readonly claimCount$: Observable<number>;
   readonly unreadCount$: Observable<number>;
+  readonly premiumsPaid$: Observable<number>;
+  readonly payoutsReceived$: Observable<number>;
+  private readonly destroy$ = new Subject<void>();
 
   protected readonly quickActions: QuickAction[] = [
     { icon: '🛒', label: 'Get new coverage', description: 'Browse parametric products', routerLink: '/products', color: 'bg-brand-50' },
@@ -62,10 +70,25 @@ export class CustomerDashboardComponent implements OnInit {
     this.sumInsured$ = this.store.select(selectActiveSumInsured);
     this.claimCount$ = this.store.select(selectMyClaims).pipe(map(claims => claims.length));
     this.unreadCount$ = this.store.select(selectUnreadCount);
+    this.premiumsPaid$ = this.store.select(selectTotalPremiumsPaid);
+    this.payoutsReceived$ = this.store.select(selectTotalPayoutsReceived);
   }
 
   ngOnInit(): void {
     this.store.dispatch(loadMyPolicies({}));
     this.store.dispatch(loadMyClaims({}));
+    // Keep premiums paid / payouts received current while the dashboard is open.
+    interval(15_000)
+      .pipe(startWith(0))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.store.dispatch(loadMyPayments());
+        this.store.dispatch(loadMyPayouts());
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -10,7 +10,7 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable, Subject, map } from 'rxjs';
+import { Observable, Subject, interval, startWith, takeUntil } from 'rxjs';
 import {
   PAYMENT_METHODS,
   PaymentMethod,
@@ -29,6 +29,7 @@ import {
   selectPaymentsError,
   selectPaymentsLoading,
   selectPaymentsSaving,
+  selectTotalPremiumsPaid,
 } from '../../state/payments/payments.selectors';
 import {
   clearPayoutsError,
@@ -38,6 +39,7 @@ import {
   selectPayouts,
   selectPayoutsError,
   selectPayoutsLoading,
+  selectTotalPayoutsReceived,
 } from '../../state/payouts/payouts.selectors';
 import { loadMyPolicies } from '../../state/policies/policies.actions';
 import { selectMyPolicies } from '../../state/policies/policies.selectors';
@@ -47,6 +49,8 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 
 type BillingTab = 'payments' | 'payouts';
+
+const LIVE_REFRESH_MS = 15_000;
 
 interface PaymentForm {
   policyId: FormControl<number | null>;
@@ -109,12 +113,8 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
     this.payouts$ = this.store.select(selectPayouts);
     this.payoutsLoading$ = this.store.select(selectPayoutsLoading);
     this.payoutsError$ = this.store.select(selectPayoutsError);
-    this.totalPaid$ = this.payments$.pipe(
-      map(payments => sumAmounts(payments.filter(p => p.status === 'SUCCESS'))),
-    );
-    this.totalReceived$ = this.payouts$.pipe(
-      map(payouts => sumAmounts(payouts.filter(p => p.status === 'SUCCESS'))),
-    );
+    this.totalPaid$ = this.store.select(selectTotalPremiumsPaid);
+    this.totalReceived$ = this.store.select(selectTotalPayoutsReceived);
   }
 
   ngOnInit(): void {
@@ -124,9 +124,16 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
         : 'payments';
     this.store.dispatch(clearPaymentsError());
     this.store.dispatch(clearPayoutsError());
-    this.store.dispatch(loadMyPayments());
-    this.store.dispatch(loadMyPayouts());
     this.store.dispatch(loadMyPolicies({}));
+    // Payments are confirmed and payouts completed after the fact:
+    // refresh every 15 s so statuses and totals stay current.
+    interval(LIVE_REFRESH_MS)
+      .pipe(startWith(0))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.store.dispatch(loadMyPayments());
+        this.store.dispatch(loadMyPayouts());
+      });
   }
 
   ngOnDestroy(): void {
@@ -200,8 +207,4 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
     });
   }
 
-}
-
-function sumAmounts(items: { amount: number }[]): number {
-  return items.reduce((total, item) => total + Number(item.amount ?? 0), 0);
 }

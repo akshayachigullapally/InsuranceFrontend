@@ -43,7 +43,8 @@ export const paymentsReducer = createReducer(
 
   on(loadPayments, loadMyPayments, (state): PaymentsState => ({
     ...state,
-    isLoading: true,
+    // Only show the spinner on the first load; refreshes update in place.
+    isLoading: state.payments.length === 0,
     error: null,
   })),
 

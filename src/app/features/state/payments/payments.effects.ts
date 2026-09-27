@@ -91,6 +91,13 @@ export class PaymentsEffects {
     ),
   );
 
+  reloadAfterPayment$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(createPaymentSuccess),
+      map(() => loadMyPayments()),
+    ),
+  );
+
   markPaymentSuccess$ = createEffect(() =>
     this.actions$.pipe(
       ofType(markPaymentSuccess),

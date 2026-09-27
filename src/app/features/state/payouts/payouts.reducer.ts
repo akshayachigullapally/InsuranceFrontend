@@ -46,7 +46,8 @@ export const payoutsReducer = createReducer(
 
   on(loadPayouts, loadMyPayouts, (state): PayoutsState => ({
     ...state,
-    isLoading: true,
+    // Only show the spinner on the first load; refreshes update in place.
+    isLoading: state.payouts.length === 0,
     error: null,
   })),
 

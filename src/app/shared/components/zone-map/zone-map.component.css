@@ -1,6 +1,6 @@
 @import "leaflet/dist/leaflet.css";
 
-.zone-risk-map {
+.zone-map {
   z-index: 0;
 }
 

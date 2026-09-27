@@ -77,3 +77,11 @@ export const selectSuccessfulPayoutAmount = createSelector(
       .filter(payout => payout.status === 'SUCCESS')
       .reduce((sum, payout) => sum + payout.amount, 0),
 );
+
+/** Sum of completed claim payouts. */
+export const selectTotalPayoutsReceived = createSelector(
+  selectPayouts,
+  payouts => payouts
+    .filter(payout => payout.status === 'SUCCESS')
+    .reduce((total, payout) => total + Number(payout.amount ?? 0), 0),
+);

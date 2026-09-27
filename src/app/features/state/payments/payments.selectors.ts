@@ -64,3 +64,11 @@ export const selectFailedPaymentCount = createSelector(
   selectPayments,
   payments => payments.filter(payment => payment.status === 'FAILED').length,
 );
+
+/** Sum of the customer's completed premium payments. */
+export const selectTotalPremiumsPaid = createSelector(
+  selectPayments,
+  payments => payments
+    .filter(payment => payment.status === 'SUCCESS')
+    .reduce((total, payment) => total + Number(payment.amount ?? 0), 0),
+);

@@ -21,11 +21,13 @@
   </section>
 
   <!-- KPI cards -->
-  <div class="grid animate-fade-in-up gap-5 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="grid animate-fade-in-up gap-5 sm:grid-cols-2 lg:grid-cols-3">
     <app-stat-card label="Active policies" [value]="(activePolicyCount$ | async) ?? 0" icon="📄" color="blue" hint="Policies in force" />
     <app-stat-card label="Sum insured" [value]="'₹ ' + ((sumInsured$ | async) ?? 0)" icon="🛡️" color="green" hint="Total coverage" />
     <app-stat-card label="Claims submitted" [value]="(claimCount$ | async) ?? 0" icon="📋" color="amber" hint="All statuses" />
     <app-stat-card label="Open notifications" [value]="(unreadCount$ | async) ?? 0" icon="🔔" color="navy" hint="Needs attention" />
+    <app-stat-card label="Premiums paid" [value]="'₹ ' + ((premiumsPaid$ | async) ?? 0 | number: '1.0-2')" icon="💳" color="blue" hint="Completed payments" />
+    <app-stat-card label="Payouts received" [value]="'₹ ' + ((payoutsReceived$ | async) ?? 0 | number: '1.0-2')" icon="🏦" color="green" hint="Completed claim payouts" />
   </div>
 
   <!-- Quick actions -->

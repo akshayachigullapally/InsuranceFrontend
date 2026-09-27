@@ -143,6 +143,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'zone-map',
+        data: { audience: 'customer' },
+        loadComponent: () =>
+          import('./features/components/zone-map-page/zone-map-page.component').then(
+            (m) => m.ZoneMapPageComponent,
+          ),
+      },
+      {
         // Payouts are shown as a tab on the Payments page.
         path: 'payouts',
         pathMatch: 'full',
@@ -400,10 +408,11 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'risk',
+        path: 'zone-map',
+        data: { audience: 'admin' },
         loadComponent: () =>
-          import('./features/components/admin-risk-dashboard/admin-risk-dashboard.component').then(
-            (m) => m.AdminRiskDashboardComponent,
+          import('./features/components/zone-map-page/zone-map-page.component').then(
+            (m) => m.ZoneMapPageComponent,
           ),
       },
       {
