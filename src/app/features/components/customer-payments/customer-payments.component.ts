@@ -6,14 +6,16 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, map } from 'rxjs';
 import {
   PAYMENT_METHODS,
   PaymentMethod,
   PaymentRequest,
   PaymentResponse,
 } from '../../dtos/financial/payment-response.dto';
+import { PayoutResponse } from '../../dtos/financial/payout-response.dto';
 import { PolicyResponse } from '../../dtos/policies/policy-response.dto';
 import {
   clearPaymentsError,
@@ -26,12 +28,23 @@ import {
   selectPaymentsLoading,
   selectPaymentsSaving,
 } from '../../state/payments/payments.selectors';
+import {
+  clearPayoutsError,
+  loadMyPayouts,
+} from '../../state/payouts/payouts.actions';
+import {
+  selectPayouts,
+  selectPayoutsError,
+  selectPayoutsLoading,
+} from '../../state/payouts/payouts.selectors';
 import { loadMyPolicies } from '../../state/policies/policies.actions';
 import { selectMyPolicies } from '../../state/policies/policies.selectors';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+
+type BillingTab = 'payments' | 'payouts';
 
 interface PaymentForm {
   policyId: FormControl<number | null>;
@@ -60,9 +73,15 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
   readonly saving$: Observable<boolean>;
   readonly error$: Observable<string | null>;
   readonly policies$: Observable<PolicyResponse[]>;
+  readonly payouts$: Observable<PayoutResponse[]>;
+  readonly payoutsLoading$: Observable<boolean>;
+  readonly payoutsError$: Observable<string | null>;
+  readonly totalPaid$: Observable<number>;
+  readonly totalReceived$: Observable<number>;
 
   protected readonly methods = PAYMENT_METHODS;
   protected formOpen = false;
+  protected activeTab: BillingTab = 'payments';
 
   readonly form = new FormGroup<PaymentForm>({
     policyId: new FormControl<number | null>(null, Validators.required),
@@ -74,17 +93,36 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  constructor(private readonly store: Store) {
+  constructor(
+    private readonly store: Store,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+  ) {
     this.payments$ = this.store.select(selectPayments);
     this.loading$ = this.store.select(selectPaymentsLoading);
     this.saving$ = this.store.select(selectPaymentsSaving);
     this.error$ = this.store.select(selectPaymentsError);
     this.policies$ = this.store.select(selectMyPolicies);
+    this.payouts$ = this.store.select(selectPayouts);
+    this.payoutsLoading$ = this.store.select(selectPayoutsLoading);
+    this.payoutsError$ = this.store.select(selectPayoutsError);
+    this.totalPaid$ = this.payments$.pipe(
+      map(payments => sumAmounts(payments.filter(p => p.status === 'SUCCESS'))),
+    );
+    this.totalReceived$ = this.payouts$.pipe(
+      map(payouts => sumAmounts(payouts.filter(p => p.status === 'SUCCESS'))),
+    );
   }
 
   ngOnInit(): void {
+    this.activeTab =
+      this.route.snapshot.queryParamMap.get('tab') === 'payouts'
+        ? 'payouts'
+        : 'payments';
     this.store.dispatch(clearPaymentsError());
+    this.store.dispatch(clearPayoutsError());
     this.store.dispatch(loadMyPayments());
+    this.store.dispatch(loadMyPayouts());
     this.store.dispatch(loadMyPolicies({}));
   }
 
@@ -92,6 +130,17 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.store.dispatch(clearPaymentsError());
+    this.store.dispatch(clearPayoutsError());
+  }
+
+  protected switchTab(tab: BillingTab): void {
+    this.activeTab = tab;
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab === 'payouts' ? 'payouts' : null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   protected openCreate(): void {
@@ -129,4 +178,8 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
   protected activePolicies(policies: PolicyResponse[]): PolicyResponse[] {
     return policies.filter(policy => policy.status === 'ACTIVE');
   }
+}
+
+function sumAmounts(items: { amount: number }[]): number {
+  return items.reduce((total, item) => total + Number(item.amount ?? 0), 0);
 }

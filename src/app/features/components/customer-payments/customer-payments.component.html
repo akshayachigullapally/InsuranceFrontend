@@ -5,11 +5,10 @@
         Billing
       </p>
       <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
-        Payments
+        Payments &amp; payouts
       </h1>
       <p class="mt-1 text-sm text-gray-500">
-        Pay the premium for your active policies and track your payment
-        history.
+        Premiums you have paid and claim payouts you have received.
       </p>
     </div>
 
@@ -18,6 +17,119 @@
     </button>
   </div>
 
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="card p-5">
+      <p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+        Premiums paid
+      </p>
+      <p class="mt-1 text-2xl font-bold text-gray-900">
+        ₹ {{ (totalPaid$ | async) ?? 0 | number:'1.2-2' }}
+      </p>
+      <p class="mt-1 text-xs text-gray-400">Successful payments only</p>
+    </div>
+    <div class="card p-5">
+      <p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+        Payouts received
+      </p>
+      <p class="mt-1 text-2xl font-bold text-success-700">
+        ₹ {{ (totalReceived$ | async) ?? 0 | number:'1.2-2' }}
+      </p>
+      <p class="mt-1 text-xs text-gray-400">Completed claim payouts only</p>
+    </div>
+  </div>
+
+  <div class="border-b border-gray-200" role="tablist">
+    <nav class="-mb-px flex gap-8">
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="activeTab === 'payments'"
+        class="border-b-2 px-1 py-3 text-sm font-medium"
+        [class.border-brand-500]="activeTab === 'payments'"
+        [class.text-brand-600]="activeTab === 'payments'"
+        [class.border-transparent]="activeTab !== 'payments'"
+        [class.text-gray-500]="activeTab !== 'payments'"
+        (click)="switchTab('payments')"
+      >
+        Payments ({{ ((payments$ | async) ?? []).length }})
+      </button>
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="activeTab === 'payouts'"
+        class="border-b-2 px-1 py-3 text-sm font-medium"
+        [class.border-brand-500]="activeTab === 'payouts'"
+        [class.text-brand-600]="activeTab === 'payouts'"
+        [class.border-transparent]="activeTab !== 'payouts'"
+        [class.text-gray-500]="activeTab !== 'payouts'"
+        (click)="switchTab('payouts')"
+      >
+        Payouts ({{ ((payouts$ | async) ?? []).length }})
+      </button>
+    </nav>
+  </div>
+
+  @if (activeTab === 'payouts') {
+    @if (payoutsError$ | async; as payoutsError) {
+      <app-error-message [error]="payoutsError" />
+    }
+
+    @if (payoutsLoading$ | async) {
+      <app-loading-spinner label="Loading your payouts..." />
+    } @else if (payouts$ | async; as payouts) {
+      @if (payouts.length > 0) {
+        <div class="card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Reference</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Claim</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Amount</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Requested</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Processed</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                @for (payout of payouts; track payout.id) {
+                  <tr class="hover:bg-gray-50">
+                    <td class="whitespace-nowrap px-6 py-3 text-sm font-semibold text-gray-900">
+                      {{ payout.payoutReference }}
+                    </td>
+                    <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
+                      {{ payout.claimNumber }}
+                    </td>
+                    <td class="whitespace-nowrap px-6 py-3 text-sm font-semibold text-success-700">
+                      + ₹ {{ payout.amount | number:'1.2-2' }}
+                    </td>
+                    <td class="px-6 py-3">
+                      <app-status-badge [status]="payout.status" />
+                      @if (payout.failureReason) {
+                        <p class="mt-1 text-xs text-danger-500">{{ payout.failureReason }}</p>
+                      }
+                    </td>
+                    <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-500">
+                      {{ payout.createdAt | date: 'medium' }}
+                    </td>
+                    <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-500">
+                      {{ payout.processedAt ? (payout.processedAt | date: 'medium') : '—' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      } @else {
+        <app-empty-state
+          title="No payouts yet"
+          message="A payout is created automatically once one of your claims is approved."
+          icon="🏦"
+        />
+      }
+    }
+  } @else {
   @if (error$ | async; as error) {
     <app-error-message [error]="error" />
   }
@@ -77,6 +189,8 @@
         </button>
       </app-empty-state>
     }
+  }
+
   }
 
   @if (formOpen) {

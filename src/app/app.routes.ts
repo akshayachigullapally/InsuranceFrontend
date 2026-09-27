@@ -143,11 +143,10 @@ export const routes: Routes = [
           ),
       },
       {
+        // Payouts are shown as a tab on the Payments page.
         path: 'payouts',
-        loadComponent: () =>
-          import('./features/components/customer-payouts/customer-payouts.component').then(
-            (m) => m.CustomerPayoutsComponent,
-          ),
+        pathMatch: 'full',
+        redirectTo: '/customer/payments?tab=payouts',
       },
       {
         path: 'activity',

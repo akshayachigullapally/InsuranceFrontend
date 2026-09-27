@@ -4,6 +4,7 @@ import { CustomerPaymentsComponent } from './customer-payments.component';
 import { pageTestProviders } from '../../../../testing/test-helpers';
 import { clearPaymentsError, createPayment, loadMyPayments } from '../../state/payments/payments.actions';
 import { loadMyPolicies } from '../../state/policies/policies.actions';
+import { clearPayoutsError, loadMyPayouts } from '../../state/payouts/payouts.actions';
 import { PolicyResponse } from '../../dtos/policies/policy-response.dto';
 
 type PaymentsInternals = {
@@ -34,10 +35,21 @@ describe('CustomerPaymentsComponent', () => {
     fixture.detectChanges();
   });
 
-  it('loads my payments and policies on init', () => {
+  it('loads my payments, payouts and policies on init', () => {
     expect(store.dispatch).toHaveBeenCalledWith(clearPaymentsError());
+    expect(store.dispatch).toHaveBeenCalledWith(clearPayoutsError());
     expect(store.dispatch).toHaveBeenCalledWith(loadMyPayments());
+    expect(store.dispatch).toHaveBeenCalledWith(loadMyPayouts());
     expect(store.dispatch).toHaveBeenCalledWith(loadMyPolicies({}));
+  });
+
+  it('starts on the payments tab and switches to payouts', () => {
+    const tabs = component as unknown as { activeTab: string; switchTab(tab: string): void };
+    expect(tabs.activeTab).toBe('payments');
+
+    tabs.switchTab('payouts');
+
+    expect(tabs.activeTab).toBe('payouts');
   });
 
   it('opens the form with default values', () => {
