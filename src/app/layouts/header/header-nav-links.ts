@@ -75,7 +75,6 @@ export const ROLE_MORE_MENU: Record<string, HeaderMoreGroup[]> = {
       label: 'Operations',
       items: [
         { label: 'Zone Map', routerLink: '/admin/zone-map', icon: '🗺️' },
-        { label: 'Trigger Events', routerLink: '/admin/trigger-events', icon: '🚨' },
         { label: 'Notifications', routerLink: '/admin/notifications', icon: '🔔' },
         { label: 'Audit Log', routerLink: '/admin/audit', icon: '📝' },
       ],
