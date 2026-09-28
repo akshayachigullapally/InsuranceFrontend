@@ -24,7 +24,6 @@ export interface UserResponse {
   email: string;
   role: string;
   enabled?: boolean;
-  emailVerified?: boolean;
   phoneNumber?: string | null;
   dateOfBirth?: string | null;
   customerSegment?: CustomerSegment | null;

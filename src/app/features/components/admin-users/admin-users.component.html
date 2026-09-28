@@ -129,10 +129,6 @@
                 </th>
 
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Email
-                </th>
-
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Profile status
                 </th>
 
@@ -180,18 +176,6 @@
 
                   <td class="px-6 py-4 text-sm text-gray-600">
                     {{ primaryAddress(user) }}
-                  </td>
-
-                  <td class="whitespace-nowrap px-6 py-4">
-                    @if (user.emailVerified) {
-                      <span class="rounded-full bg-success-50 px-2.5 py-1 text-xs font-semibold text-success-700">
-                        Verified
-                      </span>
-                    } @else {
-                      <span class="rounded-full bg-warn-50 px-2.5 py-1 text-xs font-semibold text-warn-700">
-                        Unverified
-                      </span>
-                    }
                   </td>
 
                   <td class="whitespace-nowrap px-6 py-4">
