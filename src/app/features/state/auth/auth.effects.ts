@@ -24,7 +24,7 @@ import {
   restoreSessionFailure,
   restoreSessionSuccess,
 } from './auth.actions';
-import { ROLE_DASHBOARD_PATHS, UserRole } from '../../../core/constants/roles';
+import { ROLE_DASHBOARD_PATHS, ROLES, UserRole } from '../../../core/constants/roles';
 import { JwtClaims } from '../../../core/models/jwt-claims.model';
 
 @Injectable()
@@ -159,6 +159,16 @@ export class AuthEffects {
         ofType(loginSuccess, registerSuccess),
         tap(({ auth }) => {
           const role = auth.user.role ?? this.tokenClaims()?.role;
+          // A customer who came from a product page (?returnUrl=/customer/...) goes back there.
+          const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
+          if (
+            role === ROLES.CUSTOMER &&
+            typeof returnUrl === 'string' &&
+            returnUrl.startsWith('/customer/')
+          ) {
+            void this.router.navigateByUrl(returnUrl);
+            return;
+          }
           const path = ROLE_DASHBOARD_PATHS[role as UserRole] ?? '/welcome';
           void this.router.navigate([path]);
         }),

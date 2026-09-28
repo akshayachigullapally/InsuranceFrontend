@@ -35,7 +35,9 @@
               </p>
             </div>
 
-            <span class="rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-700 uppercase">
+            <span
+              class="rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-700 uppercase"
+            >
               {{ product.status }}
             </span>
           </div>
@@ -44,9 +46,7 @@
             {{ product.description || 'No description available.' }}
           </p>
 
-          <h2 class="mt-8 text-lg font-semibold text-gray-900">
-            How the payout triggers
-          </h2>
+          <h2 class="mt-8 text-lg font-semibold text-gray-900">How the payout triggers</h2>
 
           <div class="mt-4">
             <app-parametric-trigger-card
@@ -56,9 +56,7 @@
             />
           </div>
 
-          <h2 class="mt-8 text-lg font-semibold text-gray-900">
-            Key information
-          </h2>
+          <h2 class="mt-8 text-lg font-semibold text-gray-900">Key information</h2>
 
           <dl class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             @for (row of specRows(product); track row.label) {
@@ -74,9 +72,7 @@
           </dl>
 
           @if (product.coverages.length > 0) {
-            <h2 class="mt-8 text-lg font-semibold text-gray-900">
-              What's covered
-            </h2>
+            <h2 class="mt-8 text-lg font-semibold text-gray-900">What's covered</h2>
 
             <ul class="mt-4 divide-y divide-gray-100 rounded-2xl border border-gray-100">
               @for (coverage of product.coverages; track coverage.id) {
@@ -95,7 +91,9 @@
                       </p>
 
                       @if (coverage.mandatory) {
-                        <span class="rounded-full bg-navy-100 px-2 py-0.5 text-xs font-medium text-navy-800">
+                        <span
+                          class="rounded-full bg-navy-100 px-2 py-0.5 text-xs font-medium text-navy-800"
+                        >
                           Mandatory
                         </span>
                       }
@@ -126,71 +124,185 @@
         </div>
       </div>
 
-      <aside class="space-y-6">
-        <div class="card p-6">
-          <h2 class="text-base font-semibold text-gray-900">
-            Get covered
-          </h2>
+      <aside class="space-y-6 lg:sticky lg:top-24 lg:self-start">
+        @switch (viewer$ | async) {
+          @case ('customer') {
+            <!-- Apply for this exact product -->
+            <div class="card p-6">
+              <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">
+                Get covered
+              </p>
+              <h2 class="mt-1 text-lg font-semibold text-gray-900">Apply for {{ product.name }}</h2>
 
-          <p class="mt-2 text-sm leading-relaxed text-gray-500">
-            Create an account to apply for this product. An underwriter reviews
-            the application, and the policy activates after approval.
-          </p>
+              <dl class="mt-4 space-y-2.5 text-sm">
+                <div class="flex justify-between gap-4">
+                  <dt class="text-gray-500">Sum insured</dt>
+                  <dd class="text-right font-medium text-gray-900">
+                    ₹ {{ product.minimumSumInsured | number }} – ₹
+                    {{ product.maximumSumInsured | number }}
+                  </dd>
+                </div>
+                <div class="flex justify-between gap-4">
+                  <dt class="text-gray-500">Term</dt>
+                  <dd class="font-medium text-gray-900">
+                    {{ product.minimumTermMonths }}–{{ product.maximumTermMonths }} months
+                  </dd>
+                </div>
+              </dl>
 
-          <a
-            routerLink="/register"
-            [queryParams]="{ productId: product.id }"
-            class="btn-brand mt-5 block w-full text-center"
-          >
-            Request this coverage
-          </a>
+              @if (myPoliciesForProduct$ | async; as mine) {
+                @if (hasPending(mine)) {
+                  <p class="mt-4 rounded-lg bg-warn-50 p-3 text-xs text-warn-700">
+                    You already have an application for this product waiting for underwriter review.
+                  </p>
+                } @else {
+                  <a
+                    routerLink="/customer/policies/new"
+                    [queryParams]="{ productId: product.id }"
+                    class="btn-brand mt-5 block w-full text-center"
+                  >
+                    {{ mine.length > 0 ? 'Apply for another policy' : 'Apply for this policy' }}
+                  </a>
+                }
+              }
 
-          <p class="mt-3 text-center text-xs text-gray-400">
-            Already registered?
+              <a
+                routerLink="/customer/quotes"
+                [queryParams]="{ productId: product.id }"
+                class="btn-outline mt-3 block w-full text-center"
+              >
+                Get a priced quote first
+              </a>
 
-            <a
-              routerLink="/login"
-              [queryParams]="{
-                returnUrl: '/customer/policies/new',
-                productId: product.id
-              }"
-              class="font-medium text-brand-600 hover:text-brand-700"
-            >
-              Sign in
-            </a>
-          </p>
-        </div>
+              <p class="mt-3 text-center text-xs text-gray-400">
+                A quote locks the premium for 7 days; you can apply with it later.
+              </p>
+            </div>
 
-        <div class="rounded-xl bg-navy-950 p-6 text-white">
-          <h3 class="text-sm font-semibold text-brand-300 uppercase">
-            Why parametric?
-          </h3>
+            <!-- The customer's existing cover on this product -->
+            <div class="card p-6">
+              <h3 class="text-sm font-semibold text-gray-900">Your cover with this product</h3>
+              @if (myPoliciesForProduct$ | async; as mine) {
+                @if (mine.length === 0) {
+                  <p class="mt-2 text-sm text-gray-500">You do not hold this product yet.</p>
+                } @else {
+                  <ul class="mt-3 divide-y divide-gray-100">
+                    @for (policy of mine; track policy.id) {
+                      <li>
+                        <a
+                          [routerLink]="['/customer/policies', policy.id]"
+                          class="flex items-center justify-between gap-3 py-2.5 text-sm hover:text-brand-700"
+                        >
+                          <span>
+                            <span class="block font-medium text-gray-900">{{
+                              policy.policyNumber
+                            }}</span>
+                            <span class="text-xs text-gray-500">
+                              ₹ {{ policy.sumInsured | number }} · {{ policy.termMonths }} months
+                            </span>
+                          </span>
+                          <app-status-badge [status]="policy.status" />
+                        </a>
+                      </li>
+                    }
+                  </ul>
+                }
+              }
+            </div>
 
-          <ul class="mt-4 space-y-3 text-sm text-navy-200">
-            <li class="flex items-start gap-2.5">
-              <span class="mt-0.5 text-emerald-400">✓</span>
-              <span>
-                Payout triggers are objective and transparent, with clearly
-                defined thresholds.
-              </span>
-            </li>
+            <!-- What happens after applying, specific to this product -->
+            <div class="rounded-xl bg-navy-950 p-6 text-white">
+              <h3 class="text-sm font-semibold text-brand-300 uppercase">How this cover works</h3>
+              <ol class="mt-4 space-y-3 text-sm text-navy-200">
+                <li class="flex gap-2.5">
+                  <span class="font-semibold text-white">1.</span>
+                  <span>Apply with your sum insured, term and location zone.</span>
+                </li>
+                <li class="flex gap-2.5">
+                  <span class="font-semibold text-white">2.</span>
+                  <span>An underwriter reviews it; approval makes the policy active.</span>
+                </li>
+                <li class="flex gap-2.5">
+                  <span class="font-semibold text-white">3.</span>
+                  <span
+                    >When {{ triggerSentence(product) }} in your zone, a claim opens for you
+                    automatically.</span
+                  >
+                </li>
+                <li class="flex gap-2.5">
+                  <span class="font-semibold text-white">4.</span>
+                  <span>A claims officer approves it and the payout follows.</span>
+                </li>
+              </ol>
+            </div>
+          }
 
-            <li class="flex items-start gap-2.5">
-              <span class="mt-0.5 text-emerald-400">✓</span>
-              <span>
-                Events are monitored and evaluated automatically.
-              </span>
-            </li>
+          @case ('admin') {
+            <div class="card p-6">
+              <h2 class="text-base font-semibold text-gray-900">Admin view</h2>
+              <p class="mt-2 text-sm text-gray-500">
+                Customers apply for this product from this page. You can edit the product or its
+                trigger.
+              </p>
+              <a
+                [routerLink]="['/admin/products', product.id]"
+                class="btn-brand mt-5 block w-full text-center"
+              >
+                Edit product
+              </a>
+              <a
+                [routerLink]="['/admin/products', product.id, 'threshold']"
+                class="btn-outline mt-3 block w-full text-center"
+              >
+                Change trigger threshold
+              </a>
+            </div>
+          }
 
-            <li class="flex items-start gap-2.5">
-              <span class="mt-0.5 text-emerald-400">✓</span>
-              <span>
-                Qualified events can move directly into the claim-processing
-                pipeline.
-              </span>
-            </li>
-          </ul>
-        </div>
+          @case ('staff') {
+            <div class="card p-6">
+              <h2 class="text-base font-semibold text-gray-900">Staff view</h2>
+              <p class="mt-2 text-sm text-gray-500">
+                Only customer accounts can apply for this product.
+              </p>
+            </div>
+          }
+
+          @default {
+            <div class="card p-6">
+              <h2 class="text-base font-semibold text-gray-900">Get covered</h2>
+              <p class="mt-2 text-sm leading-relaxed text-gray-500">
+                Create an account to apply for {{ product.name }}. An underwriter reviews the
+                application, and the policy activates after approval.
+              </p>
+              <a
+                routerLink="/register"
+                [queryParams]="{ returnUrl: applyReturnUrl(product.id) }"
+                class="btn-brand mt-5 block w-full text-center"
+              >
+                Create an account to apply
+              </a>
+              <p class="mt-3 text-center text-xs text-gray-400">
+                Already registered?
+                <a
+                  routerLink="/login"
+                  [queryParams]="{ returnUrl: applyReturnUrl(product.id) }"
+                  class="font-medium text-brand-600 hover:text-brand-700"
+                >
+                  Sign in to apply
+                </a>
+              </p>
+            </div>
+
+            <div class="rounded-xl bg-navy-950 p-6 text-white">
+              <h3 class="text-sm font-semibold text-brand-300 uppercase">How this cover pays</h3>
+              <p class="mt-3 text-sm text-navy-200">
+                When {{ triggerSentence(product) }} in your zone, a claim opens automatically. No
+                loss assessment or paperwork is needed.
+              </p>
+            </div>
+          }
+        }
       </aside>
     </div>
   }

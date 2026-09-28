@@ -1,7 +1,7 @@
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { CreateQuoteRequest, QuoteResponse } from '../../dtos/financial/quote-response.dto';
@@ -80,6 +80,7 @@ export class CustomerQuotesComponent implements OnInit, OnDestroy {
   constructor(
     private readonly store: Store,
     private readonly zoneService: ZoneService,
+    private readonly route: ActivatedRoute,
   ) {
     this.quotes$ = this.store.select(selectQuotes);
     this.loading$ = this.store.select(selectQuotesLoading);
@@ -93,6 +94,16 @@ export class CustomerQuotesComponent implements OnInit, OnDestroy {
     this.store.dispatch(loadQuotes());
     this.store.dispatch(loadProducts());
     this.loadZones();
+    this.openForRequestedProduct();
+  }
+
+  /** Arriving from a product page (?productId=) opens the form with that product selected. */
+  private openForRequestedProduct(): void {
+    const productId = Number(this.route.snapshot.queryParamMap.get('productId'));
+    if (Number.isInteger(productId) && productId > 0) {
+      this.openCreate();
+      this.form.controls.productId.setValue(productId);
+    }
   }
 
   ngOnDestroy(): void {

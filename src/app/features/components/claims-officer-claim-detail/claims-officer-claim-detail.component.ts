@@ -2,12 +2,7 @@ import { TriggerExplanationComponent } from '../../../shared/components/trigger-
 import { ClaimDocumentsComponent } from '../../../shared/components/claim-documents/claim-documents.component';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
@@ -30,6 +25,8 @@ import {
 } from '../../state/claims/claims.selectors';
 import { ProductService } from '../../services/product.service';
 import { UserService } from '../../services/user.service';
+import { PerilService } from '../../services/peril.service';
+import { TriggerEventService } from '../../services/trigger-event.service';
 import { ZoneService } from '../../services/zone.service';
 import { parseLocalDateOnly } from '../../utils/local-date.util';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -85,11 +82,7 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
   readonly rejectionForm = new FormGroup<RejectionForm>({
     reason: new FormControl('', {
       nonNullable: true,
-      validators: [
-        Validators.required,
-        Validators.maxLength(500),
-        Validators.pattern(/\S+/),
-      ],
+      validators: [Validators.required, Validators.maxLength(500), Validators.pattern(/\S+/)],
     }),
   });
 
@@ -103,6 +96,8 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
   protected reviewerName: string | null = null;
   protected product: ProductResponse | null = null;
   protected productLoading = false;
+  protected definitionLabel: string | null = null;
+  protected perilLabel: string | null = null;
 
   private claimId = 0;
   private selectedClaim: ClaimResponse | null = null;
@@ -115,6 +110,8 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
     private readonly zoneService: ZoneService,
     private readonly userService: UserService,
     private readonly productService: ProductService,
+    private readonly triggerEventService: TriggerEventService,
+    private readonly perilService: PerilService,
   ) {
     this.claim$ = this.store.select(selectSelectedClaim);
     this.loading$ = this.store.select(selectClaimsLoading);
@@ -126,9 +123,7 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
     this.store.dispatch(clearClaimsError());
     this.store.dispatch(clearSelectedClaim());
 
-    const claimId = Number(
-      this.route.snapshot.paramMap.get('claimId'),
-    );
+    const claimId = Number(this.route.snapshot.paramMap.get('claimId'));
 
     if (!Number.isInteger(claimId) || claimId <= 0) {
       this.invalidClaimId = true;
@@ -138,41 +133,35 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
     this.claimId = claimId;
     this.store.dispatch(loadReviewClaim({ claimId }));
 
-    this.claim$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(claim => {
-        this.selectedClaim = claim;
+    this.claim$.pipe(takeUntil(this.destroy$)).subscribe((claim) => {
+      this.selectedClaim = claim;
 
-        if (
-          claim &&
-          this.approvalForm.controls.approvedAmount.value === null
-        ) {
-          this.approvalForm.controls.approvedAmount.setValue(
-            claim.claimedAmount,
-          );
+      if (claim && this.approvalForm.controls.approvedAmount.value === null) {
+        this.approvalForm.controls.approvedAmount.setValue(claim.claimedAmount);
+      }
+
+      if (claim) {
+        this.approvalForm.controls.approvedAmount.setValidators([
+          Validators.required,
+          Validators.min(0.01),
+          Validators.max(claim.claimedAmount),
+        ]);
+
+        this.approvalForm.controls.approvedAmount.updateValueAndValidity({ emitEvent: false });
+
+        this.loadZone(claim.locationZoneId);
+        this.loadCustomer(claim.customerId);
+        this.loadProduct(claim.productId);
+        this.loadTriggerDefinition(claim.triggerDefinitionId);
+        this.loadPeril(claim.perilId);
+
+        if (claim.reviewedBy) {
+          this.loadReviewer(claim.reviewedBy);
+        } else {
+          this.reviewerName = null;
         }
-
-        if (claim) {
-          this.approvalForm.controls.approvedAmount.setValidators([
-            Validators.required,
-            Validators.min(0.01),
-            Validators.max(claim.claimedAmount),
-          ]);
-
-          this.approvalForm.controls.approvedAmount
-            .updateValueAndValidity({ emitEvent: false });
-
-          this.loadZone(claim.locationZoneId);
-          this.loadCustomer(claim.customerId);
-          this.loadProduct(claim.productId);
-
-          if (claim.reviewedBy) {
-            this.loadReviewer(claim.reviewedBy);
-          } else {
-            this.reviewerName = null;
-          }
-        }
-      });
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -187,7 +176,7 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       .getZone(locationZoneId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: zone => {
+        next: (zone) => {
           this.zoneName = zone.zoneName;
         },
         error: () => {
@@ -201,7 +190,7 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       .getUser(customerId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: user => {
+        next: (user) => {
           this.customerName = user.fullName;
         },
         error: () => {
@@ -215,7 +204,7 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       .getUser(reviewerId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: user => {
+        next: (user) => {
           this.reviewerName = user.fullName;
         },
         error: () => {
@@ -231,7 +220,7 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       .getProduct(productId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: product => {
+        next: (product) => {
           this.product = product;
           this.productLoading = false;
         },
@@ -239,6 +228,33 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
           this.product = null;
           this.productLoading = false;
         },
+      });
+  }
+
+  private loadTriggerDefinition(definitionId: number | null | undefined): void {
+    this.definitionLabel = null;
+    if (!definitionId) return;
+
+    this.triggerEventService
+      .getTriggerDefinition(definitionId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (definition) =>
+          (this.definitionLabel = `${definition.definitionCode} · ${definition.definitionName}`),
+        error: () => (this.definitionLabel = `Definition #${definitionId}`),
+      });
+  }
+
+  private loadPeril(perilId: number | null | undefined): void {
+    this.perilLabel = null;
+    if (!perilId) return;
+
+    this.perilService
+      .getPeril(perilId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (peril) => (this.perilLabel = `${peril.perilName} (${peril.perilCode})`),
+        error: () => (this.perilLabel = `Peril #${perilId}`),
       });
   }
 
@@ -313,14 +329,14 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       {
         label: 'Trigger definition',
         value: claim.triggerDefinitionId
-          ? `Definition #${claim.triggerDefinitionId}`
-          : 'Not available',
+          ? (this.definitionLabel ?? `Definition #${claim.triggerDefinitionId}`)
+          : 'Recorded directly from a current measurement',
       },
       {
         label: 'Peril',
         value: claim.perilId
-          ? `Peril #${claim.perilId}`
-          : 'Not available',
+          ? (this.perilLabel ?? `Peril #${claim.perilId}`)
+          : (this.product?.perilCode?.replaceAll('_', ' ') ?? 'Not available'),
       },
     ];
   }
@@ -330,9 +346,9 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       {
         label: 'Reviewed by',
         value: claim.reviewedBy
-          ? (this.reviewerName
-              ? `${this.reviewerName} (User #${claim.reviewedBy})`
-              : `User #${claim.reviewedBy}`)
+          ? this.reviewerName
+            ? `${this.reviewerName} (User #${claim.reviewedBy})`
+            : `User #${claim.reviewedBy}`
           : 'Not assigned',
       },
       {
@@ -346,8 +362,7 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       {
         label: 'Approved amount',
         value:
-          claim.approvedAmount !== null &&
-          claim.approvedAmount !== undefined
+          claim.approvedAmount !== null && claim.approvedAmount !== undefined
             ? this.formatCurrency(claim.approvedAmount)
             : 'Not decided',
       },
@@ -363,9 +378,11 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
     if (this.claimId <= 0) return;
 
     this.startReviewOpen = false;
-    this.store.dispatch(startClaimReview({
-      claimId: this.claimId,
-    }));
+    this.store.dispatch(
+      startClaimReview({
+        claimId: this.claimId,
+      }),
+    );
   }
 
   protected dismissStartReview(): void {
@@ -381,12 +398,9 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       Validators.max(claim.claimedAmount),
     ]);
 
-    this.approvalForm.controls.approvedAmount.setValue(
-      claim.claimedAmount,
-    );
+    this.approvalForm.controls.approvedAmount.setValue(claim.claimedAmount);
 
-    this.approvalForm.controls.approvedAmount
-      .updateValueAndValidity();
+    this.approvalForm.controls.approvedAmount.updateValueAndValidity();
 
     this.approvalOpen = true;
   }
@@ -397,17 +411,18 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const approvedAmount =
-      this.approvalForm.controls.approvedAmount.value;
+    const approvedAmount = this.approvalForm.controls.approvedAmount.value;
 
     if (approvedAmount === null) return;
 
     this.approvalOpen = false;
 
-    this.store.dispatch(approveClaim({
-      claimId: this.claimId,
-      approvedAmount,
-    }));
+    this.store.dispatch(
+      approveClaim({
+        claimId: this.claimId,
+        approvedAmount,
+      }),
+    );
   }
 
   protected dismissApproval(): void {
@@ -437,10 +452,12 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
 
     this.rejectionOpen = false;
 
-    this.store.dispatch(rejectClaim({
-      claimId: this.claimId,
-      reason,
-    }));
+    this.store.dispatch(
+      rejectClaim({
+        claimId: this.claimId,
+        reason,
+      }),
+    );
   }
 
   protected dismissRejection(): void {
@@ -460,7 +477,7 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
     return value
       .replaceAll('_', ' ')
       .toLowerCase()
-      .replace(/\b\w/g, character => character.toUpperCase());
+      .replace(/\b\w/g, (character) => character.toUpperCase());
   }
 
   private formatCurrency(value: number): string {
@@ -475,18 +492,12 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
 
     if (!date) return 'Not available';
 
-    return this.datePipe.transform(
-      date,
-      'mediumDate',
-    ) ?? 'Not available';
+    return this.datePipe.transform(date, 'mediumDate') ?? 'Not available';
   }
 
   private formatDateTime(value?: string | null): string {
     if (!value) return 'Not available';
 
-    return this.datePipe.transform(
-      value,
-      'medium',
-    ) ?? 'Not available';
+    return this.datePipe.transform(value, 'medium') ?? 'Not available';
   }
 }

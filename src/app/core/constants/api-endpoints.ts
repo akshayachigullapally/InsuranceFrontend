@@ -29,7 +29,8 @@ export const API_ENDPOINTS = {
     adminStatus: (productId: number) => `${BASE}/api/products/${productId}/status`,
     adminDelete: (productId: number) => `${BASE}/api/products/${productId}`,
     threshold: (productId: number) => `${BASE}/api/products/admin/${productId}/threshold`,
-    thresholdHistory: (productId: number) => `${BASE}/api/products/admin/${productId}/threshold-history`,
+    thresholdHistory: (productId: number) =>
+      `${BASE}/api/products/admin/${productId}/threshold-history`,
     adminMeasurementStatus: `${BASE}/api/products/admin/measurement-status`,
     measurementStatus: `${BASE}/api/products/measurement-status`,
   },
@@ -57,26 +58,17 @@ export const API_ENDPOINTS = {
     base: `${BASE}/api/claims`,
     create: `${BASE}/api/claims`,
     myClaims: `${BASE}/api/claims/me`,
-    getById: (claimId: number) =>
-      `${BASE}/api/claims/${claimId}`,
-    cancel: (claimId: number) =>
-      `${BASE}/api/claims/${claimId}/cancel`,
+    getById: (claimId: number) => `${BASE}/api/claims/${claimId}`,
+    cancel: (claimId: number) => `${BASE}/api/claims/${claimId}/cancel`,
     reviewSubmitted: `${BASE}/api/claims/review/submitted`,
     reviewHistory: `${BASE}/api/claims/review/history`,
-    reviewById: (claimId: number) =>
-      `${BASE}/api/claims/review/${claimId}`,
-    startReview: (claimId: number) =>
-      `${BASE}/api/claims/${claimId}/start-review`,
-    approve: (claimId: number) =>
-      `${BASE}/api/claims/${claimId}/approve`,
-    reject: (claimId: number) =>
-      `${BASE}/api/claims/${claimId}/reject`,
-    settle: (claimId: number) =>
-      `${BASE}/api/claims/${claimId}/settle`,
-    timeline: (claimId: number) =>
-      `${BASE}/api/claims/${claimId}/timeline`,
-    adminTimeline: (claimId: number) =>
-      `${BASE}/api/claims/admin/${claimId}/timeline`,
+    reviewById: (claimId: number) => `${BASE}/api/claims/review/${claimId}`,
+    startReview: (claimId: number) => `${BASE}/api/claims/${claimId}/start-review`,
+    approve: (claimId: number) => `${BASE}/api/claims/${claimId}/approve`,
+    reject: (claimId: number) => `${BASE}/api/claims/${claimId}/reject`,
+    settle: (claimId: number) => `${BASE}/api/claims/${claimId}/settle`,
+    timeline: (claimId: number) => `${BASE}/api/claims/${claimId}/timeline`,
+    adminTimeline: (claimId: number) => `${BASE}/api/claims/admin/${claimId}/timeline`,
     adminAll: `${BASE}/api/claims/admin/all`,
     documents: (claimId: number) => `${BASE}/api/claims/${claimId}/documents`,
     document: (claimId: number, documentId: number) =>
@@ -84,8 +76,7 @@ export const API_ENDPOINTS = {
     reviewDocuments: (claimId: number) => `${BASE}/api/claims/review/${claimId}/documents`,
     reviewDocument: (claimId: number, documentId: number) =>
       `${BASE}/api/claims/review/${claimId}/documents/${documentId}`,
-    adminById: (claimId: number) =>
-      `${BASE}/api/claims/admin/${claimId}`,
+    adminById: (claimId: number) => `${BASE}/api/claims/admin/${claimId}`,
   },
   triggers: {
     zones: `${BASE}/api/triggers/zones`,
@@ -101,6 +92,7 @@ export const API_ENDPOINTS = {
     zoneMeasurements: `${BASE}/api/triggers/measurements/zones`,
     events: `${BASE}/api/triggers/events`,
     eventById: (eventId: number) => `${BASE}/api/triggers/events/${eventId}`,
+    definitionById: (definitionId: number) => `${BASE}/api/triggers/definitions/${definitionId}`,
     eventsByStatus: (status: string) => `${BASE}/api/triggers/events/status/${status}`,
     eventsByProduct: (productId: number) => `${BASE}/api/triggers/events/product/${productId}`,
     eventsByZone: (zoneId: number) => `${BASE}/api/triggers/events/zone/${zoneId}`,
@@ -113,7 +105,8 @@ export const API_ENDPOINTS = {
     markAllRead: `${BASE}/api/notifications/me/read-all`,
     delete: (notificationId: number) => `${BASE}/api/notifications/${notificationId}`,
     adminAll: `${BASE}/api/notifications/admin/all`,
-    adminMarkRead: (notificationId: number) => `${BASE}/api/notifications/admin/${notificationId}/read`,
+    adminMarkRead: (notificationId: number) =>
+      `${BASE}/api/notifications/admin/${notificationId}/read`,
     adminDelete: (notificationId: number) => `${BASE}/api/notifications/admin/${notificationId}`,
     adminFailed: `${BASE}/api/notifications/admin/failed`,
     adminAudit: `${BASE}/api/notifications/admin/audit`,
@@ -122,10 +115,13 @@ export const API_ENDPOINTS = {
     upsertPreferences: `${BASE}/api/notifications/me/preferences`,
     fromTemplate: `${BASE}/api/notifications/from-template`,
     adminBatch: `${BASE}/api/notifications/admin/batch`,
-    deliveryAttempts: (notificationId: number) => `${BASE}/api/notifications/${notificationId}/delivery-attempts`,
+    deliveryAttempts: (notificationId: number) =>
+      `${BASE}/api/notifications/${notificationId}/delivery-attempts`,
     adminTemplates: `${BASE}/api/notifications/admin/templates`,
-    adminTemplateById: (templateId: number) => `${BASE}/api/notifications/admin/templates/${templateId}`,
-    adminTemplateDeactivate: (templateId: number) => `${BASE}/api/notifications/admin/templates/${templateId}/deactivate`,
+    adminTemplateById: (templateId: number) =>
+      `${BASE}/api/notifications/admin/templates/${templateId}`,
+    adminTemplateDeactivate: (templateId: number) =>
+      `${BASE}/api/notifications/admin/templates/${templateId}/deactivate`,
   },
   financial: {
     pricingRules: `${BASE}/api/financial/pricing-rules`,
@@ -147,7 +143,8 @@ export const API_ENDPOINTS = {
     myPayouts: `${BASE}/api/financial/payouts/me`,
     payoutById: (payoutId: number) => `${BASE}/api/financial/payouts/${payoutId}`,
     payoutReceipt: (payoutId: number) => `${BASE}/api/financial/payouts/${payoutId}/receipt`,
-    adminPayoutReceipt: (payoutId: number) => `${BASE}/api/financial/payouts/admin/${payoutId}/receipt`,
+    adminPayoutReceipt: (payoutId: number) =>
+      `${BASE}/api/financial/payouts/admin/${payoutId}/receipt`,
     adminPayouts: `${BASE}/api/financial/payouts/admin/all`,
     payoutProcess: (payoutId: number) => `${BASE}/api/financial/payouts/${payoutId}/process`,
     payoutSuccess: (payoutId: number) => `${BASE}/api/financial/payouts/${payoutId}/success`,
