@@ -89,6 +89,16 @@ describe('PaymentCheckoutComponent', () => {
     expect(paid).toEqual([{ policyId: 3, method: 'MOCK_CARD' }]);
   });
 
+  it('pays when the customer clicks the Pay button', () => {
+    page.useTestCard();
+    fixture.detectChanges();
+
+    (element.querySelector('button[type="submit"]') as HTMLButtonElement).click();
+    vi.advanceTimersByTime(1200);
+
+    expect(paid).toEqual([{ policyId: 3, method: 'MOCK_CARD' }]);
+  });
+
   it('declines the test decline card without calling the server', () => {
     component.card.setValue({
       number: '4000 0000 0000 0002',

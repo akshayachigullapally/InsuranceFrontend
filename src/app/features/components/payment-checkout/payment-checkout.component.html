@@ -1,7 +1,7 @@
 <!-- The overlay scrolls; the inner min-h-full wrapper centres the panel only
      when it fits, so a tall panel starts at the top instead of being cut off. -->
 <div
-  class="fixed inset-0 z-50 overflow-y-auto bg-gray-950/60 backdrop-blur-sm"
+  class="fixed inset-0 z-[1100] overflow-y-auto bg-gray-950/60 backdrop-blur-sm"
   role="dialog"
   aria-modal="true"
   aria-labelledby="checkout-title"
@@ -74,7 +74,7 @@
           <button type="button" class="btn-brand mt-6 w-full" (click)="closed.emit()">Done</button>
         </div>
       } @else {
-        <form class="grid md:grid-cols-[2fr_3fr]" (ngSubmit)="submit()" novalidate>
+        <form class="grid md:grid-cols-[2fr_3fr]" (submit)="$event.preventDefault(); submit()" novalidate>
           <!-- Left: order summary and card preview -->
           <div class="space-y-5 border-b border-gray-200 bg-gray-50 px-6 py-6 md:border-r md:border-b-0">
             <div>
