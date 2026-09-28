@@ -1,0 +1,89 @@
+<aside class="panel">
+  <div class="panel-grid" aria-hidden="true"></div>
+  <div class="panel-glow" aria-hidden="true"></div>
+
+  <div class="panel-content">
+    <!-- Logo with radar pulses and orbiting sensors -->
+    <div class="radar" aria-hidden="true">
+      <span class="radar-pulse"></span>
+      <span class="radar-pulse radar-pulse--delay-1"></span>
+      <span class="radar-pulse radar-pulse--delay-2"></span>
+      <span class="radar-ring"></span>
+
+      <div class="orbit">
+        @for (sensor of sensors; track sensor.label; let i = $index) {
+          <span class="orbit-slot" [class]="'orbit-slot orbit-slot--' + i">
+            <span class="sensor-chip">
+              <span class="sensor-icon">{{ sensor.icon }}</span>
+              {{ sensor.label }}
+            </span>
+          </span>
+        }
+      </div>
+
+      <div class="logo-tile">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="url(#authBrandGradient)" />
+          <path
+            d="M16 8C12.6863 8 10 10.6863 10 14C10 15.5835 10.6375 17.012 11.7148 18.075L16 22L20.2852 18.075C21.3625 17.012 22 15.5835 22 14C22 10.6863 19.3137 8 16 8Z"
+            fill="white"
+            opacity="0.95"
+          />
+          <path
+            d="M16 12C14.8954 12 14 12.8954 14 14C14 15.1046 14.8954 16 16 16C17.1046 16 18 15.1046 18 14C18 12.8954 17.1046 12 16 12Z"
+            fill="url(#authBrandGradient)"
+          />
+          <defs>
+            <linearGradient
+              id="authBrandGradient"
+              x1="0"
+              y1="0"
+              x2="32"
+              y2="32"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop offset="0%" stop-color="#1e8bff" />
+              <stop offset="100%" stop-color="#0041b1" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    </div>
+
+    <p class="wordmark">ClimateSure</p>
+    <p class="eyebrow">{{ copy().eyebrow }}</p>
+    <h2 class="headline">
+      {{ copy().headline }}
+      <span class="gradient-text">{{ copy().highlight }}</span>
+    </h2>
+    <p class="body">{{ copy().body }}</p>
+
+    <!-- A reading crossing its threshold, the core idea of parametric cover -->
+    <div class="trigger-card" aria-hidden="true">
+      <div class="trigger-head">
+        <span class="live-dot"></span>
+        <span>Rainfall · Hyderabad Central</span>
+        <span class="trigger-value">162 mm</span>
+      </div>
+      <div class="gauge">
+        <span class="gauge-fill"></span>
+        <span class="gauge-threshold"><span>150 mm</span></span>
+      </div>
+      <p class="trigger-result">Threshold crossed · claim opened for review</p>
+    </div>
+
+    <ol class="steps">
+      @for (step of steps; track step; let last = $last) {
+        <li class="step">
+          <span class="step-number">{{ $index + 1 }}</span>
+          {{ step }}
+        </li>
+        @if (!last) {
+          <li class="step-line" aria-hidden="true"></li>
+        }
+      }
+    </ol>
+  </div>
+
+  <p class="panel-footer">© 2026 ClimateSure Insurance</p>
+</aside>

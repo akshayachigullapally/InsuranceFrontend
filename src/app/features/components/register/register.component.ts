@@ -7,22 +7,24 @@ import { RouterLink } from '@angular/router';
 import { register, clearAuthError } from '../../state/auth/auth.actions';
 import { selectAuthError, selectAuthLoading } from '../../state/auth/auth.selectors';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
+import { AuthBrandPanelComponent } from '../../../shared/components/auth-brand-panel/auth-brand-panel.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, AsyncPipe, RouterLink, ErrorMessageComponent],
+  imports: [
+    ReactiveFormsModule,
+    AsyncPipe,
+    RouterLink,
+    ErrorMessageComponent,
+    AuthBrandPanelComponent,
+  ],
   templateUrl: './register.component.html',
 })
 export class RegisterComponent implements OnInit, OnDestroy {
   readonly registerForm: FormGroup;
   readonly loading$: Observable<boolean>;
   readonly error$: Observable<string | null>;
-  protected readonly stats: { value: string; label: string }[] = [
-    { value: '1 min', label: 'to register' },
-    { value: '10+', label: 'product lines' },
-    { value: '24/7', label: 'live monitoring' },
-  ];
   private readonly destroy$ = new Subject<void>();
   private submittedFlag = false;
 

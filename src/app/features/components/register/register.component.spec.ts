@@ -52,7 +52,9 @@ describe('RegisterComponent', () => {
     expect(element.textContent).toContain('Full name must be at least 2 characters.');
     expect(element.textContent).toContain('A valid email is required.');
     expect(element.textContent).toContain('Password must be at least 8 characters.');
-    expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: register.type }));
+    expect(store.dispatch).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: register.type }),
+    );
   });
 
   it('rejects a short name and short password', () => {
@@ -85,6 +87,8 @@ describe('RegisterComponent', () => {
     store.refreshState();
     fixture.detectChanges();
 
-    expect((element.querySelector('button[type="submit"]') as HTMLButtonElement).disabled).toBe(true);
+    expect((element.querySelector('button[type="submit"]') as HTMLButtonElement).disabled).toBe(
+      true,
+    );
   });
 });

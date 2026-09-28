@@ -7,11 +7,18 @@ import { RouterLink } from '@angular/router';
 import { login, clearAuthError } from '../../state/auth/auth.actions';
 import { selectAuthError, selectAuthLoading } from '../../state/auth/auth.selectors';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
+import { AuthBrandPanelComponent } from '../../../shared/components/auth-brand-panel/auth-brand-panel.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, AsyncPipe, RouterLink, ErrorMessageComponent],
+  imports: [
+    ReactiveFormsModule,
+    AsyncPipe,
+    RouterLink,
+    ErrorMessageComponent,
+    AuthBrandPanelComponent,
+  ],
   templateUrl: './login.component.html',
 })
 export class LoginComponent implements OnInit, OnDestroy {
