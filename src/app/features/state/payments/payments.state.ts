@@ -5,6 +5,8 @@ export interface PaymentsState {
   selectedPayment: PaymentResponse | null;
   search: string;
   isLoading: boolean;
+  /** True once a payments list has been fetched. */
+  loaded: boolean;
   isSaving: boolean;
   error: string | null;
 }
@@ -14,6 +16,7 @@ export const initialPaymentsState: PaymentsState = {
   selectedPayment: null,
   search: '',
   isLoading: false,
+  loaded: false,
   isSaving: false,
   error: null,
 };

@@ -56,4 +56,34 @@ describe('CustomerDashboardComponent', () => {
     expect(element.querySelector('a[href="/customer/policies/new"]')).not.toBeNull();
     expect(element.querySelector('a[href="/customer/claims/new"]')).not.toBeNull();
   });
+
+  it('shows whether each active policy is paid, with a pay link when it is not', () => {
+    const element: HTMLElement = fixture.nativeElement;
+    const root = mockRootState();
+    const policies = {
+      ...root.policies,
+      myPolicies: [
+        { id: 1, policyNumber: 'POL-1', status: 'ACTIVE', sumInsured: 100000 },
+        { id: 3, policyNumber: 'POL-3', status: 'ACTIVE', sumInsured: 20000 },
+      ],
+    };
+    store.setState(
+      mockRootState({
+        auth: loggedInAuth('ROLE_CUSTOMER'),
+        policies,
+        payments: {
+          ...root.payments,
+          loaded: true,
+          payments: [{ id: 5, policyId: 1, status: 'SUCCESS' }],
+        },
+      }),
+    );
+    fixture.detectChanges();
+
+    expect(element.textContent).toContain('Premium paid');
+    expect(element.querySelector('a[href="/customer/payments?pay=3"]')?.textContent).toContain(
+      'Pay now',
+    );
+    expect(element.querySelector('a[href="/customer/payments?pay=1"]')).toBeNull();
+  });
 });

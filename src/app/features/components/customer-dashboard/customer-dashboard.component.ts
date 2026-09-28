@@ -5,7 +5,11 @@ import { AsyncPipe, DatePipe } from '@angular/common';
 import { Observable, Subject, interval, startWith, takeUntil } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
 import { loadMyPayments } from '../../state/payments/payments.actions';
-import { selectTotalPremiumsPaid } from '../../state/payments/payments.selectors';
+import {
+  selectPaidPolicyIds,
+  selectPaymentsLoaded,
+  selectTotalPremiumsPaid,
+} from '../../state/payments/payments.selectors';
 import { loadMyPayouts } from '../../state/payouts/payouts.actions';
 import { selectTotalPayoutsReceived } from '../../state/payouts/payouts.selectors';
 import { map } from 'rxjs/operators';
@@ -49,6 +53,8 @@ export class CustomerDashboardComponent implements OnInit, OnDestroy {
   readonly unreadCount$: Observable<number>;
   readonly premiumsPaid$: Observable<number>;
   readonly payoutsReceived$: Observable<number>;
+  readonly paidPolicyIds$: Observable<Set<number>>;
+  readonly paymentsLoaded$: Observable<boolean>;
   private readonly destroy$ = new Subject<void>();
 
   protected readonly quickActions: QuickAction[] = [
@@ -113,6 +119,8 @@ export class CustomerDashboardComponent implements OnInit, OnDestroy {
     this.unreadCount$ = this.store.select(selectUnreadCount);
     this.premiumsPaid$ = this.store.select(selectTotalPremiumsPaid);
     this.payoutsReceived$ = this.store.select(selectTotalPayoutsReceived);
+    this.paidPolicyIds$ = this.store.select(selectPaidPolicyIds);
+    this.paymentsLoaded$ = this.store.select(selectPaymentsLoaded);
   }
 
   ngOnInit(): void {

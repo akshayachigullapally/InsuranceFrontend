@@ -49,6 +49,7 @@ export const paymentsReducer = createReducer(
       ...state,
       payments,
       isLoading: false,
+      loaded: true,
     }),
   ),
 

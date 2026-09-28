@@ -92,11 +92,11 @@ describe('CustomerPaymentsComponent', () => {
 
     store.setState(mockRootState({ payments: { ...initialPaymentsState, isSaving: true } }));
     store.setState(
-      mockRootState({ payments: { ...initialPaymentsState, error: 'Policy already paid successfully' } }),
+      mockRootState({ payments: { ...initialPaymentsState, error: 'Policy must be active before payment' } }),
     );
 
     expect(page.checkoutOpen).toBe(true);
-    expect(page.checkoutError).toBe('Policy already paid successfully');
+    expect(page.checkoutError).toBe('Policy must be active before payment');
     expect(page.paidPayment).toBeNull();
   });
 
@@ -121,6 +121,7 @@ describe('CustomerPaymentsComponent', () => {
         },
         payments: {
           ...initialPaymentsState,
+          loaded: true,
           payments: [{ id: 5, policyId: 3, status: 'SUCCESS' }] as PaymentResponse[],
         },
       }),
@@ -129,6 +130,34 @@ describe('CustomerPaymentsComponent', () => {
     const payable = await firstValueFrom(component.payablePolicies$);
 
     expect(payable.map((policy) => policy.id)).toEqual([1]);
+  });
+
+  it('offers nothing to pay until payments have loaded', async () => {
+    store.setState(
+      mockRootState({
+        policies: {
+          ...initialPoliciesState,
+          myPolicies: [{ id: 1, status: 'ACTIVE' }] as PolicyResponse[],
+        },
+      }),
+    );
+
+    expect(await firstValueFrom(component.payablePolicies$)).toEqual([]);
+  });
+
+  it('refreshes payments when the server says the policy is already paid', () => {
+    page.openCheckout(3);
+    page.pay({ policyId: 3, method: 'MOCK_CARD' });
+    vi.mocked(store.dispatch).mockClear();
+
+    store.setState(mockRootState({ payments: { ...initialPaymentsState, isSaving: true } }));
+    store.setState(
+      mockRootState({ payments: { ...initialPaymentsState, error: 'Policy already paid successfully' } }),
+    );
+
+    expect(page.checkoutError).toContain('already paid');
+    expect(store.dispatch).toHaveBeenCalledWith(loadMyPayments());
+    expect(store.dispatch).toHaveBeenCalledWith(loadMyPolicies({}));
   });
 
   it('clears errors on destroy', () => {

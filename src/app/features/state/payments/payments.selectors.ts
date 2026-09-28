@@ -16,6 +16,15 @@ export const selectPaymentsSaving = createSelector(selectPaymentsState, (state) 
 
 export const selectPaymentsError = createSelector(selectPaymentsState, (state) => state.error);
 
+export const selectPaymentsLoaded = createSelector(selectPaymentsState, (state) => state.loaded);
+
+/** Policies whose premium has a successful payment. */
+export const selectPaidPolicyIds = createSelector(
+  selectPayments,
+  (payments) =>
+    new Set(payments.filter((payment) => payment.status === 'SUCCESS').map((p) => p.policyId)),
+);
+
 /** Saving flag, error and latest payment read together, so they always agree. */
 export const selectPaymentOutcome = createSelector(selectPaymentsState, (state) => ({
   saving: state.isSaving,

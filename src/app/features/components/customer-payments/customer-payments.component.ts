@@ -21,6 +21,8 @@ import {
   selectPayments,
   selectPaymentsError,
   selectPaymentsLoading,
+  selectPaidPolicyIds,
+  selectPaymentsLoaded,
   selectPaymentsSaving,
   selectPaymentOutcome,
   selectTotalPremiumsPaid,
@@ -96,14 +98,15 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
     this.error$ = this.store.select(selectPaymentsError);
     this.payablePolicies$ = combineLatest([
       this.store.select(selectMyPolicies),
-      this.payments$,
+      this.store.select(selectPaidPolicyIds),
+      this.store.select(selectPaymentsLoaded),
     ]).pipe(
-      map(([policies, payments]) => {
-        const paid = new Set(
-          payments.filter((payment) => payment.status === 'SUCCESS').map((p) => p.policyId),
-        );
-        return policies.filter((policy) => policy.status === 'ACTIVE' && !paid.has(policy.id));
-      }),
+      // Until payments have loaded we cannot tell paid from unpaid: offer nothing.
+      map(([policies, paid, loaded]) =>
+        loaded
+          ? policies.filter((policy) => policy.status === 'ACTIVE' && !paid.has(policy.id))
+          : [],
+      ),
     );
     this.payouts$ = this.store.select(selectPayouts);
     this.payoutsLoading$ = this.store.select(selectPayoutsLoading);
@@ -131,7 +134,14 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
       .subscribe(({ saving, error, payment }) => {
         if (!this.awaitingPayment || saving) return;
         this.awaitingPayment = false;
-        if (error) {
+        if (error && /already paid/i.test(error)) {
+          // Paid elsewhere (another tab or an earlier attempt): refresh so the
+          // policy moves to "Paid" everywhere instead of staying payable.
+          this.checkoutError =
+            'This policy is already paid. Your payments have been refreshed; it now shows as paid.';
+          this.store.dispatch(loadMyPayments());
+          this.store.dispatch(loadMyPolicies({}));
+        } else if (error) {
           this.checkoutError = error;
         } else {
           this.paidPayment = payment;
