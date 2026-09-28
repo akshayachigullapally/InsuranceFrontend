@@ -16,12 +16,6 @@ import {
   loadPaymentsFailure,
   loadPaymentsSuccess,
   loadPaymentSuccess,
-  markPaymentFail,
-  markPaymentFailFailure,
-  markPaymentFailSuccess,
-  markPaymentSuccess,
-  markPaymentSuccessFailure,
-  markPaymentSuccessSuccess,
   refundPayment,
   refundPaymentFailure,
   refundPaymentSuccess,
@@ -96,16 +90,11 @@ export const paymentsReducer = createReducer(
     error: null,
   })),
 
-  on(
-    markPaymentSuccess,
-    markPaymentFail,
-    refundPayment,
-    (state): PaymentsState => ({
-      ...state,
-      isSaving: true,
-      error: null,
-    }),
-  ),
+  on(refundPayment, (state): PaymentsState => ({
+    ...state,
+    isSaving: true,
+    error: null,
+  })),
 
   on(createPaymentSuccess, (state, { payment }): PaymentsState => ({
     ...state,
@@ -113,20 +102,6 @@ export const paymentsReducer = createReducer(
     selectedPayment: payment,
     isSaving: false,
   })),
-
-  on(
-    markPaymentSuccessSuccess,
-    markPaymentFailSuccess,
-    (state, { payment }): PaymentsState => ({
-      ...state,
-      payments: upsert(state.payments, payment),
-      selectedPayment:
-        state.selectedPayment?.id === payment.id
-          ? payment
-          : state.selectedPayment,
-      isSaving: false,
-    }),
-  ),
 
   on(refundPaymentSuccess, (state, { paymentId }): PaymentsState => ({
     ...state,
@@ -142,8 +117,6 @@ export const paymentsReducer = createReducer(
 
   on(
     createPaymentFailure,
-    markPaymentSuccessFailure,
-    markPaymentFailFailure,
     refundPaymentFailure,
     (state, { error }): PaymentsState => ({
       ...state,

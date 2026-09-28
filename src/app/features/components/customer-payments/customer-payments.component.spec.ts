@@ -6,13 +6,20 @@ import { clearPaymentsError, createPayment, loadMyPayments } from '../../state/p
 import { loadMyPolicies } from '../../state/policies/policies.actions';
 import { clearPayoutsError, loadMyPayouts } from '../../state/payouts/payouts.actions';
 import { PolicyResponse } from '../../dtos/policies/policy-response.dto';
+import { PaymentResponse } from '../../dtos/financial/payment-response.dto';
+import { mockRootState } from '../../../../testing/test-helpers';
+import { initialPaymentsState } from '../../state/payments/payments.state';
+import { initialPoliciesState } from '../../state/policies/policies.state';
+import { firstValueFrom } from 'rxjs';
 
 type PaymentsInternals = {
-  openCreate(): void;
-  closeForm(): void;
-  submit(): void;
-  activePolicies(policies: PolicyResponse[]): PolicyResponse[];
-  formOpen: boolean;
+  openCheckout(policyId?: number | null): void;
+  closeCheckout(): void;
+  pay(request: { policyId: number; method: 'MOCK_CARD' | 'MOCK_UPI' | 'MOCK_BANK_TRANSFER' }): void;
+  checkoutOpen: boolean;
+  checkoutPolicyId: number | null;
+  paidPayment: PaymentResponse | null;
+  checkoutError: string | null;
 };
 
 describe('CustomerPaymentsComponent', () => {
@@ -52,45 +59,76 @@ describe('CustomerPaymentsComponent', () => {
     expect(tabs.activeTab).toBe('payouts');
   });
 
-  it('opens the form with default values', () => {
-    component.form.patchValue({ policyId: 3 });
+  it('opens checkout for the chosen policy', () => {
+    page.openCheckout(3);
 
-    page.openCreate();
-
-    expect(page.formOpen).toBe(true);
-    expect(component.form.getRawValue()).toEqual({ policyId: null, method: 'MOCK_CARD' });
+    expect(page.checkoutOpen).toBe(true);
+    expect(page.checkoutPolicyId).toBe(3);
+    expect(page.paidPayment).toBeNull();
   });
 
-  it('does not submit without a policy', () => {
-    page.openCreate();
-    vi.mocked(store.dispatch).mockClear();
+  it('pays through the store and shows the receipt once the payment is saved', () => {
+    const paid = { id: 9, policyId: 3, status: 'SUCCESS' } as PaymentResponse;
+    page.openCheckout(3);
 
-    page.submit();
-
-    expect(store.dispatch).not.toHaveBeenCalled();
-    expect(component.form.touched).toBe(true);
-    expect(page.formOpen).toBe(true);
-  });
-
-  it('dispatches createPayment and closes the form when valid', () => {
-    page.openCreate();
-    component.form.setValue({ policyId: 3, method: 'MOCK_UPI' });
-
-    page.submit();
-
+    page.pay({ policyId: 3, method: 'MOCK_UPI' });
     expect(store.dispatch).toHaveBeenCalledWith(
       createPayment({ request: { policyId: 3, method: 'MOCK_UPI' } }),
     );
-    expect(page.formOpen).toBe(false);
+
+    store.setState(mockRootState({ payments: { ...initialPaymentsState, isSaving: true } }));
+    expect(page.paidPayment).toBeNull();
+
+    store.setState(
+      mockRootState({ payments: { ...initialPaymentsState, isSaving: false, selectedPayment: paid } }),
+    );
+    expect(page.paidPayment).toEqual(paid);
+    expect(page.checkoutError).toBeNull();
   });
 
-  it('offers only active policies for payment', () => {
-    const policies = [
-      { id: 1, status: 'ACTIVE' },
-      { id: 2, status: 'PENDING' },
-    ] as PolicyResponse[];
+  it('keeps checkout open with the server error when paying fails', () => {
+    page.openCheckout(3);
+    page.pay({ policyId: 3, method: 'MOCK_CARD' });
 
-    expect(page.activePolicies(policies).map((policy) => policy.id)).toEqual([1]);
+    store.setState(mockRootState({ payments: { ...initialPaymentsState, isSaving: true } }));
+    store.setState(
+      mockRootState({ payments: { ...initialPaymentsState, error: 'Policy already paid successfully' } }),
+    );
+
+    expect(page.checkoutOpen).toBe(true);
+    expect(page.checkoutError).toBe('Policy already paid successfully');
+    expect(page.paidPayment).toBeNull();
+  });
+
+  it('closes checkout and resets it', () => {
+    page.openCheckout(3);
+    page.closeCheckout();
+
+    expect(page.checkoutOpen).toBe(false);
+    expect(store.dispatch).toHaveBeenCalledWith(clearPaymentsError());
+  });
+
+  it('offers only active policies that are not paid yet', async () => {
+    store.setState(
+      mockRootState({
+        policies: {
+          ...initialPoliciesState,
+          myPolicies: [
+            { id: 1, status: 'ACTIVE' },
+            { id: 2, status: 'PENDING' },
+            { id: 3, status: 'ACTIVE' },
+          ] as PolicyResponse[],
+        },
+        payments: {
+          ...initialPaymentsState,
+          payments: [{ id: 5, policyId: 3, status: 'SUCCESS' }] as PaymentResponse[],
+        },
+      }),
+    );
+
+    const payable = await firstValueFrom(component.payablePolicies$);
+
+    expect(payable.map((policy) => policy.id)).toEqual([1]);
   });
 
   it('clears errors on destroy', () => {

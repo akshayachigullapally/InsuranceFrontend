@@ -6,14 +6,15 @@ export const PAYMENT_METHODS = ['MOCK_CARD', 'MOCK_BANK_TRANSFER', 'MOCK_UPI'] a
 
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  MOCK_CARD: 'Card',
+  MOCK_UPI: 'UPI',
+  MOCK_BANK_TRANSFER: 'Net banking',
+};
+
 export interface PaymentRequest {
   policyId: number;
   method: PaymentMethod;
-}
-
-export interface PaymentActionRequest {
-  externalReference: string;
-  failureReason?: string;
 }
 
 export interface PaymentResponse {

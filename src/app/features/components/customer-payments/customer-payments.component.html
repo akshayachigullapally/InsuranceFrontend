@@ -12,7 +12,7 @@
       </p>
     </div>
 
-    <button type="button" class="btn-brand" (click)="openCreate()">
+    <button type="button" class="btn-brand" (click)="openCheckout()">
       + Make a payment
     </button>
   </div>
@@ -148,8 +148,30 @@
       }
     }
   } @else {
-  @if (error$ | async; as error) {
-    <app-error-message [error]="error" />
+  @if (payablePolicies$ | async; as payable) {
+    @if (payable.length > 0) {
+      <div class="card flex flex-wrap items-center justify-between gap-4 border-l-4 border-l-brand-500 p-5">
+        <div>
+          <p class="text-sm font-semibold text-gray-900">
+            {{ payable.length === 1 ? '1 policy is' : payable.length + ' policies are' }} waiting for payment
+          </p>
+          <p class="mt-0.5 text-sm text-gray-500">
+            @for (policy of payable; track policy.id; let last = $last) {
+              {{ policy.policyNumber }} · ₹{{ policy.premiumAmount | number: '1.2-2' }}{{ last ? '' : ', ' }}
+            }
+          </p>
+        </div>
+        <button type="button" class="btn-brand" (click)="openCheckout(payable[0].id)">
+          Pay now
+        </button>
+      </div>
+    }
+  }
+
+  @if (!checkoutOpen) {
+    @if (error$ | async; as error) {
+      <app-error-message [error]="error" />
+    }
   }
 
   @if (loading$ | async) {
@@ -182,7 +204,10 @@
                     ₹ {{ payment.amount | number:'1.2-2' }}
                   </td>
                   <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
-                    {{ payment.method }}
+                    {{ methodLabels[payment.method] }}
+                    @if (payment.externalReference) {
+                      <p class="font-mono text-xs text-gray-400">{{ payment.externalReference }}</p>
+                    }
                   </td>
                   <td class="whitespace-nowrap px-6 py-3">
                     <app-status-badge [status]="payment.status" />
@@ -202,7 +227,7 @@
         message="Once your policy is approved and active, you can pay its premium here."
         icon="💳"
       >
-        <button type="button" class="btn-brand mt-4" (click)="openCreate()">
+        <button type="button" class="btn-brand mt-4" (click)="openCheckout()">
           Make a payment
         </button>
       </app-empty-state>
@@ -211,66 +236,15 @@
 
   }
 
-  @if (formOpen) {
-    <div
-      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-950/50 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="payment-form-title"
-    >
-      <div class="my-8 w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
-        <h2 id="payment-form-title" class="text-xl font-bold text-gray-900">
-          Make a payment
-        </h2>
-
-        <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="submit()">
-          <div>
-            <label class="label-base" for="paymentPolicyId">Policy</label>
-            <select id="paymentPolicyId" class="input-base" formControlName="policyId">
-              <option [ngValue]="null" disabled>Select a policy</option>
-              @for (policy of activePolicies((policies$ | async) ?? []); track policy.id) {
-                <option [ngValue]="policy.id">
-                  {{ policy.policyNumber }} · ₹ {{ policy.premiumAmount | number:'1.2-2' }}
-                </option>
-              }
-            </select>
-            @if (form.controls.policyId.invalid && form.controls.policyId.touched) {
-              <p class="mt-1 text-xs text-danger-500">Select a policy.</p>
-            }
-            <p class="mt-1 text-xs text-gray-400">
-              Only active (underwriter-approved) policies can be paid.
-            </p>
-          </div>
-
-          <div>
-            <label class="label-base" for="paymentMethod">Payment method</label>
-            <select id="paymentMethod" class="input-base" formControlName="method">
-              @for (method of methods; track method) {
-                <option [ngValue]="method">{{ method.replaceAll('_', ' ') }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="flex justify-end gap-3">
-            <button
-              type="button"
-              class="btn-outline"
-              [disabled]="(saving$ | async) ?? false"
-              (click)="closeForm()"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              class="btn-brand"
-              [disabled]="form.invalid || ((saving$ | async) ?? false)"
-            >
-              {{ (saving$ | async) ? 'Submitting...' : 'Pay premium' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+  @if (checkoutOpen) {
+    <app-payment-checkout
+      [policies]="(payablePolicies$ | async) ?? []"
+      [initialPolicyId]="checkoutPolicyId"
+      [busy]="(saving$ | async) ?? false"
+      [error]="checkoutError"
+      [paidPayment]="paidPayment"
+      (pay)="pay($event)"
+      (closed)="closeCheckout()"
+    />
   }
 </section>

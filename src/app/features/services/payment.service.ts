@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
 import {
   MessageResponse,
-  PaymentActionRequest,
   PaymentRequest,
   PaymentResponse,
 } from '../dtos/financial/payment-response.dto';
@@ -35,26 +34,6 @@ export class PaymentService {
   getAllPayments(): Observable<PaymentResponse[]> {
     return this.http.get<PaymentResponse[]>(
       API_ENDPOINTS.financial.adminPayments,
-    );
-  }
-
-  markSuccess(
-    paymentId: number,
-    request: PaymentActionRequest,
-  ): Observable<PaymentResponse> {
-    return this.http.put<PaymentResponse>(
-      API_ENDPOINTS.financial.paymentSuccess(paymentId),
-      request,
-    );
-  }
-
-  markFail(
-    paymentId: number,
-    request: PaymentActionRequest,
-  ): Observable<PaymentResponse> {
-    return this.http.put<PaymentResponse>(
-      API_ENDPOINTS.financial.paymentFail(paymentId),
-      request,
     );
   }
 

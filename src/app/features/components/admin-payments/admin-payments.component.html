@@ -7,8 +7,8 @@
       Payments
     </h1>
     <p class="mt-1 text-sm text-gray-500">
-      Review premium payments submitted by customers and settle them for
-      this demo/testing environment.
+      Premiums customers have paid at checkout. Payments settle instantly;
+      successful ones can be refunded here.
     </p>
   </div>
 
@@ -40,6 +40,9 @@
                   <td class="whitespace-nowrap px-6 py-3">
                     <p class="text-sm font-semibold text-gray-900">{{ payment.paymentReference }}</p>
                     <p class="text-xs text-gray-400">{{ payment.createdAt | date: 'medium' }}</p>
+                    @if (payment.externalReference) {
+                      <p class="font-mono text-xs text-gray-400">{{ payment.externalReference }}</p>
+                    }
                   </td>
                   <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
                     Customer #{{ payment.customerId }}
@@ -51,7 +54,7 @@
                     ₹ {{ payment.amount | number:'1.2-2' }}
                   </td>
                   <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
-                    {{ payment.method }}
+                    {{ methodLabels[payment.method] }}
                   </td>
                   <td class="whitespace-nowrap px-6 py-3">
                     <app-status-badge [status]="payment.status" />
@@ -61,24 +64,6 @@
                   </td>
                   <td class="whitespace-nowrap px-6 py-3 text-right text-sm">
                     <div class="flex items-center justify-end gap-3">
-                      @if (payment.status === 'PENDING') {
-                        <button
-                          type="button"
-                          class="font-semibold text-success-700 hover:text-green-800 disabled:cursor-not-allowed disabled:opacity-50"
-                          [disabled]="(saving$ | async) ?? false"
-                          (click)="markSuccess(payment)"
-                        >
-                          Mark success
-                        </button>
-                        <button
-                          type="button"
-                          class="font-semibold text-danger-500 hover:text-danger-700 disabled:cursor-not-allowed disabled:opacity-50"
-                          [disabled]="(saving$ | async) ?? false"
-                          (click)="markFail(payment)"
-                        >
-                          Mark failed
-                        </button>
-                      }
                       @if (payment.status === 'SUCCESS') {
                         <button
                           type="button"

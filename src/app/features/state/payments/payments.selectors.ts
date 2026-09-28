@@ -16,6 +16,13 @@ export const selectPaymentsSaving = createSelector(selectPaymentsState, (state) 
 
 export const selectPaymentsError = createSelector(selectPaymentsState, (state) => state.error);
 
+/** Saving flag, error and latest payment read together, so they always agree. */
+export const selectPaymentOutcome = createSelector(selectPaymentsState, (state) => ({
+  saving: state.isSaving,
+  error: state.error,
+  payment: state.selectedPayment,
+}));
+
 export const selectFilteredPayments = createSelector(
   selectPayments,
   selectPaymentsSearch,

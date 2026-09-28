@@ -1,6 +1,5 @@
 import { createAction, props } from '@ngrx/store';
 import {
-  PaymentActionRequest,
   PaymentRequest,
   PaymentResponse,
 } from '../../dtos/financial/payment-response.dto';
@@ -56,36 +55,6 @@ export const createPaymentSuccess = createAction(
 
 export const createPaymentFailure = createAction(
   '[Payments] Create Payment Failure',
-  props<{ error: string }>(),
-);
-
-export const markPaymentSuccess = createAction(
-  '[Payments] Mark Payment Success',
-  props<{ paymentId: number; request: PaymentActionRequest }>(),
-);
-
-export const markPaymentSuccessSuccess = createAction(
-  '[Payments] Mark Payment Success Success',
-  props<{ payment: PaymentResponse }>(),
-);
-
-export const markPaymentSuccessFailure = createAction(
-  '[Payments] Mark Payment Success Failure',
-  props<{ error: string }>(),
-);
-
-export const markPaymentFail = createAction(
-  '[Payments] Mark Payment Fail',
-  props<{ paymentId: number; request: PaymentActionRequest }>(),
-);
-
-export const markPaymentFailSuccess = createAction(
-  '[Payments] Mark Payment Fail Success',
-  props<{ payment: PaymentResponse }>(),
-);
-
-export const markPaymentFailFailure = createAction(
-  '[Payments] Mark Payment Fail Failure',
   props<{ error: string }>(),
 );
 

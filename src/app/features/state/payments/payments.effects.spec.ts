@@ -23,7 +23,6 @@ describe('PaymentsEffects', () => {
     paymentService = {
       getAllPayments: vi.fn(),
       getMyPayments: vi.fn(),
-      markSuccess: vi.fn(),
       refundPayment: vi.fn(),
     };
 
@@ -49,15 +48,6 @@ describe('PaymentsEffects', () => {
     actions$ = of(PaymentsActions.loadMyPayments());
 
     expect(collect(effects.loadMyPayments$)).toEqual([PaymentsActions.loadMyPaymentsSuccess({ payments: [payment] })]);
-  });
-
-  it('marks a payment successful', () => {
-    const request = { externalReference: 'TXN-1' } as never;
-    paymentService['markSuccess'].mockReturnValue(of(payment));
-    actions$ = of(PaymentsActions.markPaymentSuccess({ paymentId: 1, request }));
-
-    expect(collect(effects.markPaymentSuccess$)).toEqual([PaymentsActions.markPaymentSuccessSuccess({ payment })]);
-    expect(paymentService['markSuccess']).toHaveBeenCalledWith(1, request);
   });
 
   it('maps refund errors', () => {

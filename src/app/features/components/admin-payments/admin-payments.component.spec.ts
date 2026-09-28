@@ -5,15 +5,11 @@ import { pageTestProviders } from '../../../../testing/test-helpers';
 import {
   clearPaymentsError,
   loadPayments,
-  markPaymentFail,
-  markPaymentSuccess,
   refundPayment,
 } from '../../state/payments/payments.actions';
 import { PaymentResponse } from '../../dtos/financial/payment-response.dto';
 
 type PaymentsInternals = {
-  markSuccess(payment: PaymentResponse): void;
-  markFail(payment: PaymentResponse): void;
   refund(payment: PaymentResponse): void;
 };
 
@@ -43,37 +39,6 @@ describe('AdminPaymentsComponent', () => {
   it('loads all payments on init', () => {
     expect(store.dispatch).toHaveBeenCalledWith(clearPaymentsError());
     expect(store.dispatch).toHaveBeenCalledWith(loadPayments());
-  });
-
-  it('marks a payment as successful with a mock reference', () => {
-    page.markSuccess(payment);
-
-    expect(store.dispatch).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: markPaymentSuccess.type,
-        paymentId: 4,
-        request: { externalReference: expect.stringMatching(/^MOCK-TXN-\d+$/) },
-      }),
-    );
-  });
-
-  it('marks a payment as failed with the trimmed reason from the prompt', () => {
-    vi.spyOn(window, 'prompt').mockReturnValue('  Card expired  ');
-
-    page.markFail(payment);
-
-    expect(store.dispatch).toHaveBeenCalledWith(
-      markPaymentFail({ paymentId: 4, request: { externalReference: '', failureReason: 'Card expired' } }),
-    );
-  });
-
-  it('does nothing when the fail prompt is cancelled', () => {
-    vi.spyOn(window, 'prompt').mockReturnValue(null);
-    vi.mocked(store.dispatch).mockClear();
-
-    page.markFail(payment);
-
-    expect(store.dispatch).not.toHaveBeenCalled();
   });
 
   it('refunds only after confirmation', () => {

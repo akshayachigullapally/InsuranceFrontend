@@ -17,12 +17,6 @@ import {
   loadPaymentsFailure,
   loadPaymentsSuccess,
   loadPaymentSuccess,
-  markPaymentFail,
-  markPaymentFailFailure,
-  markPaymentFailSuccess,
-  markPaymentSuccess,
-  markPaymentSuccessFailure,
-  markPaymentSuccessSuccess,
   refundPayment,
   refundPaymentFailure,
   refundPaymentSuccess,
@@ -95,34 +89,6 @@ export class PaymentsEffects {
     this.actions$.pipe(
       ofType(createPaymentSuccess),
       map(() => loadMyPayments()),
-    ),
-  );
-
-  markPaymentSuccess$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(markPaymentSuccess),
-      exhaustMap(({ paymentId, request }) =>
-        this.paymentService.markSuccess(paymentId, request).pipe(
-          map(payment => markPaymentSuccessSuccess({ payment })),
-          catchError(error =>
-            of(markPaymentSuccessFailure({ error: httpErrorMessage(error) })),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  markPaymentFail$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(markPaymentFail),
-      exhaustMap(({ paymentId, request }) =>
-        this.paymentService.markFail(paymentId, request).pipe(
-          map(payment => markPaymentFailSuccess({ payment })),
-          catchError(error =>
-            of(markPaymentFailFailure({ error: httpErrorMessage(error) })),
-          ),
-        ),
-      ),
     ),
   );
 

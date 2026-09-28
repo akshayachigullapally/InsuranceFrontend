@@ -2,12 +2,10 @@ import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { PaymentResponse } from '../../dtos/financial/payment-response.dto';
+import { PAYMENT_METHOD_LABELS, PaymentResponse } from '../../dtos/financial/payment-response.dto';
 import {
   clearPaymentsError,
   loadPayments,
-  markPaymentFail,
-  markPaymentSuccess,
   refundPayment,
 } from '../../state/payments/payments.actions';
 import {
@@ -41,6 +39,8 @@ export class AdminPaymentsComponent implements OnInit, OnDestroy {
   readonly saving$: Observable<boolean>;
   readonly error$: Observable<string | null>;
 
+  protected readonly methodLabels = PAYMENT_METHOD_LABELS;
+
   constructor(private readonly store: Store) {
     this.payments$ = this.store.select(selectPayments);
     this.loading$ = this.store.select(selectPaymentsLoading);
@@ -55,36 +55,6 @@ export class AdminPaymentsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.store.dispatch(clearPaymentsError());
-  }
-
-  protected markSuccess(payment: PaymentResponse): void {
-    this.store.dispatch(
-      markPaymentSuccess({
-        paymentId: payment.id,
-        request: {
-          externalReference: 'MOCK-TXN-' + Date.now(),
-        },
-      }),
-    );
-  }
-
-  protected markFail(payment: PaymentResponse): void {
-    const reason = window.prompt(
-      `Reason the payment ${payment.paymentReference} failed:`,
-      'Payment declined by processor',
-    );
-
-    if (reason === null) return;
-
-    this.store.dispatch(
-      markPaymentFail({
-        paymentId: payment.id,
-        request: {
-          externalReference: '',
-          failureReason: reason.trim() || 'Payment declined',
-        },
-      }),
-    );
   }
 
   protected refund(payment: PaymentResponse): void {

@@ -27,17 +27,6 @@ describe('paymentsReducer', () => {
     expect(state.selectedPayment?.id).toBe(3);
   });
 
-  it('replaces a payment marked successful', () => {
-    const current: PaymentsState = { ...initialPaymentsState, payments: [makePayment(1)] };
-
-    const state = paymentsReducer(
-      current,
-      PaymentsActions.markPaymentSuccessSuccess({ payment: makePayment(1, 'SUCCESS') }),
-    );
-
-    expect(state.payments[0].status).toBe('SUCCESS');
-  });
-
   it('marks a refunded payment as REFUNDED', () => {
     const current: PaymentsState = { ...initialPaymentsState, payments: [makePayment(1, 'SUCCESS')], selectedPayment: makePayment(1, 'SUCCESS') };
 

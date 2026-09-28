@@ -136,8 +136,6 @@ export const API_ENDPOINTS = {
     myPayments: `${BASE}/api/financial/payments/me`,
     paymentById: (paymentId: number) => `${BASE}/api/financial/payments/${paymentId}`,
     adminPayments: `${BASE}/api/financial/payments/admin/all`,
-    paymentSuccess: (paymentId: number) => `${BASE}/api/financial/payments/${paymentId}/success`,
-    paymentFail: (paymentId: number) => `${BASE}/api/financial/payments/${paymentId}/fail`,
     paymentRefund: (paymentId: number) => `${BASE}/api/financial/payments/${paymentId}/refund`,
     payouts: `${BASE}/api/financial/payouts`,
     myPayouts: `${BASE}/api/financial/payouts/me`,

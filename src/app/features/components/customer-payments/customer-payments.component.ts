@@ -2,13 +2,11 @@ import { PayoutService } from '../../services/payout.service';
 import { blobErrorMessage, saveBlob } from '../../utils/file-download.util';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable, Subject, interval, startWith, takeUntil } from 'rxjs';
+import { Observable, Subject, combineLatest, interval, map, startWith, takeUntil } from 'rxjs';
 import {
-  PAYMENT_METHODS,
-  PaymentMethod,
+  PAYMENT_METHOD_LABELS,
   PaymentRequest,
   PaymentResponse,
 } from '../../dtos/financial/payment-response.dto';
@@ -24,6 +22,7 @@ import {
   selectPaymentsError,
   selectPaymentsLoading,
   selectPaymentsSaving,
+  selectPaymentOutcome,
   selectTotalPremiumsPaid,
 } from '../../state/payments/payments.selectors';
 import { clearPayoutsError, loadMyPayouts } from '../../state/payouts/payouts.actions';
@@ -39,15 +38,11 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { PaymentCheckoutComponent } from '../payment-checkout/payment-checkout.component';
 
 type BillingTab = 'payments' | 'payouts';
 
 const LIVE_REFRESH_MS = 15_000;
-
-interface PaymentForm {
-  policyId: FormControl<number | null>;
-  method: FormControl<PaymentMethod | null>;
-}
 
 @Component({
   selector: 'app-customer-payments',
@@ -56,11 +51,11 @@ interface PaymentForm {
     AsyncPipe,
     DatePipe,
     DecimalPipe,
-    ReactiveFormsModule,
     EmptyStateComponent,
     ErrorMessageComponent,
     LoadingSpinnerComponent,
     StatusBadgeComponent,
+    PaymentCheckoutComponent,
   ],
   templateUrl: './customer-payments.component.html',
 })
@@ -69,21 +64,23 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
   readonly loading$: Observable<boolean>;
   readonly saving$: Observable<boolean>;
   readonly error$: Observable<string | null>;
-  readonly policies$: Observable<PolicyResponse[]>;
+  /** Active policies whose premium has not been paid yet. */
+  readonly payablePolicies$: Observable<PolicyResponse[]>;
   readonly payouts$: Observable<PayoutResponse[]>;
   readonly payoutsLoading$: Observable<boolean>;
   readonly payoutsError$: Observable<string | null>;
   readonly totalPaid$: Observable<number>;
   readonly totalReceived$: Observable<number>;
 
-  protected readonly methods = PAYMENT_METHODS;
-  protected formOpen = false;
+  protected readonly methodLabels = PAYMENT_METHOD_LABELS;
   protected activeTab: BillingTab = 'payments';
 
-  readonly form = new FormGroup<PaymentForm>({
-    policyId: new FormControl<number | null>(null, Validators.required),
-    method: new FormControl<PaymentMethod | null>('MOCK_CARD', Validators.required),
-  });
+  protected checkoutOpen = false;
+  protected checkoutPolicyId: number | null = null;
+  /** Set once the server has recorded the checkout's payment. */
+  protected paidPayment: PaymentResponse | null = null;
+  protected checkoutError: string | null = null;
+  private awaitingPayment = false;
 
   private readonly destroy$ = new Subject<void>();
 
@@ -97,7 +94,17 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
     this.loading$ = this.store.select(selectPaymentsLoading);
     this.saving$ = this.store.select(selectPaymentsSaving);
     this.error$ = this.store.select(selectPaymentsError);
-    this.policies$ = this.store.select(selectMyPolicies);
+    this.payablePolicies$ = combineLatest([
+      this.store.select(selectMyPolicies),
+      this.payments$,
+    ]).pipe(
+      map(([policies, payments]) => {
+        const paid = new Set(
+          payments.filter((payment) => payment.status === 'SUCCESS').map((p) => p.policyId),
+        );
+        return policies.filter((policy) => policy.status === 'ACTIVE' && !paid.has(policy.id));
+      }),
+    );
     this.payouts$ = this.store.select(selectPayouts);
     this.payoutsLoading$ = this.store.select(selectPayoutsLoading);
     this.payoutsError$ = this.store.select(selectPayoutsError);
@@ -111,6 +118,25 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
     this.store.dispatch(clearPaymentsError());
     this.store.dispatch(clearPayoutsError());
     this.store.dispatch(loadMyPolicies({}));
+
+    // ?pay=<policyId> opens checkout for that policy straight away.
+    const payPolicyId = Number(this.route.snapshot.queryParamMap.get('pay'));
+    if (payPolicyId > 0) {
+      this.openCheckout(payPolicyId);
+    }
+
+    this.store
+      .select(selectPaymentOutcome)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ saving, error, payment }) => {
+        if (!this.awaitingPayment || saving) return;
+        this.awaitingPayment = false;
+        if (error) {
+          this.checkoutError = error;
+        } else {
+          this.paidPayment = payment;
+        }
+      });
     // Payments are confirmed and payouts completed after the fact:
     // refresh every 15 s so statuses and totals stay current.
     interval(LIVE_REFRESH_MS)
@@ -139,40 +165,33 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected openCreate(): void {
+  protected openCheckout(policyId: number | null = null): void {
     this.store.dispatch(clearPaymentsError());
-    this.form.reset({ policyId: null, method: 'MOCK_CARD' });
-    this.formOpen = true;
+    this.checkoutPolicyId = policyId;
+    this.paidPayment = null;
+    this.checkoutError = null;
+    this.checkoutOpen = true;
   }
 
-  protected closeForm(): void {
-    this.formOpen = false;
+  protected closeCheckout(): void {
+    this.checkoutOpen = false;
+    this.paidPayment = null;
+    this.checkoutError = null;
+    this.store.dispatch(clearPaymentsError());
+    if (this.route.snapshot.queryParamMap.has('pay')) {
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { pay: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
-  protected submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    const raw = this.form.getRawValue();
-
-    if (raw.policyId === null || raw.method === null) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    const request: PaymentRequest = {
-      policyId: raw.policyId,
-      method: raw.method,
-    };
-
+  protected pay(request: PaymentRequest): void {
+    this.checkoutError = null;
+    this.awaitingPayment = true;
     this.store.dispatch(createPayment({ request }));
-    this.formOpen = false;
-  }
-
-  protected activePolicies(policies: PolicyResponse[]): PolicyResponse[] {
-    return policies.filter((policy) => policy.status === 'ACTIVE');
   }
 
   protected receiptBusyId: number | null = null;
