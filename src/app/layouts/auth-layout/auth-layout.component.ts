@@ -6,7 +6,11 @@ import { HeaderComponent } from '../header/header.component';
   selector: 'app-auth-layout',
   standalone: true,
   imports: [RouterOutlet, HeaderComponent],
-  templateUrl: './auth-layout.component.html',
-  styleUrl: './auth-layout.component.css',
+  template: `
+    <app-header />
+    <main class="bg-gray-50">
+      <router-outlet />
+    </main>
+  `,
 })
 export class AuthLayoutComponent {}

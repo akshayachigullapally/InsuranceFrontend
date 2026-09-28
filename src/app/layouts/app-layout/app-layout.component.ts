@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 
+// Shared shell for every signed-in area (customer, underwriter, claims officer, admin).
 @Component({
-  selector: 'app-underwriter-layout',
+  selector: 'app-app-layout',
   standalone: true,
   imports: [RouterOutlet, HeaderComponent],
   template: `
@@ -13,4 +14,4 @@ import { HeaderComponent } from '../header/header.component';
     </main>
   `,
 })
-export class UnderwriterLayoutComponent {}
+export class AppLayoutComponent {}

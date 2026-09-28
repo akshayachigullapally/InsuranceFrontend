@@ -5,10 +5,7 @@ import { roleGuard } from './core/guards/role.guard';
 import { ROLES } from './core/constants/roles';
 import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
-import { CustomerLayoutComponent } from './layouts/customer-layout/customer-layout.component';
-import { UnderwriterLayoutComponent } from './layouts/underwriter-layout/underwriter-layout.component';
-import { ClaimsOfficerLayoutComponent } from './layouts/claims-officer-layout/claims-officer-layout.component';
-import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
+import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
 
 export const routes: Routes = [
   {
@@ -61,7 +58,7 @@ export const routes: Routes = [
   },
   {
     path: 'customer',
-    component: CustomerLayoutComponent,
+    component: AppLayoutComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: [ROLES.CUSTOMER] },
     children: [
@@ -168,7 +165,7 @@ export const routes: Routes = [
   },
   {
     path: 'underwriter',
-    component: UnderwriterLayoutComponent,
+    component: AppLayoutComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: [ROLES.UNDERWRITER] },
     children: [
@@ -219,7 +216,7 @@ export const routes: Routes = [
   },
   {
     path: 'claims-officer',
-    component: ClaimsOfficerLayoutComponent,
+    component: AppLayoutComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: [ROLES.CLAIMS_OFFICER] },
     children: [
@@ -270,7 +267,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    component: AdminLayoutComponent,
+    component: AppLayoutComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: [ROLES.ADMIN] },
     children: [

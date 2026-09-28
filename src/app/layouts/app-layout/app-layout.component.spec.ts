@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { EMPTY } from 'rxjs';
-import { ClaimsOfficerLayoutComponent } from './claims-officer-layout.component';
+import { AppLayoutComponent } from './app-layout.component';
 import { pageTestProviders } from '../../../testing/test-helpers';
 
-describe('ClaimsOfficerLayoutComponent', () => {
-  let fixture: ComponentFixture<ClaimsOfficerLayoutComponent>;
+describe('AppLayoutComponent', () => {
+  let fixture: ComponentFixture<AppLayoutComponent>;
   let element: HTMLElement;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ClaimsOfficerLayoutComponent],
+      imports: [AppLayoutComponent],
       providers: [...pageTestProviders(), provideMockActions(() => EMPTY)],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ClaimsOfficerLayoutComponent);
+    fixture = TestBed.createComponent(AppLayoutComponent);
     element = fixture.nativeElement;
     fixture.detectChanges();
   });
