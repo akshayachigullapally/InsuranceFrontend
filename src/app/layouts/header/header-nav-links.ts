@@ -18,7 +18,6 @@ export const ROLE_PRIMARY_NAV: Record<string, HeaderNavLink[]> = {
     { label: 'Quotes', routerLink: '/customer/quotes' },
     { label: 'Payments', routerLink: '/customer/payments' },
     { label: 'Claims', routerLink: '/customer/claims' },
-    { label: 'Zone Map', routerLink: '/customer/zone-map' },
   ],
   [ROLES.UNDERWRITER]: [
     { label: 'Dashboard', routerLink: '/underwriter/dashboard' },
