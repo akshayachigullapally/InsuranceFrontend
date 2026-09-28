@@ -227,6 +227,18 @@
   margin: 0;
 }
 
+.profile-form-hint {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.profile-form-input:disabled {
+  background: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
 .profile-form-actions {
   display: flex;
   justify-content: flex-end;

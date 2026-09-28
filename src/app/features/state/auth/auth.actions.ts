@@ -50,28 +50,7 @@ export const logout = createAction('[Auth] Logout');
 export const logoutSuccess = createAction('[Auth] Logout Success');
 export const clearAuthError = createAction('[Auth] Clear Error');
 
-interface UpdateProfileRequest {
-  id: number;
-  fullName?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-}
-
-export const updateProfile = createAction(
-  '[Auth] Update Profile',
-  props<{ user: UpdateProfileRequest }>(),
-);
-
 export const updateProfileSuccess = createAction(
   '[Auth] Update Profile Success',
   props<{ user: AuthUser }>(),
-);
-
-export const updateProfileFailure = createAction(
-  '[Auth] Update Profile Failure',
-  props<{ error: string }>(),
 );

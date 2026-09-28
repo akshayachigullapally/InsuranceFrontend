@@ -8,15 +8,21 @@ import {
   UserResponse,
   UserStatus,
 } from '../dtos/auth/user-response.dto';
+import { UpdateProfileRequest } from '../dtos/auth/update-profile-request.dto';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   constructor(private readonly http: HttpClient) {}
 
-  getAllUsers(
-    status?: UserStatus,
-    segment?: CustomerSegment,
-  ): Observable<UserResponse[]> {
+  getMyProfile(): Observable<UserResponse> {
+    return this.http.get<UserResponse>(API_ENDPOINTS.users.me);
+  }
+
+  updateMyProfile(request: UpdateProfileRequest): Observable<UserResponse> {
+    return this.http.put<UserResponse>(API_ENDPOINTS.users.me, request);
+  }
+
+  getAllUsers(status?: UserStatus, segment?: CustomerSegment): Observable<UserResponse[]> {
     let params = new HttpParams();
 
     if (status) {
@@ -27,27 +33,16 @@ export class UserService {
       params = params.set('segment', segment);
     }
 
-    return this.http.get<UserResponse[]>(
-      API_ENDPOINTS.users.getAll,
-      { params },
-    );
+    return this.http.get<UserResponse[]>(API_ENDPOINTS.users.getAll, { params });
   }
 
   getUser(userId: number): Observable<UserResponse> {
-    return this.http.get<UserResponse>(
-      API_ENDPOINTS.users.getById(userId),
-    );
+    return this.http.get<UserResponse>(API_ENDPOINTS.users.getById(userId));
   }
 
-  updateUserStatus(
-    userId: number,
-    status: UserStatus,
-  ): Observable<UserResponse> {
+  updateUserStatus(userId: number, status: UserStatus): Observable<UserResponse> {
     const request: UpdateUserStatusRequest = { status };
 
-    return this.http.put<UserResponse>(
-      API_ENDPOINTS.users.updateStatus(userId),
-      request,
-    );
+    return this.http.put<UserResponse>(API_ENDPOINTS.users.updateStatus(userId), request);
   }
 }

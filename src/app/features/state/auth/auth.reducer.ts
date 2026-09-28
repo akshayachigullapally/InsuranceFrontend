@@ -20,8 +20,6 @@ import {
   restoreSession,
   restoreSessionFailure,
   restoreSessionSuccess,
-  updateProfile,
-  updateProfileFailure,
   updateProfileSuccess,
 } from './auth.actions';
 import { AuthState, initialAuthState } from './auth.state';
@@ -200,7 +198,6 @@ export const authReducer = createReducer(
     isLoading: false,
     sessionRestored: true,
   })),
-  on(updateProfile, (state) => ({ ...state, isLoading: true, error: null })),
   on(updateProfileSuccess, (state, { user }) => ({
     ...state,
     user,
@@ -208,7 +205,6 @@ export const authReducer = createReducer(
     isLoading: false,
     error: null,
   })),
-  on(updateProfileFailure, (state, { error }) => ({ ...state, isLoading: false, error })),
   on(logout, (state) => ({ ...state, isLoading: true })),
   on(logoutSuccess, () => ({ ...initialAuthState, sessionRestored: true })),
   on(clearAuthError, (state) => ({ ...state, error: null })),
