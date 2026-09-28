@@ -3,23 +3,12 @@
   <div class="panel-glow" aria-hidden="true"></div>
 
   <div class="panel-content">
-    <!-- Logo with radar pulses and orbiting sensors -->
+    <!-- Logo with radar pulses -->
     <div class="radar" aria-hidden="true">
       <span class="radar-pulse"></span>
       <span class="radar-pulse radar-pulse--delay-1"></span>
       <span class="radar-pulse radar-pulse--delay-2"></span>
       <span class="radar-ring"></span>
-
-      <div class="orbit">
-        @for (sensor of sensors; track sensor.label; let i = $index) {
-          <span class="orbit-slot" [class]="'orbit-slot orbit-slot--' + i">
-            <span class="sensor-chip">
-              <span class="sensor-icon">{{ sensor.icon }}</span>
-              {{ sensor.label }}
-            </span>
-          </span>
-        }
-      </div>
 
       <div class="logo-tile">
         <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -51,38 +40,10 @@
     </div>
 
     <p class="wordmark">ClimateSure</p>
-    <p class="eyebrow">{{ copy().eyebrow }}</p>
     <h2 class="headline">
-      {{ copy().headline }}
-      <span class="gradient-text">{{ copy().highlight }}</span>
+      {{ copy().headline }} <span class="gradient-text">{{ copy().highlight }}</span>
     </h2>
     <p class="body">{{ copy().body }}</p>
-
-    <!-- A reading crossing its threshold, the core idea of parametric cover -->
-    <div class="trigger-card" aria-hidden="true">
-      <div class="trigger-head">
-        <span class="live-dot"></span>
-        <span>Rainfall · Hyderabad Central</span>
-        <span class="trigger-value">162 mm</span>
-      </div>
-      <div class="gauge">
-        <span class="gauge-fill"></span>
-        <span class="gauge-threshold"><span>150 mm</span></span>
-      </div>
-      <p class="trigger-result">Threshold crossed · claim opened for review</p>
-    </div>
-
-    <ol class="steps">
-      @for (step of steps; track step; let last = $last) {
-        <li class="step">
-          <span class="step-number">{{ $index + 1 }}</span>
-          {{ step }}
-        </li>
-        @if (!last) {
-          <li class="step-line" aria-hidden="true"></li>
-        }
-      }
-    </ol>
   </div>
 
   <p class="panel-footer">© 2026 ClimateSure Insurance</p>

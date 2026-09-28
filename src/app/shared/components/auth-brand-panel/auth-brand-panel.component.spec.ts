@@ -13,24 +13,25 @@ describe('AuthBrandPanelComponent', () => {
     element = fixture.nativeElement;
   });
 
-  it('shows the large logo, wordmark and four orbiting sensors', () => {
+  it('shows the large logo and wordmark without sensor tags', () => {
     fixture.detectChanges();
 
     expect(element.querySelector('.logo-tile svg')).not.toBeNull();
     expect(element.querySelector('.wordmark')?.textContent).toContain('ClimateSure');
-    expect(element.querySelectorAll('.sensor-chip').length).toBe(4);
+    expect(element.querySelector('.sensor-chip')).toBeNull();
   });
 
   it('uses sign-in copy by default', () => {
     fixture.detectChanges();
 
-    expect(element.querySelector('.eyebrow')?.textContent).toContain('Welcome back');
+    expect(element.querySelector('.headline')?.textContent).toContain('pays automatically');
+    expect(element.querySelector('.body')?.textContent).toContain('Sign in');
   });
 
   it('switches to sign-up copy in register mode', () => {
     fixture.componentRef.setInput('mode', 'register');
     fixture.detectChanges();
 
-    expect(element.querySelector('.headline')?.textContent).toContain('crosses the line');
+    expect(element.querySelector('.body')?.textContent).toContain('Create an account');
   });
 });
