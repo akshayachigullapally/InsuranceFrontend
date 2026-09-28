@@ -22,7 +22,6 @@
                 "allowedCommonJsDependencies": ["leaflet"],
                 "tsConfig": "tsconfig.app.json",
                 "polyfills": [
-                  "src/polyfills.ts",
                   "zone.js"
                 ],
                 "assets": [
