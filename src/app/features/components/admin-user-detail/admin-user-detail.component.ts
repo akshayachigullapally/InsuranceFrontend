@@ -30,7 +30,6 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
   ],
   providers: [DatePipe],
   templateUrl: './admin-user-detail.component.html',
-  styleUrl: './admin-user-detail.component.css',
 })
 export class AdminUserDetailComponent implements OnInit, OnDestroy {
   protected invalidUserId = false;
@@ -54,9 +53,7 @@ export class AdminUserDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const userId = Number(
-      this.route.snapshot.paramMap.get('userId'),
-    );
+    const userId = Number(this.route.snapshot.paramMap.get('userId'));
 
     if (!Number.isInteger(userId) || userId <= 0) {
       this.invalidUserId = true;
@@ -69,7 +66,7 @@ export class AdminUserDetailComponent implements OnInit, OnDestroy {
       .getAllZones()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: zones => {
+        next: (zones) => {
           this.zoneNamesById = zones.reduce(
             (map, zone) => ({ ...map, [zone.id]: zone.zoneName }),
             {} as Record<number, string>,
@@ -81,7 +78,7 @@ export class AdminUserDetailComponent implements OnInit, OnDestroy {
       .getUser(userId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: user => {
+        next: (user) => {
           this.user = user;
         },
         error: () => {
@@ -93,7 +90,7 @@ export class AdminUserDetailComponent implements OnInit, OnDestroy {
       .getAllPolicies(undefined, userId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: policies => {
+        next: (policies) => {
           this.policies = policies;
         },
         error: () => {
@@ -105,7 +102,7 @@ export class AdminUserDetailComponent implements OnInit, OnDestroy {
       .getAllClaims(undefined, userId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: claims => {
+        next: (claims) => {
           this.claims = claims;
           this.loading = false;
         },
@@ -124,30 +121,25 @@ export class AdminUserDetailComponent implements OnInit, OnDestroy {
   protected zoneLabel(locationZoneId: number): string {
     const name = this.zoneNamesById[locationZoneId];
 
-    return name
-      ? `${name} (Zone #${locationZoneId})`
-      : `Zone #${locationZoneId}`;
+    return name ? `${name} (Zone #${locationZoneId})` : `Zone #${locationZoneId}`;
   }
 
   protected formatDateOnly(value?: string | null): string {
     const date = parseLocalDateOnly(value);
 
     return date
-      ? this.datePipe.transform(date, 'mediumDate') ?? 'Not available'
+      ? (this.datePipe.transform(date, 'mediumDate') ?? 'Not available')
       : 'Not available';
   }
 
   protected primaryAddress(): string {
     const addresses = this.user?.addresses ?? [];
-    const address =
-      addresses.find(item => item.primaryAddress === true) ?? addresses[0];
+    const address = addresses.find((item) => item.primaryAddress === true) ?? addresses[0];
 
     if (!address) {
       return 'No address on file';
     }
 
-    return [address.city, address.state, address.country]
-      .filter(Boolean)
-      .join(', ');
+    return [address.city, address.state, address.country].filter(Boolean).join(', ');
   }
 }

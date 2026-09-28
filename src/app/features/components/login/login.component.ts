@@ -13,7 +13,6 @@ import { ErrorMessageComponent } from '../../../shared/components/error-message/
   standalone: true,
   imports: [ReactiveFormsModule, AsyncPipe, RouterLink, ErrorMessageComponent],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit, OnDestroy {
   readonly loginForm: FormGroup;

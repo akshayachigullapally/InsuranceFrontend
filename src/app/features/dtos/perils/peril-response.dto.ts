@@ -1,18 +1,10 @@
-export const PERIL_STATUSES = [
-  'ACTIVE',
-  'INACTIVE',
-  'ARCHIVED',
-] as const;
+const PERIL_STATUSES = ['ACTIVE', 'INACTIVE', 'ARCHIVED'] as const;
 
 export type PerilStatus = (typeof PERIL_STATUSES)[number];
 
-export const PERIL_MANAGEABLE_STATUSES = [
-  'ACTIVE',
-  'INACTIVE',
-] as const;
+export const PERIL_MANAGEABLE_STATUSES = ['ACTIVE', 'INACTIVE'] as const;
 
-export type PerilManageableStatus =
-  (typeof PERIL_MANAGEABLE_STATUSES)[number];
+export type PerilManageableStatus = (typeof PERIL_MANAGEABLE_STATUSES)[number];
 
 export interface PerilResponse {
   id: number;

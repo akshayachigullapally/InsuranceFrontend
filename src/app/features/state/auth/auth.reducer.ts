@@ -1,1 +1,218 @@
-import { Action, createReducer, on } from '@ngrx/store';import { normalizeRole } from '../../../core/constants/roles';import { JwtClaims } from '../../../core/models/jwt-claims.model';import {  clearAuthError,  loadCurrentUser,  loadCurrentUserFailure,  loadCurrentUserSuccess,  login,  loginFailure,  loginSuccess,  logout,  logoutSuccess,  refreshToken,  refreshTokenFailure,  refreshTokenSuccess,  register,  registerFailure,  registerSuccess,  restoreSession,  restoreSessionFailure,  restoreSessionSuccess,  updateProfile,  updateProfileFailure,  updateProfileSuccess,} from './auth.actions';import { AuthState, initialAuthState } from './auth.state';function claimsFromToken(token: string | null): JwtClaims | null {  if (!token) {    return null;  }  try {    const parts = token.split('.');    if (parts.length !== 3) {      return null;    }    const base64Url = parts[1];    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');    const normalized = base64.padEnd(      base64.length + ((4 - (base64.length % 4)) % 4),      '=',    );    const payload = decodeURIComponent(      atob(normalized)        .split('')        .map(character =>          `%${`00${character.charCodeAt(0).toString(16)}`.slice(-2)}`,        )        .join(''),    );    return JSON.parse(payload) as JwtClaims;  } catch {    return null;  }}function buildUser(  claims: JwtClaims | null,  fallback: {    id: number;    fullName: string;    email: string;    role: string;  },): {  id: number;  fullName: string;  email: string;  role: string;  customerId?: number;} {  return {    id: fallback.id,    fullName: fallback.fullName,    email: claims?.email ?? fallback.email,    role: normalizeRole(claims?.role ?? fallback.role) ?? fallback.role,    customerId: claims?.customerId,  };}export const authReducer = createReducer(  initialAuthState,  on(login, state => ({    ...state,    isLoading: true,    error: null,  })),  on(loginSuccess, (state, { auth }) => {    const claims = claimsFromToken(auth.accessToken);    const user = buildUser(claims, {      id: auth.user.id,      fullName: auth.user.fullName,      email: auth.user.email,      role: auth.user.role,    });    return {      ...state,      user,      accessToken: auth.accessToken,      refreshToken: auth.refreshToken,      isAuthenticated: true,      isLoading: false,      error: null,      role: normalizeRole(user.role),      sessionRestored: true,    };  }),  on(loginFailure, (state, { error }) => ({    ...state,    isLoading: false,    error,    sessionRestored: true,  })),  on(register, state => ({    ...state,    isLoading: true,    error: null,  })),  on(registerSuccess, (state, { auth }) => {    const claims = claimsFromToken(auth.accessToken);    const user = buildUser(claims, {      id: auth.user.id,      fullName: auth.user.fullName,      email: auth.user.email,      role: auth.user.role,    });    return {      ...state,      user,      accessToken: auth.accessToken,      refreshToken: auth.refreshToken,      isAuthenticated: true,      isLoading: false,      error: null,      role: normalizeRole(user.role),      sessionRestored: true,    };  }),  on(registerFailure, (state, { error }) => ({    ...state,    isLoading: false,    error,    sessionRestored: true,  })),  on(loadCurrentUser, state => ({    ...state,    isLoading: true,    error: null,  })),  on(loadCurrentUserSuccess, (state, { user, customerId }) => ({    ...state,    user: {      id: user.id,      fullName: user.fullName,      email: user.email,      role: normalizeRole(user.role) ?? user.role,      customerId,    },    isAuthenticated: true,    isLoading: false,    error: null,    role: normalizeRole(user.role),    sessionRestored: true,  })),  on(loadCurrentUserFailure, (state, { error }) => ({    ...state,    isLoading: false,    error,    sessionRestored: true,  })),  on(refreshToken, state => ({    ...state,    isLoading: true,    error: null,  })),  on(refreshTokenSuccess, (state, { auth }) => {    const claims = claimsFromToken(auth.accessToken);    const fallback = state.user      ? {          id: state.user.id,          fullName: state.user.fullName,          email: state.user.email,          role: state.user.role,        }      : {          id: auth.user.id,          fullName: auth.user.fullName,          email: auth.user.email,          role: auth.user.role,        };    const user = buildUser(claims, fallback);    return {      ...state,      user,      accessToken: auth.accessToken,      refreshToken: auth.refreshToken,      isAuthenticated: true,      isLoading: false,      error: null,      role: user.role,      sessionRestored: true,    };  }),  on(refreshTokenFailure, (state, { error }) => ({    ...initialAuthState,    error,    isLoading: false,    sessionRestored: true,  })),  on(restoreSession, state => ({    ...state,    isLoading: true,    error: null,    sessionRestored: false,  })),  on(restoreSessionSuccess, (state, { user, customerId }) => ({    ...state,    user: {      id: user.id,      fullName: user.fullName,      email: user.email,      role: normalizeRole(user.role) ?? user.role,      customerId,    },    isAuthenticated: true,    isLoading: false,    error: null,    role: normalizeRole(user.role),    sessionRestored: true,  })),  on(restoreSessionFailure, (state, { error }) => ({    ...initialAuthState,    error,    isLoading: false,    sessionRestored: true,  })),  on(updateProfile, state => ({    ...state,    isLoading: true,    error: null,  })),  on(updateProfileSuccess, (state, { user }) => ({    ...state,    user,    role: user.role,    isLoading: false,    error: null,  })),  on(updateProfileFailure, (state, { error }) => ({    ...state,    isLoading: false,    error,  })),  on(logout, state => ({    ...state,    isLoading: true,  })),  on(logoutSuccess, () => ({    ...initialAuthState,    sessionRestored: true,  })),  on(clearAuthError, state => ({    ...state,    error: null,  })),);export function reducer(  state: AuthState | undefined,  action: Action,): AuthState {  return authReducer(state, action);}
+import { Action, createReducer, on } from '@ngrx/store';
+import { normalizeRole } from '../../../core/constants/roles';
+import { JwtClaims } from '../../../core/models/jwt-claims.model';
+import {
+  clearAuthError,
+  loadCurrentUser,
+  loadCurrentUserFailure,
+  loadCurrentUserSuccess,
+  login,
+  loginFailure,
+  loginSuccess,
+  logout,
+  logoutSuccess,
+  refreshToken,
+  refreshTokenFailure,
+  refreshTokenSuccess,
+  register,
+  registerFailure,
+  registerSuccess,
+  restoreSession,
+  restoreSessionFailure,
+  restoreSessionSuccess,
+  updateProfile,
+  updateProfileFailure,
+  updateProfileSuccess,
+} from './auth.actions';
+import { AuthState, initialAuthState } from './auth.state';
+function claimsFromToken(token: string | null): JwtClaims | null {
+  if (!token) {
+    return null;
+  }
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      return null;
+    }
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const normalized = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+    const payload = decodeURIComponent(
+      atob(normalized)
+        .split('')
+        .map((character) => `%${`00${character.charCodeAt(0).toString(16)}`.slice(-2)}`)
+        .join(''),
+    );
+    return JSON.parse(payload) as JwtClaims;
+  } catch {
+    return null;
+  }
+}
+function buildUser(
+  claims: JwtClaims | null,
+  fallback: { id: number; fullName: string; email: string; role: string },
+): { id: number; fullName: string; email: string; role: string; customerId?: number } {
+  return {
+    id: fallback.id,
+    fullName: fallback.fullName,
+    email: claims?.email ?? fallback.email,
+    role: normalizeRole(claims?.role ?? fallback.role) ?? fallback.role,
+    customerId: claims?.customerId,
+  };
+}
+export const authReducer = createReducer(
+  initialAuthState,
+  on(login, (state) => ({ ...state, isLoading: true, error: null })),
+  on(loginSuccess, (state, { auth }) => {
+    const claims = claimsFromToken(auth.accessToken);
+    const user = buildUser(claims, {
+      id: auth.user.id,
+      fullName: auth.user.fullName,
+      email: auth.user.email,
+      role: auth.user.role,
+    });
+    return {
+      ...state,
+      user,
+      accessToken: auth.accessToken,
+      refreshToken: auth.refreshToken,
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+      role: normalizeRole(user.role),
+      sessionRestored: true,
+    };
+  }),
+  on(loginFailure, (state, { error }) => ({
+    ...state,
+    isLoading: false,
+    error,
+    sessionRestored: true,
+  })),
+  on(register, (state) => ({ ...state, isLoading: true, error: null })),
+  on(registerSuccess, (state, { auth }) => {
+    const claims = claimsFromToken(auth.accessToken);
+    const user = buildUser(claims, {
+      id: auth.user.id,
+      fullName: auth.user.fullName,
+      email: auth.user.email,
+      role: auth.user.role,
+    });
+    return {
+      ...state,
+      user,
+      accessToken: auth.accessToken,
+      refreshToken: auth.refreshToken,
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+      role: normalizeRole(user.role),
+      sessionRestored: true,
+    };
+  }),
+  on(registerFailure, (state, { error }) => ({
+    ...state,
+    isLoading: false,
+    error,
+    sessionRestored: true,
+  })),
+  on(loadCurrentUser, (state) => ({ ...state, isLoading: true, error: null })),
+  on(loadCurrentUserSuccess, (state, { user, customerId }) => ({
+    ...state,
+    user: {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      role: normalizeRole(user.role) ?? user.role,
+      customerId,
+    },
+    isAuthenticated: true,
+    isLoading: false,
+    error: null,
+    role: normalizeRole(user.role),
+    sessionRestored: true,
+  })),
+  on(loadCurrentUserFailure, (state, { error }) => ({
+    ...state,
+    isLoading: false,
+    error,
+    sessionRestored: true,
+  })),
+  on(refreshToken, (state) => ({ ...state, isLoading: true, error: null })),
+  on(refreshTokenSuccess, (state, { auth }) => {
+    const claims = claimsFromToken(auth.accessToken);
+    const fallback = state.user
+      ? {
+          id: state.user.id,
+          fullName: state.user.fullName,
+          email: state.user.email,
+          role: state.user.role,
+        }
+      : {
+          id: auth.user.id,
+          fullName: auth.user.fullName,
+          email: auth.user.email,
+          role: auth.user.role,
+        };
+    const user = buildUser(claims, fallback);
+    return {
+      ...state,
+      user,
+      accessToken: auth.accessToken,
+      refreshToken: auth.refreshToken,
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+      role: user.role,
+      sessionRestored: true,
+    };
+  }),
+  on(refreshTokenFailure, (state, { error }) => ({
+    ...initialAuthState,
+    error,
+    isLoading: false,
+    sessionRestored: true,
+  })),
+  on(restoreSession, (state) => ({
+    ...state,
+    isLoading: true,
+    error: null,
+    sessionRestored: false,
+  })),
+  on(restoreSessionSuccess, (state, { user, customerId }) => ({
+    ...state,
+    user: {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      role: normalizeRole(user.role) ?? user.role,
+      customerId,
+    },
+    isAuthenticated: true,
+    isLoading: false,
+    error: null,
+    role: normalizeRole(user.role),
+    sessionRestored: true,
+  })),
+  on(restoreSessionFailure, (state, { error }) => ({
+    ...initialAuthState,
+    error,
+    isLoading: false,
+    sessionRestored: true,
+  })),
+  on(updateProfile, (state) => ({ ...state, isLoading: true, error: null })),
+  on(updateProfileSuccess, (state, { user }) => ({
+    ...state,
+    user,
+    role: user.role,
+    isLoading: false,
+    error: null,
+  })),
+  on(updateProfileFailure, (state, { error }) => ({ ...state, isLoading: false, error })),
+  on(logout, (state) => ({ ...state, isLoading: true })),
+  on(logoutSuccess, () => ({ ...initialAuthState, sessionRestored: true })),
+  on(clearAuthError, (state) => ({ ...state, error: null })),
+);
+export function reducer(state: AuthState | undefined, action: Action): AuthState {
+  return authReducer(state, action);
+}

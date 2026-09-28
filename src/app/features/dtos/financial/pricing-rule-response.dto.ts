@@ -1,20 +1,10 @@
-export const PRICING_RULE_STATUSES = [
-  'DRAFT',
-  'ACTIVE',
-  'INACTIVE',
-  'ARCHIVED',
-] as const;
+const PRICING_RULE_STATUSES = ['DRAFT', 'ACTIVE', 'INACTIVE', 'ARCHIVED'] as const;
 
 export type PricingRuleStatus = (typeof PRICING_RULE_STATUSES)[number];
 
-export const PRICING_RULE_MANAGEABLE_STATUSES = [
-  'DRAFT',
-  'ACTIVE',
-  'INACTIVE',
-] as const;
+export const PRICING_RULE_MANAGEABLE_STATUSES = ['DRAFT', 'ACTIVE', 'INACTIVE'] as const;
 
-export type PricingRuleManageableStatus =
-  (typeof PRICING_RULE_MANAGEABLE_STATUSES)[number];
+export type PricingRuleManageableStatus = (typeof PRICING_RULE_MANAGEABLE_STATUSES)[number];
 
 export interface PricingRuleRequest {
   productId: number;

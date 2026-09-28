@@ -1,23 +1,8 @@
-import {
-  AsyncPipe,
-  DatePipe,
-  DecimalPipe,
-} from '@angular/common';
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink,
-} from '@angular/router';
+import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import {
-  Observable,
-  Subject,
-} from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {
   PolicyResponse,
@@ -66,7 +51,6 @@ interface DetailRow {
   ],
   providers: [DatePipe],
   templateUrl: './customer-policy-detail.component.html',
-  styleUrl: './customer-policy-detail.component.css',
 })
 export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
   readonly policy$: Observable<PolicyResponse | null>;
@@ -100,32 +84,28 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Follow the route param: renewing navigates from one policy page to another.
-    this.route.paramMap
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(params => {
-        const policyId = Number(params.get('policyId'));
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      const policyId = Number(params.get('policyId'));
 
-        if (!Number.isInteger(policyId) || policyId <= 0) {
-          return;
-        }
+      if (!Number.isInteger(policyId) || policyId <= 0) {
+        return;
+      }
 
-        this.policyId = policyId;
-        this.snapshot = null;
-        this.zoneName = null;
-        this.actionError = null;
-        this.store.dispatch(loadMyPolicy({ policyId }));
-      });
+      this.policyId = policyId;
+      this.snapshot = null;
+      this.zoneName = null;
+      this.actionError = null;
+      this.store.dispatch(loadMyPolicy({ policyId }));
+    });
 
-    this.policy$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(policy => {
-        if (!policy || policy.id !== this.policyId) {
-          return;
-        }
+    this.policy$.pipe(takeUntil(this.destroy$)).subscribe((policy) => {
+      if (!policy || policy.id !== this.policyId) {
+        return;
+      }
 
-        this.loadSnapshot(policy);
-        this.loadZone(policy.locationZoneId);
-      });
+      this.loadSnapshot(policy);
+      this.loadZone(policy.locationZoneId);
+    });
   }
 
   ngOnDestroy(): void {
@@ -188,9 +168,11 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
     }
 
     this.cancelOpen = false;
-    this.store.dispatch(cancelPolicy({
-      policyId: this.policyId,
-    }));
+    this.store.dispatch(
+      cancelPolicy({
+        policyId: this.policyId,
+      }),
+    );
   }
 
   protected dismissCancel(): void {
@@ -210,25 +192,16 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
       perilCode: snapshot.perilCode,
       measurementType: snapshot.measurementType || snapshot.triggerMetric,
       measurementUnit: unit ?? undefined,
-      thresholdValue: snapshot.thresholdValue ??
-        snapshot.triggerThreshold ??
-        0,
-      comparisonOperator: snapshot.comparisonOperator ??
-        snapshot.triggerOperator ??
-        'GREATER_THAN_OR_EQUAL',
-      aggregationType: snapshot.aggregationType ??
-        snapshot.triggerAggregationType ??
-        'AVERAGE',
-      observationWindowHours: snapshot.observationWindowHours ??
-        snapshot.triggerDurationHours ??
-        24,
-      minimumObservationCount: snapshot.minimumObservationCount ??
-        snapshot.triggerMinObservationCount ??
-        2,
-      triggerDescription:
-        snapshot.triggerDescription ?? null,
-      humanReadableTrigger:
-        snapshot.humanReadableTrigger ?? null,
+      thresholdValue: snapshot.thresholdValue ?? snapshot.triggerThreshold ?? 0,
+      comparisonOperator:
+        snapshot.comparisonOperator ?? snapshot.triggerOperator ?? 'GREATER_THAN_OR_EQUAL',
+      aggregationType: snapshot.aggregationType ?? snapshot.triggerAggregationType ?? 'AVERAGE',
+      observationWindowHours:
+        snapshot.observationWindowHours ?? snapshot.triggerDurationHours ?? 24,
+      minimumObservationCount:
+        snapshot.minimumObservationCount ?? snapshot.triggerMinObservationCount ?? 2,
+      triggerDescription: snapshot.triggerDescription ?? null,
+      humanReadableTrigger: snapshot.humanReadableTrigger ?? null,
     };
   }
 
@@ -245,7 +218,7 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
       .getPolicySnapshot(policy.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: snapshot => {
+        next: (snapshot) => {
           this.snapshot = snapshot;
           this.snapshotLoading = false;
         },
@@ -261,7 +234,7 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
       .getZone(locationZoneId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: zone => {
+        next: (zone) => {
           this.zoneName = zone.zoneName;
         },
         error: () => {
@@ -275,10 +248,7 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
       return 'Not available';
     }
 
-    return this.datePipe.transform(
-      value,
-      'mediumDate',
-    ) ?? 'Not available';
+    return this.datePipe.transform(value, 'mediumDate') ?? 'Not available';
   }
 
   protected formatDateOnly(value?: string | null): string {
@@ -288,10 +258,7 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
       return 'Not available';
     }
 
-    return this.datePipe.transform(
-      date,
-      'mediumDate',
-    ) ?? 'Not available';
+    return this.datePipe.transform(date, 'mediumDate') ?? 'Not available';
   }
 
   /** Active in its last 30 days, or expired within the last 30 days. */
@@ -326,7 +293,7 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
       .renewPolicy(policy.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: renewal => {
+        next: (renewal) => {
           this.actionBusy = null;
           void this.router.navigate(['/customer/policies', renewal.id]);
         },
@@ -362,7 +329,7 @@ export class CustomerPolicyDetailComponent implements OnInit, OnDestroy {
       .downloadCertificate(policy.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: blob => {
+        next: (blob) => {
           this.actionBusy = null;
           saveBlob(blob, `${policy.policyNumber}-certificate.pdf`);
         },

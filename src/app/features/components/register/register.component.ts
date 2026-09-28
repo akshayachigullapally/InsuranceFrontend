@@ -13,7 +13,6 @@ import { ErrorMessageComponent } from '../../../shared/components/error-message/
   standalone: true,
   imports: [ReactiveFormsModule, AsyncPipe, RouterLink, ErrorMessageComponent],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css',
 })
 export class RegisterComponent implements OnInit, OnDestroy {
   readonly registerForm: FormGroup;

@@ -36,7 +36,6 @@ interface SpecRow {
     ParametricTriggerCardComponent,
   ],
   templateUrl: './public-product-detail.component.html',
-  styleUrl: './public-product-detail.component.css',
 })
 export class PublicProductDetailComponent implements OnInit, OnDestroy {
   readonly product$: Observable<ProductResponse | null>;
@@ -58,9 +57,7 @@ export class PublicProductDetailComponent implements OnInit, OnDestroy {
     this.store.dispatch(clearProductsError());
     this.store.dispatch(clearSelectedProduct());
 
-    const productId = Number(
-      this.route.snapshot.paramMap.get('productId'),
-    );
+    const productId = Number(this.route.snapshot.paramMap.get('productId'));
 
     if (!Number.isInteger(productId) || productId <= 0) {
       return;
@@ -123,5 +120,4 @@ export class PublicProductDetailComponent implements OnInit, OnDestroy {
       humanReadableTrigger: product.humanReadableTrigger,
     };
   }
-
 }

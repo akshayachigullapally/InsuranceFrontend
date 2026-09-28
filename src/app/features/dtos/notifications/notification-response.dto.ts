@@ -80,7 +80,7 @@ export const RELATED_ENTITY_TYPES = [
 
 export type RelatedEntityType = (typeof RELATED_ENTITY_TYPES)[number];
 
-export const DELIVERY_CHANNELS = ['IN_APP', 'EMAIL', 'SMS'] as const;
+const DELIVERY_CHANNELS = ['IN_APP', 'EMAIL', 'SMS'] as const;
 
 export type DeliveryChannel = (typeof DELIVERY_CHANNELS)[number];
 
@@ -150,7 +150,10 @@ export interface TemplateNotificationRequest {
 
 export interface BatchNotificationRequest {
   userIds: number[];
-  notification: Omit<NotificationRequest, 'recipientUserId' | 'recipientCustomerId' | 'recipientRole'>;
+  notification: Omit<
+    NotificationRequest,
+    'recipientUserId' | 'recipientCustomerId' | 'recipientRole'
+  >;
 }
 
 export interface NotificationTemplateResponse {

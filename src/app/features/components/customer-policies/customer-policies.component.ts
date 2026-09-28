@@ -3,11 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { PolicyResponse, PolicyStatus } from '../../dtos/policies/policy-response.dto';
 import {
-  PolicyResponse,
-  PolicyStatus,
-} from '../../dtos/policies/policy-response.dto';
-import { cancelPolicy, clearPoliciesError, loadMyPolicies } from '../../state/policies/policies.actions';
+  cancelPolicy,
+  clearPoliciesError,
+  loadMyPolicies,
+} from '../../state/policies/policies.actions';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import {
   selectActivePolicyCount,
@@ -45,7 +46,6 @@ interface FilterChip {
     ConfirmationDialogComponent,
   ],
   templateUrl: './customer-policies.component.html',
-  styleUrl: './customer-policies.component.css',
 })
 export class CustomerPoliciesComponent implements OnInit {
   readonly policies$: Observable<PolicyResponse[]>;
@@ -85,7 +85,7 @@ export class CustomerPoliciesComponent implements OnInit {
   ngOnInit(): void {
     this.store.dispatch(loadMyPolicies({}));
 
-    this.zoneService.getActiveZones().subscribe(zones => {
+    this.zoneService.getActiveZones().subscribe((zones) => {
       this.zoneNamesById = zones.reduce(
         (map, zone) => ({ ...map, [zone.id]: zone.zoneName }),
         {} as Record<number, string>,
@@ -95,17 +95,17 @@ export class CustomerPoliciesComponent implements OnInit {
 
   protected applyFilter(status: PolicyStatus | null): void {
     this.activeFilter = status;
-    this.store.dispatch(loadMyPolicies({
-      status: status ?? undefined,
-    }));
+    this.store.dispatch(
+      loadMyPolicies({
+        status: status ?? undefined,
+      }),
+    );
   }
 
   protected zoneLabel(locationZoneId: number): string {
     const name = this.zoneNamesById[locationZoneId];
 
-    return name
-      ? `${name} (Zone #${locationZoneId})`
-      : `Zone #${locationZoneId}`;
+    return name ? `${name} (Zone #${locationZoneId})` : `Zone #${locationZoneId}`;
   }
 
   protected askCancel(policy: PolicyResponse): void {

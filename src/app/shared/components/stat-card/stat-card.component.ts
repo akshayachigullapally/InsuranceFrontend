@@ -1,12 +1,11 @@
 import { Component, input } from '@angular/core';
 
-export type StatTrend = 'up' | 'down' | 'flat';
+type StatTrend = 'up' | 'down' | 'flat';
 
 @Component({
   selector: 'app-stat-card',
   standalone: true,
   templateUrl: './stat-card.component.html',
-  styleUrl: './stat-card.component.css',
 })
 export class StatCardComponent {
   readonly label = input<string>('');

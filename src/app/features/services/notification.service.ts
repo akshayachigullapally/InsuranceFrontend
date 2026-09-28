@@ -10,7 +10,6 @@ import {
   InternalNotificationRequest,
   MessageResponse,
   NotificationPreferenceResponse,
-  NotificationRequest,
   NotificationResponse,
   NotificationTemplateResponse,
   TemplateNotificationRequest,
@@ -23,28 +22,21 @@ export class NotificationService {
   constructor(private readonly http: HttpClient) {}
 
   getMyNotifications(): Observable<NotificationResponse[]> {
-    return this.http.get<NotificationResponse[]>(
-      API_ENDPOINTS.notifications.myNotifications,
-    );
+    return this.http.get<NotificationResponse[]>(API_ENDPOINTS.notifications.myNotifications);
   }
 
   getMyNotificationsCreatedAfter(createdAfterIso: string): Observable<NotificationResponse[]> {
-    return this.http.get<NotificationResponse[]>(
-      API_ENDPOINTS.notifications.myNotifications,
-      { params: new HttpParams().set('createdAfter', createdAfterIso) },
-    );
+    return this.http.get<NotificationResponse[]>(API_ENDPOINTS.notifications.myNotifications, {
+      params: new HttpParams().set('createdAfter', createdAfterIso),
+    });
   }
 
   getMyUnreadNotifications(): Observable<NotificationResponse[]> {
-    return this.http.get<NotificationResponse[]>(
-      API_ENDPOINTS.notifications.myUnread,
-    );
+    return this.http.get<NotificationResponse[]>(API_ENDPOINTS.notifications.myUnread);
   }
 
   getUnreadCount(): Observable<UnreadCountResponse> {
-    return this.http.get<UnreadCountResponse>(
-      API_ENDPOINTS.notifications.myUnreadCount,
-    );
+    return this.http.get<UnreadCountResponse>(API_ENDPOINTS.notifications.myUnreadCount);
   }
 
   markAsRead(notificationId: number): Observable<NotificationResponse> {
@@ -55,28 +47,19 @@ export class NotificationService {
   }
 
   markAllAsRead(): Observable<MessageResponse> {
-    return this.http.put<MessageResponse>(
-      API_ENDPOINTS.notifications.markAllRead,
-      {},
-    );
+    return this.http.put<MessageResponse>(API_ENDPOINTS.notifications.markAllRead, {});
   }
 
   deleteNotification(notificationId: number): Observable<MessageResponse> {
-    return this.http.delete<MessageResponse>(
-      API_ENDPOINTS.notifications.delete(notificationId),
-    );
+    return this.http.delete<MessageResponse>(API_ENDPOINTS.notifications.delete(notificationId));
   }
 
   getAllNotifications(): Observable<NotificationResponse[]> {
-    return this.http.get<NotificationResponse[]>(
-      API_ENDPOINTS.notifications.adminAll,
-    );
+    return this.http.get<NotificationResponse[]>(API_ENDPOINTS.notifications.adminAll);
   }
 
   getFailedNotifications(): Observable<NotificationResponse[]> {
-    return this.http.get<NotificationResponse[]>(
-      API_ENDPOINTS.notifications.adminFailed,
-    );
+    return this.http.get<NotificationResponse[]>(API_ENDPOINTS.notifications.adminFailed);
   }
 
   getMyPreferences(): Observable<NotificationPreferenceResponse[]> {
@@ -94,42 +77,32 @@ export class NotificationService {
     );
   }
 
-  createFromTemplate(
-    request: TemplateNotificationRequest,
-  ): Observable<NotificationResponse[]> {
+  createFromTemplate(request: TemplateNotificationRequest): Observable<NotificationResponse[]> {
     const variables = request.templateData
       ? Object.fromEntries(
           Object.entries(request.templateData).map(([key, value]) => [key, String(value ?? '')]),
         )
       : undefined;
-    return this.http.post<NotificationResponse[]>(
-      API_ENDPOINTS.notifications.fromTemplate,
-      {
-        templateCode: request.templateCode,
-        recipientUserId: request.userId ?? null,
-        recipientCustomerId: request.customerId ?? null,
-        recipientRole: request.role ?? null,
-        relatedEntityId: request.relatedEntityId ?? null,
-        variables,
-      },
-    );
+    return this.http.post<NotificationResponse[]>(API_ENDPOINTS.notifications.fromTemplate, {
+      templateCode: request.templateCode,
+      recipientUserId: request.userId ?? null,
+      recipientCustomerId: request.customerId ?? null,
+      recipientRole: request.role ?? null,
+      relatedEntityId: request.relatedEntityId ?? null,
+      variables,
+    });
   }
 
   sendBatch(request: BatchNotificationRequest): Observable<NotificationResponse[]> {
-    return this.http.post<NotificationResponse[]>(
-      API_ENDPOINTS.notifications.adminBatch,
-      {
-        notifications: request.userIds.map((recipientUserId) => ({
-          ...request.notification,
-          recipientUserId,
-        })),
-      },
-    );
+    return this.http.post<NotificationResponse[]>(API_ENDPOINTS.notifications.adminBatch, {
+      notifications: request.userIds.map((recipientUserId) => ({
+        ...request.notification,
+        recipientUserId,
+      })),
+    });
   }
 
-  getDeliveryAttempts(
-    notificationId: number,
-  ): Observable<DeliveryAttemptResponse[]> {
+  getDeliveryAttempts(notificationId: number): Observable<DeliveryAttemptResponse[]> {
     return this.http.get<DeliveryAttemptResponse[]>(
       API_ENDPOINTS.notifications.deliveryAttempts(notificationId),
     );
@@ -141,9 +114,7 @@ export class NotificationService {
     );
   }
 
-  getTemplateById(
-    templateId: number,
-  ): Observable<NotificationTemplateResponse> {
+  getTemplateById(templateId: number): Observable<NotificationTemplateResponse> {
     return this.http.get<NotificationTemplateResponse>(
       API_ENDPOINTS.notifications.adminTemplateById(templateId),
     );
@@ -175,9 +146,7 @@ export class NotificationService {
     );
   }
 
-  createInternal(
-    request: InternalNotificationRequest,
-  ): Observable<NotificationResponse> {
+  createInternal(request: InternalNotificationRequest): Observable<NotificationResponse> {
     return this.http.post<NotificationResponse>(
       `${API_ENDPOINTS.notifications.myNotifications.replace('/me', '')}/internal`,
       request,
@@ -185,24 +154,25 @@ export class NotificationService {
   }
 
   getAuditEvents(): Observable<AuditEventResponse[]> {
-    return this.http.get<AuditEventResponse[]>(
-      API_ENDPOINTS.notifications.adminAudit,
-    );
+    return this.http.get<AuditEventResponse[]>(API_ENDPOINTS.notifications.adminAudit);
   }
 
   getMyAuditEvents(): Observable<AuditEventResponse[]> {
-    return this.http.get<AuditEventResponse[]>(
-      API_ENDPOINTS.notifications.myAudit,
-    );
+    return this.http.get<AuditEventResponse[]>(API_ENDPOINTS.notifications.myAudit);
   }
 
   /** Admin: mark any notification as read. */
   adminMarkAsRead(notificationId: number): Observable<NotificationResponse> {
-    return this.http.put<NotificationResponse>(API_ENDPOINTS.notifications.adminMarkRead(notificationId), {});
+    return this.http.put<NotificationResponse>(
+      API_ENDPOINTS.notifications.adminMarkRead(notificationId),
+      {},
+    );
   }
 
   /** Admin: delete any notification. */
   adminDelete(notificationId: number): Observable<MessageResponse> {
-    return this.http.delete<MessageResponse>(API_ENDPOINTS.notifications.adminDelete(notificationId));
+    return this.http.delete<MessageResponse>(
+      API_ENDPOINTS.notifications.adminDelete(notificationId),
+    );
   }
 }

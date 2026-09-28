@@ -1,18 +1,10 @@
-export const ZONE_STATUSES = [
-  'ACTIVE',
-  'INACTIVE',
-  'ARCHIVED',
-] as const;
+const ZONE_STATUSES = ['ACTIVE', 'INACTIVE', 'ARCHIVED'] as const;
 
 export type ZoneStatus = (typeof ZONE_STATUSES)[number];
 
-export const ZONE_MANAGEABLE_STATUSES = [
-  'ACTIVE',
-  'INACTIVE',
-] as const;
+export const ZONE_MANAGEABLE_STATUSES = ['ACTIVE', 'INACTIVE'] as const;
 
-export type ZoneManageableStatus =
-  (typeof ZONE_MANAGEABLE_STATUSES)[number];
+export type ZoneManageableStatus = (typeof ZONE_MANAGEABLE_STATUSES)[number];
 
 export interface ZoneResponse {
   id: number;

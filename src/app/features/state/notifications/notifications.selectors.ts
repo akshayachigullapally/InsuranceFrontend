@@ -2,7 +2,7 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { NotificationsState } from './notifications.state';
 import { NotificationResponse } from '../../dtos/notifications/notification-response.dto';
 
-export const selectNotificationsState = createFeatureSelector<NotificationsState>('notifications');
+const selectNotificationsState = createFeatureSelector<NotificationsState>('notifications');
 
 export const selectNotifications = createSelector(
   selectNotificationsState,
@@ -44,11 +44,6 @@ export const selectLastSeenNotificationCreatedAt = createSelector(
   (state: NotificationsState) => state.lastSeenNotificationCreatedAt,
 );
 
-export const selectNotificationsSaving = createSelector(
-  selectNotificationsState,
-  (state: NotificationsState) => state.isSaving,
-);
-
 export const selectNotificationsError = createSelector(
   selectNotificationsState,
   (state: NotificationsState) => state.error,
@@ -59,34 +54,19 @@ export const selectPreferences = createSelector(
   (state: NotificationsState) => state.preferences,
 );
 
-export const selectTemplates = createSelector(
-  selectNotificationsState,
-  (state: NotificationsState) => state.templates,
-);
-
-export const selectDeliveryAttempts = createSelector(
-  selectNotificationsState,
-  (state: NotificationsState) => state.deliveryAttempts,
-);
-
 export const selectAuditEvents = createSelector(
   selectNotificationsState,
   (state: NotificationsState) => state.auditEvents,
 );
 
-export const selectFilters = createSelector(
+const selectFilters = createSelector(
   selectNotificationsState,
   (state: NotificationsState) => state.filters,
 );
 
-export const selectPagination = createSelector(
+const selectPagination = createSelector(
   selectNotificationsState,
   (state: NotificationsState) => state.pagination,
-);
-
-export const selectSelectedNotificationId = createSelector(
-  selectNotificationsState,
-  (state: NotificationsState) => state.selectedNotificationId,
 );
 
 export const selectUnreadNotifications = createSelector(
@@ -146,23 +126,6 @@ export const selectPaginatedNotifications = createSelector(
   },
 );
 
-export const selectTotalPages = createSelector(
-  selectFilteredNotifications,
-  selectPagination,
-  (notifications: NotificationResponse[], pagination) => {
-    return Math.ceil(notifications.length / pagination.size);
-  },
-);
-
-export const selectNotificationById = (id: number) =>
-  createSelector(selectNotifications, (notifications: NotificationResponse[]) =>
-    notifications.find((n) => n.id === id),
-  );
-
-export const selectPreferenceByType = (type: string) =>
-  createSelector(selectPreferences, (preferences) =>
-    preferences.find((p) => p.notificationType === type),
-  );
 export const selectAdminNotifications = createSelector(
   selectNotificationsState,
   (state: NotificationsState) => state.adminNotifications,
@@ -176,9 +139,4 @@ export const selectAdminNotificationsLoading = createSelector(
 export const selectAdminNotificationsError = createSelector(
   selectNotificationsState,
   (state: NotificationsState) => state.adminError,
-);
-
-export const selectAdminNotificationsMessage = createSelector(
-  selectNotificationsState,
-  (state: NotificationsState) => state.adminMessage,
 );

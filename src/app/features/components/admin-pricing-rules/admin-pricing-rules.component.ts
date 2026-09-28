@@ -1,11 +1,6 @@
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import {
@@ -66,7 +61,6 @@ interface PricingRuleForm {
     StatusBadgeComponent,
   ],
   templateUrl: './admin-pricing-rules.component.html',
-  styleUrl: './admin-pricing-rules.component.css',
 })
 export class AdminPricingRulesComponent implements OnInit, OnDestroy {
   readonly rules$: Observable<PricingRuleResponse[]>;
@@ -84,22 +78,22 @@ export class AdminPricingRulesComponent implements OnInit, OnDestroy {
   readonly form = new FormGroup<PricingRuleForm>({
     productId: new FormControl<number | null>(null, Validators.required),
     locationZoneId: new FormControl<number | null>(null),
-    baseAnnualRate: new FormControl<number | null>(
-      null,
-      [Validators.required, Validators.min(0.000001), Validators.max(1)],
-    ),
-    minimumPremium: new FormControl<number | null>(
-      null,
-      [Validators.required, Validators.min(0)],
-    ),
-    termFactor: new FormControl<number | null>(
-      1,
-      [Validators.required, Validators.min(0.0001), Validators.max(10)],
-    ),
-    locationFactor: new FormControl<number | null>(
-      1,
-      [Validators.required, Validators.min(0.0001), Validators.max(10)],
-    ),
+    baseAnnualRate: new FormControl<number | null>(null, [
+      Validators.required,
+      Validators.min(0.000001),
+      Validators.max(1),
+    ]),
+    minimumPremium: new FormControl<number | null>(null, [Validators.required, Validators.min(0)]),
+    termFactor: new FormControl<number | null>(1, [
+      Validators.required,
+      Validators.min(0.0001),
+      Validators.max(10),
+    ]),
+    locationFactor: new FormControl<number | null>(1, [
+      Validators.required,
+      Validators.min(0.0001),
+      Validators.max(10),
+    ]),
     effectiveFrom: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
@@ -134,13 +128,12 @@ export class AdminPricingRulesComponent implements OnInit, OnDestroy {
   }
 
   protected productName(products: ProductResponse[], productId: number): string {
-    return products.find(product => product.id === productId)?.name
-      ?? `Product #${productId}`;
+    return products.find((product) => product.id === productId)?.name ?? `Product #${productId}`;
   }
 
   protected zoneName(zones: ZoneResponse[], zoneId: number | null): string {
     if (zoneId === null) return 'All zones (default)';
-    return zones.find(zone => zone.id === zoneId)?.zoneName ?? `Zone #${zoneId}`;
+    return zones.find((zone) => zone.id === zoneId)?.zoneName ?? `Zone #${zoneId}`;
   }
 
   protected openCreate(): void {
@@ -211,10 +204,12 @@ export class AdminPricingRulesComponent implements OnInit, OnDestroy {
     };
 
     if (this.editingRule) {
-      this.store.dispatch(updatePricingRule({
-        ruleId: this.editingRule.id,
-        request,
-      }));
+      this.store.dispatch(
+        updatePricingRule({
+          ruleId: this.editingRule.id,
+          request,
+        }),
+      );
     } else {
       this.store.dispatch(createPricingRule({ request }));
     }
@@ -232,16 +227,16 @@ export class AdminPricingRulesComponent implements OnInit, OnDestroy {
 
     if (status === rule.status) return;
 
-    this.store.dispatch(updatePricingRuleStatus({
-      ruleId: rule.id,
-      status,
-    }));
+    this.store.dispatch(
+      updatePricingRuleStatus({
+        ruleId: rule.id,
+        status,
+      }),
+    );
   }
 
   protected archive(rule: PricingRuleResponse): void {
-    const confirmed = window.confirm(
-      `Archive this pricing rule for product #${rule.productId}?`,
-    );
+    const confirmed = window.confirm(`Archive this pricing rule for product #${rule.productId}?`);
 
     if (confirmed) {
       this.store.dispatch(archivePricingRule({ ruleId: rule.id }));

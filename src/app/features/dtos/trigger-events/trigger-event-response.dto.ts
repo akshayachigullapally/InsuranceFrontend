@@ -1,4 +1,4 @@
-export const TRIGGER_EVENT_STATUSES = [
+const TRIGGER_EVENT_STATUSES = [
   'DETECTED',
   'UNDER_VALIDATION',
   'VERIFIED',
@@ -34,10 +34,6 @@ export interface TriggerEventResponse {
   reviewNotes?: string | null;
   definitionCode?: string;
   definitionName?: string;
-}
-
-export interface TriggerEventDecisionRequest {
-  reviewNotes: string;
 }
 
 export interface MessageResponse {

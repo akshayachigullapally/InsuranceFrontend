@@ -1,6 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil } from 'rxjs';
@@ -9,8 +15,6 @@ import { selectAuthUser } from '../../../features/state/auth/auth.selectors';
 import { updateProfile } from '../../../features/state/auth/auth.actions';
 import { selectMyPolicies } from '../../../features/state/policies/policies.selectors';
 import { selectMyClaims } from '../../../features/state/claims/claims.selectors';
-import { PolicyResponse } from '../../../features/dtos/policies/policy-response.dto';
-import { ClaimResponse } from '../../../features/dtos/claims/claim-response.dto';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 
 interface ProfileForm {
@@ -26,12 +30,7 @@ interface ProfileForm {
 @Component({
   selector: 'app-customer-profile',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterLink,
-    EmptyStateComponent,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, EmptyStateComponent],
   templateUrl: './customer-profile.component.html',
   styleUrl: './customer-profile.component.css',
 })

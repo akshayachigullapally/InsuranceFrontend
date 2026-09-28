@@ -1,42 +1,33 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { PricingRulesState } from './pricing-rules.state';
 
-const selectPricingRulesState =
-  createFeatureSelector<PricingRulesState>('pricingRules');
+const selectPricingRulesState = createFeatureSelector<PricingRulesState>('pricingRules');
 
 export const selectPricingRules = createSelector(
   selectPricingRulesState,
-  state => state.pricingRules,
+  (state) => state.pricingRules,
 );
 
-export const selectSelectedPricingRule = createSelector(
-  selectPricingRulesState,
-  state => state.selectedPricingRule,
-);
-
-export const selectPricingRulesSearch = createSelector(
-  selectPricingRulesState,
-  state => state.search,
-);
+const selectPricingRulesSearch = createSelector(selectPricingRulesState, (state) => state.search);
 
 export const selectPricingRulesLoading = createSelector(
   selectPricingRulesState,
-  state => state.isLoading,
+  (state) => state.isLoading,
 );
 
 export const selectPricingRulesSaving = createSelector(
   selectPricingRulesState,
-  state => state.isSaving,
+  (state) => state.isSaving,
 );
 
 export const selectUpdatingRuleId = createSelector(
   selectPricingRulesState,
-  state => state.updatingRuleId,
+  (state) => state.updatingRuleId,
 );
 
 export const selectPricingRulesError = createSelector(
   selectPricingRulesState,
-  state => state.error,
+  (state) => state.error,
 );
 
 export const selectFilteredPricingRules = createSelector(
@@ -48,24 +39,23 @@ export const selectFilteredPricingRules = createSelector(
     if (!value) return rules;
 
     return rules.filter(
-      rule =>
-        rule.productId.toString().includes(value) ||
-        rule.status.toLowerCase().includes(value),
+      (rule) =>
+        rule.productId.toString().includes(value) || rule.status.toLowerCase().includes(value),
     );
   },
 );
 
 export const selectActivePricingRuleCount = createSelector(
   selectPricingRules,
-  rules => rules.filter(rule => rule.status === 'ACTIVE').length,
+  (rules) => rules.filter((rule) => rule.status === 'ACTIVE').length,
 );
 
 export const selectDraftPricingRuleCount = createSelector(
   selectPricingRules,
-  rules => rules.filter(rule => rule.status === 'DRAFT').length,
+  (rules) => rules.filter((rule) => rule.status === 'DRAFT').length,
 );
 
 export const selectInactivePricingRuleCount = createSelector(
   selectPricingRules,
-  rules => rules.filter(rule => rule.status === 'INACTIVE').length,
+  (rules) => rules.filter((rule) => rule.status === 'INACTIVE').length,
 );

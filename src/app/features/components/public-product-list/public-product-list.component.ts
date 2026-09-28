@@ -1,11 +1,5 @@
-import {
-  AsyncPipe,
-  DecimalPipe,
-} from '@angular/common';
-import {
-  Component,
-  OnInit,
-} from '@angular/core';
+import { AsyncPipe, DecimalPipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -27,10 +21,7 @@ import {
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import {
-  buildTriggerSentence,
-  hasTriggerCondition,
-} from '../../utils/trigger-display';
+import { buildTriggerSentence, hasTriggerCondition } from '../../utils/trigger-display';
 
 const CATEGORY_ICONS: Record<ProductCategory, string> = {
   WEATHER: '🌦️',
@@ -59,18 +50,16 @@ interface CategoryBadge {
     EmptyStateComponent,
   ],
   templateUrl: './public-product-list.component.html',
-  styleUrl: './public-product-list.component.css',
 })
 export class PublicProductListComponent implements OnInit {
   readonly products$: Observable<ProductResponse[]>;
   readonly loading$: Observable<boolean>;
   readonly error$: Observable<string | null>;
 
-  protected readonly categories: CategoryBadge[] =
-    PRODUCT_CATEGORIES.map(category => ({
-      label: this.categoryLabel(category),
-      value: category,
-    }));
+  protected readonly categories: CategoryBadge[] = PRODUCT_CATEGORIES.map((category) => ({
+    label: this.categoryLabel(category),
+    value: category,
+  }));
 
   protected selectedCategory: ProductCategory | null = null;
 
@@ -85,34 +74,30 @@ export class PublicProductListComponent implements OnInit {
     this.store.dispatch(loadProducts());
   }
 
-  protected applyCategory(
-    category: ProductCategory | null,
-  ): void {
+  protected applyCategory(category: ProductCategory | null): void {
     this.selectedCategory = category;
 
     if (category) {
-      this.store.dispatch(loadProductsByCategory({
-        category,
-      }));
+      this.store.dispatch(
+        loadProductsByCategory({
+          category,
+        }),
+      );
       return;
     }
 
     this.store.dispatch(loadProducts());
   }
 
-  protected categoryIcon(
-    category: ProductCategory,
-  ): string {
+  protected categoryIcon(category: ProductCategory): string {
     return CATEGORY_ICONS[category];
   }
 
-  protected categoryLabel(
-    category: ProductCategory,
-  ): string {
+  protected categoryLabel(category: ProductCategory): string {
     return category
       .replaceAll('_', ' ')
       .toLowerCase()
-      .replace(/\b\w/g, character => character.toUpperCase());
+      .replace(/\b\w/g, (character) => character.toUpperCase());
   }
 
   protected hasTrigger(product: ProductResponse): boolean {

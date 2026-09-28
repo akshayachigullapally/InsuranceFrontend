@@ -4,7 +4,6 @@ import { Component, input } from '@angular/core';
   selector: 'app-status-badge',
   standalone: true,
   templateUrl: './status-badge.component.html',
-  styleUrl: './status-badge.component.css',
 })
 export class StatusBadgeComponent {
   readonly status = input<string>('');

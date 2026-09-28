@@ -1,8 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import {
-  NotificationsState,
-  initialNotificationsState,
-} from './notifications.state';
+import { initialNotificationsState } from './notifications.state';
 import { NotificationResponse } from '../../dtos/notifications/notification-response.dto';
 import * as NotificationsActions from './notifications.actions';
 
@@ -21,9 +18,7 @@ function mergeNotifications(
     seen.add(key);
     merged.push(notification);
   }
-  return merged.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  return merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 function notificationKey(notification: NotificationResponse): string {
@@ -32,7 +27,10 @@ function notificationKey(notification: NotificationResponse): string {
     : `ref:${notification.notificationReference}`;
 }
 
-function countNewUnread(existing: NotificationResponse[], incoming: NotificationResponse[]): number {
+function countNewUnread(
+  existing: NotificationResponse[],
+  incoming: NotificationResponse[],
+): number {
   const existingKeys = new Set(existing.map(notificationKey));
   return incoming.filter((n) => !existingKeys.has(notificationKey(n)) && !n.read).length;
 }
@@ -122,12 +120,8 @@ export const notificationsReducer = createReducer(
     const unreadBefore = previous ? !previous.read : !notification.read;
     return {
       ...state,
-      notifications: state.notifications.map((n) =>
-        n.id === notification.id ? notification : n,
-      ),
-      unreadCount: unreadBefore
-        ? Math.max(0, state.unreadCount - 1)
-        : state.unreadCount,
+      notifications: state.notifications.map((n) => (n.id === notification.id ? notification : n)),
+      unreadCount: unreadBefore ? Math.max(0, state.unreadCount - 1) : state.unreadCount,
       isSaving: false,
     };
   }),
@@ -142,7 +136,11 @@ export const notificationsReducer = createReducer(
   })),
   on(NotificationsActions.markAllAsReadSuccess, (state) => ({
     ...state,
-    notifications: state.notifications.map((n) => ({ ...n, read: true, readAt: new Date().toISOString() })),
+    notifications: state.notifications.map((n) => ({
+      ...n,
+      read: true,
+      readAt: new Date().toISOString(),
+    })),
     unreadCount: 0,
     isSaving: false,
   })),
@@ -158,7 +156,9 @@ export const notificationsReducer = createReducer(
   on(NotificationsActions.deleteNotificationSuccess, (state, { notificationId }) => ({
     ...state,
     notifications: state.notifications.filter((n) => n.id !== notificationId),
-    unreadCount: state.notifications.find((n) => n.id === notificationId)?.read ? state.unreadCount : Math.max(0, state.unreadCount - 1),
+    unreadCount: state.notifications.find((n) => n.id === notificationId)?.read
+      ? state.unreadCount
+      : Math.max(0, state.unreadCount - 1),
     isSaving: false,
   })),
   on(NotificationsActions.deleteNotificationFailure, (state, { error }) => ({
@@ -166,12 +166,16 @@ export const notificationsReducer = createReducer(
     isSaving: false,
     error,
   })),
-  on(NotificationsActions.loadAllNotifications, NotificationsActions.loadFailedNotifications, (state) => ({
-    ...state,
-    adminLoading: true,
-    adminError: null,
-    adminMessage: null,
-  })),
+  on(
+    NotificationsActions.loadAllNotifications,
+    NotificationsActions.loadFailedNotifications,
+    (state) => ({
+      ...state,
+      adminLoading: true,
+      adminError: null,
+      adminMessage: null,
+    }),
+  ),
   on(
     NotificationsActions.loadAllNotificationsSuccess,
     NotificationsActions.loadFailedNotificationsSuccess,
@@ -307,9 +311,7 @@ export const notificationsReducer = createReducer(
   })),
   on(NotificationsActions.deactivateTemplateSuccess, (state, { templateId }) => ({
     ...state,
-    templates: state.templates.map((t) =>
-      t.id === templateId ? { ...t, active: false } : t,
-    ),
+    templates: state.templates.map((t) => (t.id === templateId ? { ...t, active: false } : t)),
     isSaving: false,
   })),
   on(NotificationsActions.deactivateTemplateFailure, (state, { error }) => ({

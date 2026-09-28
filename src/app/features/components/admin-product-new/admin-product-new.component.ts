@@ -24,10 +24,7 @@ import {
   createProductFailure,
   createProductSuccess,
 } from '../../state/products/products.actions';
-import {
-  selectProductsError,
-  selectProductsSaving,
-} from '../../state/products/products.selectors';
+import { selectProductsError, selectProductsSaving } from '../../state/products/products.selectors';
 import { ToastService } from '../../../shared/services/toast.service';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import {
@@ -76,14 +73,8 @@ interface ProductFormValue {
 @Component({
   selector: 'app-admin-product-new',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    AsyncPipe,
-    RouterLink,
-    ErrorMessageComponent,
-  ],
+  imports: [ReactiveFormsModule, AsyncPipe, RouterLink, ErrorMessageComponent],
   templateUrl: './admin-product-new.component.html',
-  styleUrl: './admin-product-new.component.css',
 })
 export class AdminProductNewComponent implements OnInit, OnDestroy {
   readonly form: FormGroup;
@@ -106,101 +97,28 @@ export class AdminProductNewComponent implements OnInit, OnDestroy {
     private readonly toast: ToastService,
   ) {
     this.form = this.fb.group({
-      productCode: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(50),
-        ],
-      ],
-      name: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(150),
-        ],
-      ],
-      category: [
-        'WEATHER' as ProductCategory,
-        Validators.required,
-      ],
+      productCode: ['', [Validators.required, Validators.maxLength(50)]],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
+      category: ['WEATHER' as ProductCategory, Validators.required],
       description: [''],
-      minimumSumInsured: [
-        10000,
-        [
-          Validators.required,
-          Validators.min(1),
-        ],
-      ],
-      maximumSumInsured: [
-        500000,
-        [
-          Validators.required,
-          Validators.min(1),
-        ],
-      ],
-      minimumTermMonths: [
-        1,
-        [
-          Validators.required,
-          Validators.min(1),
-        ],
-      ],
-      maximumTermMonths: [
-        12,
-        [
-          Validators.required,
-          Validators.min(1),
-        ],
-      ],
+      minimumSumInsured: [10000, [Validators.required, Validators.min(1)]],
+      maximumSumInsured: [500000, [Validators.required, Validators.min(1)]],
+      minimumTermMonths: [1, [Validators.required, Validators.min(1)]],
+      maximumTermMonths: [12, [Validators.required, Validators.min(1)]],
       eligibilityDescription: [''],
       trigger: this.fb.group({
         triggerEnabled: [true],
-        perilCode: [
-          'RAINFALL-LOW',
-          [
-            Validators.required,
-            Validators.maxLength(50),
-          ],
-        ],
-        measurementType: [
-          'RAINFALL',
-          Validators.required,
-        ],
+        perilCode: ['RAINFALL-LOW', [Validators.required, Validators.maxLength(50)]],
+        measurementType: ['RAINFALL', Validators.required],
         measurementUnit: ['MM', Validators.required],
-        thresholdValue: [
-          40,
-          [
-            Validators.required,
-            Validators.min(0.01),
-          ],
-        ],
-        comparisonOperator: [
-          'GREATER_THAN_OR_EQUAL',
-          Validators.required,
-        ],
+        thresholdValue: [40, [Validators.required, Validators.min(0.01)]],
+        comparisonOperator: ['GREATER_THAN_OR_EQUAL', Validators.required],
         aggregationType: ['AVERAGE', Validators.required],
-        observationWindowHours: [
-          24,
-          [
-            Validators.required,
-            Validators.min(1),
-            Validators.max(720),
-          ],
-        ],
-        minimumObservationCount: [
-          2,
-          [
-            Validators.required,
-            Validators.min(1),
-          ],
-        ],
+        observationWindowHours: [24, [Validators.required, Validators.min(1), Validators.max(720)]],
+        minimumObservationCount: [2, [Validators.required, Validators.min(1)]],
         triggerDescription: [''],
       }),
-      coverages: this.fb.array([
-        this.newCoverageGroup(),
-      ]),
+      coverages: this.fb.array([this.newCoverageGroup()]),
     });
 
     this.saving$ = this.store.select(selectProductsSaving);
@@ -210,34 +128,35 @@ export class AdminProductNewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.store.dispatch(clearProductsError());
 
-    const enabledControl =
-      this.trigger.get('triggerEnabled');
+    const enabledControl = this.trigger.get('triggerEnabled');
 
-    enabledControl?.valueChanges.subscribe(enabled => {
+    enabledControl?.valueChanges.subscribe((enabled) => {
       this.applyTriggerValidation(Boolean(enabled));
     });
 
-    this.applyTriggerValidation(
-      Boolean(enabledControl?.value ?? true),
-    );
+    this.applyTriggerValidation(Boolean(enabledControl?.value ?? true));
 
     this.actions$
       .pipe(ofType(createProductSuccess), takeUntil(this.destroy$))
-      .subscribe(({ product }) => this.toast.show({
-        type: 'success',
-        icon: '✅',
-        title: 'Product created',
-        message: `${product.name} was created successfully.`,
-      }));
+      .subscribe(({ product }) =>
+        this.toast.show({
+          type: 'success',
+          icon: '✅',
+          title: 'Product created',
+          message: `${product.name} was created successfully.`,
+        }),
+      );
 
     this.actions$
       .pipe(ofType(createProductFailure), takeUntil(this.destroy$))
-      .subscribe(({ error }) => this.toast.show({
-        type: 'error',
-        icon: '⚠️',
-        title: 'Could not create product',
-        message: error,
-      }));
+      .subscribe(({ error }) =>
+        this.toast.show({
+          type: 'error',
+          icon: '⚠️',
+          title: 'Could not create product',
+          message: error,
+        }),
+      );
   }
 
   ngOnDestroy(): void {
@@ -274,10 +193,7 @@ export class AdminProductNewComponent implements OnInit, OnDestroy {
       const control = this.trigger.get(name);
       if (!control) continue;
       if (enabled) {
-        control.setValidators([
-          Validators.required,
-          ...this.boundedValidators(name),
-        ]);
+        control.setValidators([Validators.required, ...this.boundedValidators(name)]);
       } else {
         control.clearValidators();
       }
@@ -304,25 +220,10 @@ export class AdminProductNewComponent implements OnInit, OnDestroy {
 
   protected newCoverageGroup(): FormGroup {
     return this.fb.group({
-      coverageCode: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(50),
-        ],
-      ],
-      name: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(150),
-        ],
-      ],
+      coverageCode: ['', [Validators.required, Validators.maxLength(50)]],
+      name: ['', [Validators.required, Validators.maxLength(150)]],
       description: [''],
-      coverageLimit: [
-        null,
-        Validators.min(0),
-      ],
+      coverageLimit: [null, Validators.min(0)],
       mandatory: [false],
       active: [true],
     });
@@ -351,23 +252,19 @@ export class AdminProductNewComponent implements OnInit, OnDestroy {
     const raw = this.form.getRawValue() as ProductFormValue;
 
     if (raw.minimumSumInsured > raw.maximumSumInsured) {
-      this.rangeError =
-        'Minimum sum insured cannot exceed maximum sum insured.';
+      this.rangeError = 'Minimum sum insured cannot exceed maximum sum insured.';
       return;
     }
 
     if (raw.minimumTermMonths > raw.maximumTermMonths) {
-      this.rangeError =
-        'Minimum policy term cannot exceed maximum policy term.';
+      this.rangeError = 'Minimum policy term cannot exceed maximum policy term.';
       return;
     }
 
-    const duplicateCoverageCode =
-      this.findDuplicateCoverageCode(raw.coverages);
+    const duplicateCoverageCode = this.findDuplicateCoverageCode(raw.coverages);
 
     if (duplicateCoverageCode) {
-      this.rangeError =
-        `Duplicate coverage code: ${duplicateCoverageCode}`;
+      this.rangeError = `Duplicate coverage code: ${duplicateCoverageCode}`;
       return;
     }
 
@@ -377,9 +274,7 @@ export class AdminProductNewComponent implements OnInit, OnDestroy {
     this.store.dispatch(createProduct({ request }));
   }
 
-  private buildRequest(
-    raw: ProductFormValue,
-  ): ProductRequest {
+  private buildRequest(raw: ProductFormValue): ProductRequest {
     return {
       productCode: raw.productCode.trim().toUpperCase(),
       name: raw.name.trim(),
@@ -389,28 +284,20 @@ export class AdminProductNewComponent implements OnInit, OnDestroy {
       maximumSumInsured: Number(raw.maximumSumInsured),
       minimumTermMonths: Number(raw.minimumTermMonths),
       maximumTermMonths: Number(raw.maximumTermMonths),
-      eligibilityDescription:
-        raw.eligibilityDescription.trim() || undefined,
+      eligibilityDescription: raw.eligibilityDescription.trim() || undefined,
       ...this.buildTriggerRequest(raw.trigger),
-      coverages: raw.coverages.map(coverage => ({
-        coverageCode:
-          coverage.coverageCode.trim().toUpperCase(),
+      coverages: raw.coverages.map((coverage) => ({
+        coverageCode: coverage.coverageCode.trim().toUpperCase(),
         name: coverage.name.trim(),
-        description:
-          coverage.description.trim() || undefined,
-        coverageLimit:
-          coverage.coverageLimit === null
-            ? undefined
-            : Number(coverage.coverageLimit),
+        description: coverage.description.trim() || undefined,
+        coverageLimit: coverage.coverageLimit === null ? undefined : Number(coverage.coverageLimit),
         mandatory: coverage.mandatory,
         active: coverage.active,
       })),
     };
   }
 
-  private buildTriggerRequest(
-    trigger: TriggerFormValue,
-  ): Partial<ProductRequest> {
+  private buildTriggerRequest(trigger: TriggerFormValue): Partial<ProductRequest> {
     if (!trigger.triggerEnabled) {
       return {};
     }
@@ -433,15 +320,11 @@ export class AdminProductNewComponent implements OnInit, OnDestroy {
     return request;
   }
 
-  private findDuplicateCoverageCode(
-    coverages: CoverageFormValue[],
-  ): string | null {
+  private findDuplicateCoverageCode(coverages: CoverageFormValue[]): string | null {
     const codes = new Set<string>();
 
     for (const coverage of coverages) {
-      const code = coverage.coverageCode
-        .trim()
-        .toUpperCase();
+      const code = coverage.coverageCode.trim().toUpperCase();
 
       if (codes.has(code)) {
         return code;

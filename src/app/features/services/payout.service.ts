@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
 import {
   CreatePayoutRequest,
-  MessageResponse,
   PayoutActionRequest,
   PayoutResponse,
 } from '../dtos/financial/payout-response.dto';
@@ -14,68 +13,35 @@ export class PayoutService {
   constructor(private readonly http: HttpClient) {}
 
   createPayout(request: CreatePayoutRequest): Observable<PayoutResponse> {
-    return this.http.post<PayoutResponse>(
-      API_ENDPOINTS.financial.payouts,
-      request,
-    );
+    return this.http.post<PayoutResponse>(API_ENDPOINTS.financial.payouts, request);
   }
 
   getMyPayouts(): Observable<PayoutResponse[]> {
-    return this.http.get<PayoutResponse[]>(
-      API_ENDPOINTS.financial.myPayouts,
-    );
+    return this.http.get<PayoutResponse[]>(API_ENDPOINTS.financial.myPayouts);
   }
 
   getPayout(payoutId: number): Observable<PayoutResponse> {
-    return this.http.get<PayoutResponse>(
-      API_ENDPOINTS.financial.payoutById(payoutId),
-    );
+    return this.http.get<PayoutResponse>(API_ENDPOINTS.financial.payoutById(payoutId));
   }
 
   getAllPayouts(): Observable<PayoutResponse[]> {
-    return this.http.get<PayoutResponse[]>(
-      API_ENDPOINTS.financial.adminPayouts,
-    );
+    return this.http.get<PayoutResponse[]>(API_ENDPOINTS.financial.adminPayouts);
   }
 
-  processPayout(
-    payoutId: number,
-    request: PayoutActionRequest,
-  ): Observable<PayoutResponse> {
-    return this.http.put<PayoutResponse>(
-      API_ENDPOINTS.financial.payoutProcess(payoutId),
-      request,
-    );
+  processPayout(payoutId: number, request: PayoutActionRequest): Observable<PayoutResponse> {
+    return this.http.put<PayoutResponse>(API_ENDPOINTS.financial.payoutProcess(payoutId), request);
   }
 
-  markSuccess(
-    payoutId: number,
-    request: PayoutActionRequest,
-  ): Observable<PayoutResponse> {
-    return this.http.put<PayoutResponse>(
-      API_ENDPOINTS.financial.payoutSuccess(payoutId),
-      request,
-    );
+  markSuccess(payoutId: number, request: PayoutActionRequest): Observable<PayoutResponse> {
+    return this.http.put<PayoutResponse>(API_ENDPOINTS.financial.payoutSuccess(payoutId), request);
   }
 
-  markFail(
-    payoutId: number,
-    request: PayoutActionRequest,
-  ): Observable<PayoutResponse> {
-    return this.http.put<PayoutResponse>(
-      API_ENDPOINTS.financial.payoutFail(payoutId),
-      request,
-    );
+  markFail(payoutId: number, request: PayoutActionRequest): Observable<PayoutResponse> {
+    return this.http.put<PayoutResponse>(API_ENDPOINTS.financial.payoutFail(payoutId), request);
   }
 
-  retryPayout(
-    payoutId: number,
-    request: PayoutActionRequest,
-  ): Observable<PayoutResponse> {
-    return this.http.put<PayoutResponse>(
-      API_ENDPOINTS.financial.payoutRetry(payoutId),
-      request,
-    );
+  retryPayout(payoutId: number, request: PayoutActionRequest): Observable<PayoutResponse> {
+    return this.http.put<PayoutResponse>(API_ENDPOINTS.financial.payoutRetry(payoutId), request);
   }
 
   downloadReceipt(payoutId: number): Observable<Blob> {
@@ -83,6 +49,8 @@ export class PayoutService {
   }
 
   downloadAdminReceipt(payoutId: number): Observable<Blob> {
-    return this.http.get(API_ENDPOINTS.financial.adminPayoutReceipt(payoutId), { responseType: 'blob' });
+    return this.http.get(API_ENDPOINTS.financial.adminPayoutReceipt(payoutId), {
+      responseType: 'blob',
+    });
   }
 }

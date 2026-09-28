@@ -12,7 +12,7 @@ import {
 } from './trigger-display';
 
 /** A product trigger that uses the reading's measurement type. */
-export interface ReadingTrigger {
+interface ReadingTrigger {
   productName: string;
   /** e.g. "≥ 150" */
   thresholdText: string;
@@ -63,14 +63,21 @@ const STATE_RANK: Record<LiveConditionState, number> = {
 };
 
 function worst(states: LiveConditionState[], fallback: LiveConditionState): LiveConditionState {
-  return states.reduce((current, state) => (STATE_RANK[state] > STATE_RANK[current] ? state : current), fallback);
+  return states.reduce(
+    (current, state) => (STATE_RANK[state] > STATE_RANK[current] ? state : current),
+    fallback,
+  );
 }
 
 export function buildMapZones(input: MapInputs): MapZone[] {
   // Thresholds of live products, grouped by the measurement type they watch.
   const productsByType = new Map<string, ProductResponse[]>();
   for (const product of input.products) {
-    if (product.status !== 'ACTIVE' || product.thresholdValue === null || product.thresholdValue === undefined) {
+    if (
+      product.status !== 'ACTIVE' ||
+      product.thresholdValue === null ||
+      product.thresholdValue === undefined
+    ) {
       continue;
     }
     const type = normalizeMeasurementType(product.measurementType);
@@ -114,12 +121,15 @@ export function buildMapZones(input: MapInputs): MapZone[] {
     }
     const value = Number(reading.currentValue);
     const type = normalizeMeasurementType(reading.measurementType);
-    const triggers: ReadingTrigger[] = (productsByType.get(type) ?? []).map(product => ({
+    const triggers: ReadingTrigger[] = (productsByType.get(type) ?? []).map((product) => ({
       productName: product.name,
       thresholdText: `${comparisonOperatorSymbol(product.comparisonOperator ?? 'GREATER_THAN_OR_EQUAL')} ${product.thresholdValue}`,
       state: liveConditionState(value, product.thresholdValue, product.comparisonOperator ?? null),
     }));
-    const state = worst(triggers.map(trigger => trigger.state), 'NORMAL');
+    const state = worst(
+      triggers.map((trigger) => trigger.state),
+      'NORMAL',
+    );
     zone.readings.push({
       measurementType: type,
       label: measurementTypeLabel(reading.measurementType),
@@ -136,8 +146,10 @@ export function buildMapZones(input: MapInputs): MapZone[] {
     zone.readings.sort((a, b) => a.label.localeCompare(b.label));
   }
 
-  return [...byZone.values()].sort((a, b) =>
-    STATE_RANK[b.state] - STATE_RANK[a.state] ||
-    b.activePolicies - a.activePolicies ||
-    a.zoneName.localeCompare(b.zoneName));
+  return [...byZone.values()].sort(
+    (a, b) =>
+      STATE_RANK[b.state] - STATE_RANK[a.state] ||
+      b.activePolicies - a.activePolicies ||
+      a.zoneName.localeCompare(b.zoneName),
+  );
 }

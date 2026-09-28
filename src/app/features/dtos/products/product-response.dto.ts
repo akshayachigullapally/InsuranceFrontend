@@ -85,10 +85,6 @@ export interface ProductRequest {
   coverages: CoverageRequest[];
 }
 
-export interface ProductStatusRequest {
-  status: ProductStatus;
-}
-
 export interface MessageResponse {
   message: string;
 }

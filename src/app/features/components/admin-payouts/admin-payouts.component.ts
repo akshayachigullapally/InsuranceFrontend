@@ -37,7 +37,6 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
     StatusBadgeComponent,
   ],
   templateUrl: './admin-payouts.component.html',
-  styleUrl: './admin-payouts.component.css',
 })
 export class AdminPayoutsComponent implements OnInit, OnDestroy {
   readonly payouts$: Observable<PayoutResponse[]>;
@@ -65,19 +64,23 @@ export class AdminPayoutsComponent implements OnInit, OnDestroy {
   }
 
   protected process(payout: PayoutResponse): void {
-    this.store.dispatch(processPayout({
-      payoutId: payout.id,
-      request: { externalReference: '' },
-    }));
+    this.store.dispatch(
+      processPayout({
+        payoutId: payout.id,
+        request: { externalReference: '' },
+      }),
+    );
   }
 
   protected markSuccess(payout: PayoutResponse): void {
-    this.store.dispatch(markPayoutSuccess({
-      payoutId: payout.id,
-      request: {
-        externalReference: 'MOCK-PAYOUT-' + Date.now(),
-      },
-    }));
+    this.store.dispatch(
+      markPayoutSuccess({
+        payoutId: payout.id,
+        request: {
+          externalReference: 'MOCK-PAYOUT-' + Date.now(),
+        },
+      }),
+    );
   }
 
   protected markFail(payout: PayoutResponse): void {
@@ -88,22 +91,25 @@ export class AdminPayoutsComponent implements OnInit, OnDestroy {
 
     if (reason === null) return;
 
-    this.store.dispatch(markPayoutFail({
-      payoutId: payout.id,
-      request: {
-        externalReference: '',
-        failureReason: reason.trim() || 'Payout failed',
-      },
-    }));
+    this.store.dispatch(
+      markPayoutFail({
+        payoutId: payout.id,
+        request: {
+          externalReference: '',
+          failureReason: reason.trim() || 'Payout failed',
+        },
+      }),
+    );
   }
 
   protected retry(payout: PayoutResponse): void {
-    this.store.dispatch(retryPayout({
-      payoutId: payout.id,
-      request: { externalReference: '' },
-    }));
+    this.store.dispatch(
+      retryPayout({
+        payoutId: payout.id,
+        request: { externalReference: '' },
+      }),
+    );
   }
-
 
   protected receiptBusyId: number | null = null;
   protected receiptError: string | null = null;
@@ -112,7 +118,7 @@ export class AdminPayoutsComponent implements OnInit, OnDestroy {
     this.receiptBusyId = payout.id;
     this.receiptError = null;
     this.payoutService.downloadAdminReceipt(payout.id).subscribe({
-      next: blob => {
+      next: (blob) => {
         this.receiptBusyId = null;
         saveBlob(blob, `${payout.payoutReference}-receipt.pdf`);
       },

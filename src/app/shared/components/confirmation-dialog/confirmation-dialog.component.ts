@@ -1,10 +1,9 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-confirmation-dialog',
   standalone: true,
   templateUrl: './confirmation-dialog.component.html',
-  styleUrl: './confirmation-dialog.component.css',
 })
 export class ConfirmationDialogComponent {
   readonly title = input<string>('Are you sure?');

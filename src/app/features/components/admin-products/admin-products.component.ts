@@ -45,7 +45,6 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
     StatusBadgeComponent,
   ],
   templateUrl: './admin-products.component.html',
-  styleUrl: './admin-products.component.css',
 })
 export class AdminProductsComponent implements OnInit, OnDestroy {
   readonly products$: Observable<ProductResponse[]>;
@@ -72,41 +71,47 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     this.store.dispatch(clearProductsError());
     this.store.dispatch(loadAdminProducts());
 
-    this.actions$
-      .pipe(ofType(deleteProductSuccess), takeUntil(this.destroy$))
-      .subscribe(() => this.toast.show({
+    this.actions$.pipe(ofType(deleteProductSuccess), takeUntil(this.destroy$)).subscribe(() =>
+      this.toast.show({
         type: 'success',
         icon: '✅',
         title: 'Product archived',
         message: 'The product was archived successfully.',
-      }));
+      }),
+    );
 
     this.actions$
       .pipe(ofType(deleteProductFailure), takeUntil(this.destroy$))
-      .subscribe(({ error }) => this.toast.show({
-        type: 'error',
-        icon: '⚠️',
-        title: 'Could not archive product',
-        message: error,
-      }));
+      .subscribe(({ error }) =>
+        this.toast.show({
+          type: 'error',
+          icon: '⚠️',
+          title: 'Could not archive product',
+          message: error,
+        }),
+      );
 
     this.actions$
       .pipe(ofType(updateProductStatusSuccess), takeUntil(this.destroy$))
-      .subscribe(({ product }) => this.toast.show({
-        type: 'success',
-        icon: '✅',
-        title: 'Product status updated',
-        message: `${product.name} is now ${product.status}.`,
-      }));
+      .subscribe(({ product }) =>
+        this.toast.show({
+          type: 'success',
+          icon: '✅',
+          title: 'Product status updated',
+          message: `${product.name} is now ${product.status}.`,
+        }),
+      );
 
     this.actions$
       .pipe(ofType(updateProductStatusFailure), takeUntil(this.destroy$))
-      .subscribe(({ error }) => this.toast.show({
-        type: 'error',
-        icon: '⚠️',
-        title: 'Could not update product status',
-        message: error,
-      }));
+      .subscribe(({ error }) =>
+        this.toast.show({
+          type: 'error',
+          icon: '⚠️',
+          title: 'Could not update product status',
+          message: error,
+        }),
+      );
   }
 
   ngOnDestroy(): void {
@@ -114,10 +119,7 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  protected onStatusChange(
-    product: ProductResponse,
-    event: Event,
-  ): void {
+  protected onStatusChange(product: ProductResponse, event: Event): void {
     const select = event.target as HTMLSelectElement;
     const status = select.value as ProductStatus;
 
@@ -129,10 +131,12 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.store.dispatch(updateProductStatus({
-      productId: product.id,
-      status,
-    }));
+    this.store.dispatch(
+      updateProductStatus({
+        productId: product.id,
+        status,
+      }),
+    );
   }
 
   protected onDelete(productId: number): void {

@@ -34,7 +34,6 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
     StatusBadgeComponent,
   ],
   templateUrl: './admin-payments.component.html',
-  styleUrl: './admin-payments.component.css',
 })
 export class AdminPaymentsComponent implements OnInit, OnDestroy {
   readonly payments$: Observable<PaymentResponse[]>;
@@ -59,12 +58,14 @@ export class AdminPaymentsComponent implements OnInit, OnDestroy {
   }
 
   protected markSuccess(payment: PaymentResponse): void {
-    this.store.dispatch(markPaymentSuccess({
-      paymentId: payment.id,
-      request: {
-        externalReference: 'MOCK-TXN-' + Date.now(),
-      },
-    }));
+    this.store.dispatch(
+      markPaymentSuccess({
+        paymentId: payment.id,
+        request: {
+          externalReference: 'MOCK-TXN-' + Date.now(),
+        },
+      }),
+    );
   }
 
   protected markFail(payment: PaymentResponse): void {
@@ -75,13 +76,15 @@ export class AdminPaymentsComponent implements OnInit, OnDestroy {
 
     if (reason === null) return;
 
-    this.store.dispatch(markPaymentFail({
-      paymentId: payment.id,
-      request: {
-        externalReference: '',
-        failureReason: reason.trim() || 'Payment declined',
-      },
-    }));
+    this.store.dispatch(
+      markPaymentFail({
+        paymentId: payment.id,
+        request: {
+          externalReference: '',
+          failureReason: reason.trim() || 'Payment declined',
+        },
+      }),
+    );
   }
 
   protected refund(payment: PaymentResponse): void {

@@ -18,7 +18,6 @@ import { NotificationResponse } from '../../dtos/notifications/notification-resp
 import { NotificationService } from '../../services/notification.service';
 import * as NotificationsActions from './notifications.actions';
 import * as AuthActions from '../auth/auth.actions';
-import * as AuthSelectors from '../auth/auth.selectors';
 import * as NotificationsSelectors from './notifications.selectors';
 import { NotificationPushService } from '../../services/notification-push.service';
 
@@ -84,9 +83,7 @@ export class NotificationsEffects {
       ofType(NotificationsActions.startNotificationPolling),
       switchMap(() =>
         timer(0, NOTIFICATION_POLL_INTERVAL_MS).pipe(
-          takeUntil(
-            this.actions$.pipe(ofType(NotificationsActions.stopNotificationPolling)),
-          ),
+          takeUntil(this.actions$.pipe(ofType(NotificationsActions.stopNotificationPolling))),
           map(() => NotificationsActions.notificationPollTick()),
         ),
       ),
@@ -156,9 +153,7 @@ export class NotificationsEffects {
                 }),
               );
             }
-            return of(
-              NotificationsActions.loadNotificationsSuccess({ notifications }),
-            );
+            return of(NotificationsActions.loadNotificationsSuccess({ notifications }));
           }),
           catchError((error) => of(this.handleInboxError(error, incremental))),
         );
@@ -179,7 +174,13 @@ export class NotificationsEffects {
       exhaustMap(() =>
         this.notificationService.getUnreadCount().pipe(
           map((response) => NotificationsActions.loadUnreadCountSuccess({ count: response.count })),
-          catchError(() => of(NotificationsActions.loadUnreadCountFailure({ error: 'Failed to refresh unread count' }))),
+          catchError(() =>
+            of(
+              NotificationsActions.loadUnreadCountFailure({
+                error: 'Failed to refresh unread count',
+              }),
+            ),
+          ),
         ),
       ),
     ),
@@ -194,8 +195,16 @@ export class NotificationsEffects {
       ofType(NotificationsActions.loadUnreadNotifications),
       mergeMap(() =>
         this.notificationService.getMyUnreadNotifications().pipe(
-          map((notifications) => NotificationsActions.loadUnreadNotificationsSuccess({ notifications })),
-          catchError((error) => of(NotificationsActions.loadUnreadNotificationsFailure({ error: this.errorMessage(error) }))),
+          map((notifications) =>
+            NotificationsActions.loadUnreadNotificationsSuccess({ notifications }),
+          ),
+          catchError((error) =>
+            of(
+              NotificationsActions.loadUnreadNotificationsFailure({
+                error: this.errorMessage(error),
+              }),
+            ),
+          ),
         ),
       ),
     ),
@@ -207,7 +216,9 @@ export class NotificationsEffects {
       exhaustMap(({ notificationId }) =>
         this.notificationService.markAsRead(notificationId).pipe(
           map((notification) => NotificationsActions.markAsReadSuccess({ notification })),
-          catchError((error) => of(NotificationsActions.markAsReadFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.markAsReadFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -219,7 +230,9 @@ export class NotificationsEffects {
       exhaustMap(() =>
         this.notificationService.markAllAsRead().pipe(
           map(() => NotificationsActions.markAllAsReadSuccess()),
-          catchError((error) => of(NotificationsActions.markAllAsReadFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.markAllAsReadFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -231,7 +244,9 @@ export class NotificationsEffects {
       exhaustMap(({ notificationId }) =>
         this.notificationService.deleteNotification(notificationId).pipe(
           map(() => NotificationsActions.deleteNotificationSuccess({ notificationId })),
-          catchError((error) => of(NotificationsActions.deleteNotificationFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.deleteNotificationFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -242,8 +257,14 @@ export class NotificationsEffects {
       ofType(NotificationsActions.loadAllNotifications),
       mergeMap(() =>
         this.notificationService.getAllNotifications().pipe(
-          map((notifications) => NotificationsActions.loadAllNotificationsSuccess({ notifications })),
-          catchError((error) => of(NotificationsActions.loadAllNotificationsFailure({ error: this.errorMessage(error) }))),
+          map((notifications) =>
+            NotificationsActions.loadAllNotificationsSuccess({ notifications }),
+          ),
+          catchError((error) =>
+            of(
+              NotificationsActions.loadAllNotificationsFailure({ error: this.errorMessage(error) }),
+            ),
+          ),
         ),
       ),
     ),
@@ -254,8 +275,16 @@ export class NotificationsEffects {
       ofType(NotificationsActions.loadFailedNotifications),
       mergeMap(() =>
         this.notificationService.getFailedNotifications().pipe(
-          map((notifications) => NotificationsActions.loadFailedNotificationsSuccess({ notifications })),
-          catchError((error) => of(NotificationsActions.loadFailedNotificationsFailure({ error: this.errorMessage(error) }))),
+          map((notifications) =>
+            NotificationsActions.loadFailedNotificationsSuccess({ notifications }),
+          ),
+          catchError((error) =>
+            of(
+              NotificationsActions.loadFailedNotificationsFailure({
+                error: this.errorMessage(error),
+              }),
+            ),
+          ),
         ),
       ),
     ),
@@ -267,7 +296,9 @@ export class NotificationsEffects {
       mergeMap(() =>
         this.notificationService.getMyPreferences().pipe(
           map((preferences) => NotificationsActions.loadPreferencesSuccess({ preferences })),
-          catchError((error) => of(NotificationsActions.loadPreferencesFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.loadPreferencesFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -279,7 +310,9 @@ export class NotificationsEffects {
       mergeMap(({ request }) =>
         this.notificationService.upsertPreference(request).pipe(
           map((preference) => NotificationsActions.upsertPreferenceSuccess({ preference })),
-          catchError((error) => of(NotificationsActions.upsertPreferenceFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.upsertPreferenceFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -291,7 +324,9 @@ export class NotificationsEffects {
       mergeMap(({ request }) =>
         this.notificationService.createFromTemplate(request).pipe(
           map((notifications) => NotificationsActions.createFromTemplateSuccess({ notifications })),
-          catchError((error) => of(NotificationsActions.createFromTemplateFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.createFromTemplateFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -303,7 +338,9 @@ export class NotificationsEffects {
       mergeMap(({ request }) =>
         this.notificationService.sendBatch(request).pipe(
           map((notifications) => NotificationsActions.sendBatchSuccess({ notifications })),
-          catchError((error) => of(NotificationsActions.sendBatchFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.sendBatchFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -315,7 +352,11 @@ export class NotificationsEffects {
       mergeMap(({ notificationId }) =>
         this.notificationService.getDeliveryAttempts(notificationId).pipe(
           map((attempts) => NotificationsActions.loadDeliveryAttemptsSuccess({ attempts })),
-          catchError((error) => of(NotificationsActions.loadDeliveryAttemptsFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(
+              NotificationsActions.loadDeliveryAttemptsFailure({ error: this.errorMessage(error) }),
+            ),
+          ),
         ),
       ),
     ),
@@ -327,7 +368,9 @@ export class NotificationsEffects {
       mergeMap(() =>
         this.notificationService.getTemplates().pipe(
           map((templates) => NotificationsActions.loadTemplatesSuccess({ templates })),
-          catchError((error) => of(NotificationsActions.loadTemplatesFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.loadTemplatesFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -339,7 +382,9 @@ export class NotificationsEffects {
       mergeMap(({ request }) =>
         this.notificationService.createTemplate(request).pipe(
           map((template) => NotificationsActions.createTemplateSuccess({ template })),
-          catchError((error) => of(NotificationsActions.createTemplateFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.createTemplateFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -351,7 +396,9 @@ export class NotificationsEffects {
       mergeMap(({ templateId, request }) =>
         this.notificationService.updateTemplate(templateId, request).pipe(
           map((template) => NotificationsActions.updateTemplateSuccess({ template })),
-          catchError((error) => of(NotificationsActions.updateTemplateFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.updateTemplateFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -363,7 +410,9 @@ export class NotificationsEffects {
       mergeMap(({ templateId }) =>
         this.notificationService.deactivateTemplate(templateId).pipe(
           map(() => NotificationsActions.deactivateTemplateSuccess({ templateId })),
-          catchError((error) => of(NotificationsActions.deactivateTemplateFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.deactivateTemplateFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -375,7 +424,9 @@ export class NotificationsEffects {
       mergeMap(() =>
         this.notificationService.getAuditEvents().pipe(
           map((events) => NotificationsActions.loadAuditEventsSuccess({ events })),
-          catchError((error) => of(NotificationsActions.loadAuditEventsFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.loadAuditEventsFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -387,7 +438,9 @@ export class NotificationsEffects {
       mergeMap(() =>
         this.notificationService.getMyAuditEvents().pipe(
           map((events) => NotificationsActions.loadAuditEventsSuccess({ events })),
-          catchError((error) => of(NotificationsActions.loadAuditEventsFailure({ error: this.errorMessage(error) }))),
+          catchError((error) =>
+            of(NotificationsActions.loadAuditEventsFailure({ error: this.errorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -396,7 +449,9 @@ export class NotificationsEffects {
   private handleInboxError(
     error: unknown,
     _background: boolean,
-  ): ReturnType<typeof AuthActions.logout> | ReturnType<typeof NotificationsActions.loadNotificationsFailure> {
+  ):
+    | ReturnType<typeof AuthActions.logout>
+    | ReturnType<typeof NotificationsActions.loadNotificationsFailure> {
     if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
       return AuthActions.logout();
     }

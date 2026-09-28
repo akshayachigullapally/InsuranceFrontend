@@ -71,7 +71,9 @@ export class AuthEffects {
       ofType(loadCurrentUser),
       mergeMap(() =>
         this.authService.me().pipe(
-          map((user) => loadCurrentUserSuccess({ user, customerId: this.tokenClaims()?.customerId })),
+          map((user) =>
+            loadCurrentUserSuccess({ user, customerId: this.tokenClaims()?.customerId }),
+          ),
           catchError((err) => of(loadCurrentUserFailure({ error: this.errorMessage(err) }))),
         ),
       ),
@@ -105,7 +107,9 @@ export class AuthEffects {
           return of(restoreSessionFailure({ error: 'No saved session.' }));
         }
         return this.authService.me().pipe(
-          map((user) => restoreSessionSuccess({ user, customerId: this.tokenClaims()?.customerId })),
+          map((user) =>
+            restoreSessionSuccess({ user, customerId: this.tokenClaims()?.customerId }),
+          ),
           catchError(() => {
             const claims = this.tokenClaims();
             if (claims) {
@@ -198,10 +202,7 @@ export class AuthEffects {
       }
       const base64Url = parts[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const normalized = base64.padEnd(
-        base64.length + ((4 - (base64.length % 4)) % 4),
-        '=',
-      );
+      const normalized = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
       const payload = decodeURIComponent(
         atob(normalized)
           .split('')
@@ -226,9 +227,5 @@ export class AuthEffects {
       return e.message;
     }
     return 'An unexpected error occurred.';
-  }
-
-  private roleFromClaims(): UserRole {
-    return (this.tokenClaims()?.role ?? '') as UserRole;
   }
 }

@@ -25,14 +25,16 @@ export class NotificationPushService {
         const payload = JSON.parse(ev.data);
         // dispatch merge action inside Angular zone
         this.ngZone.run(() => {
-          this.store.dispatch(NotificationsActions.mergeNewNotifications({ notifications: [payload] }));
+          this.store.dispatch(
+            NotificationsActions.mergeNewNotifications({ notifications: [payload] }),
+          );
         });
       } catch (e) {
         // ignore
       }
     };
 
-    this.es.onerror = (err) => {
+    this.es.onerror = () => {
       this.disconnect();
     };
   }
@@ -41,8 +43,7 @@ export class NotificationPushService {
     if (!this.es) return;
     try {
       this.es.close();
-    } catch (e) {
-    }
+    } catch (e) {}
     this.es = null;
   }
 }

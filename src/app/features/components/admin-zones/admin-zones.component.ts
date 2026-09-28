@@ -1,11 +1,6 @@
-import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
@@ -111,10 +106,7 @@ export class AdminZonesComponent implements OnInit, OnDestroy {
       Validators.min(-180),
       Validators.max(180),
     ]),
-    radiusKm: new FormControl<number | null>(null, [
-      Validators.required,
-      Validators.min(0.01),
-    ]),
+    radiusKm: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
   });
 
   protected readonly statuses = ZONE_MANAGEABLE_STATUSES;
@@ -137,13 +129,11 @@ export class AdminZonesComponent implements OnInit, OnDestroy {
     this.store.dispatch(clearZonesError());
     this.store.dispatch(loadZones({}));
 
-    this.searchControl.valueChanges.pipe(
-      debounceTime(250),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$),
-    ).subscribe(search => {
-      this.store.dispatch(setZonesSearch({ search }));
-    });
+    this.searchControl.valueChanges
+      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((search) => {
+        this.store.dispatch(setZonesSearch({ search }));
+      });
   }
 
   ngOnDestroy(): void {
@@ -156,9 +146,11 @@ export class AdminZonesComponent implements OnInit, OnDestroy {
   protected applyStateFilter(event: Event): void {
     const state = (event.target as HTMLSelectElement).value.trim();
     this.selectedState = state || null;
-    this.store.dispatch(loadZones({
-      state: this.selectedState ?? undefined,
-    }));
+    this.store.dispatch(
+      loadZones({
+        state: this.selectedState ?? undefined,
+      }),
+    );
   }
 
   protected clearFilters(): void {
@@ -216,11 +208,7 @@ export class AdminZonesComponent implements OnInit, OnDestroy {
 
     const raw = this.form.getRawValue();
 
-    if (
-      raw.latitude === null ||
-      raw.longitude === null ||
-      raw.radiusKm === null
-    ) {
+    if (raw.latitude === null || raw.longitude === null || raw.radiusKm === null) {
       this.form.markAllAsTouched();
       return;
     }
@@ -238,10 +226,12 @@ export class AdminZonesComponent implements OnInit, OnDestroy {
     };
 
     if (this.editingZone) {
-      this.store.dispatch(updateZone({
-        zoneId: this.editingZone.id,
-        request,
-      }));
+      this.store.dispatch(
+        updateZone({
+          zoneId: this.editingZone.id,
+          request,
+        }),
+      );
     } else {
       this.store.dispatch(createZone({ request }));
     }
@@ -256,10 +246,12 @@ export class AdminZonesComponent implements OnInit, OnDestroy {
 
     if (status === zone.status) return;
 
-    this.store.dispatch(updateZoneStatus({
-      zoneId: zone.id,
-      status,
-    }));
+    this.store.dispatch(
+      updateZoneStatus({
+        zoneId: zone.id,
+        status,
+      }),
+    );
   }
 
   protected archive(zone: ZoneResponse): void {
@@ -272,10 +264,7 @@ export class AdminZonesComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected isUpdating(
-    zoneId: number,
-    updatingZoneId: number | null,
-  ): boolean {
+  protected isUpdating(zoneId: number, updatingZoneId: number | null): boolean {
     return zoneId === updatingZoneId;
   }
 }

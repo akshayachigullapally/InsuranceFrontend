@@ -15,11 +15,7 @@ import {
   measurementUnitLabel,
 } from '../../../features/utils/trigger-display';
 
-export type ParametricTriggerCardMode =
-  | 'PRODUCT'
-  | 'POLICY_SNAPSHOT'
-  | 'LIVE'
-  | 'STATIC';
+type ParametricTriggerCardMode = 'PRODUCT' | 'POLICY_SNAPSHOT' | 'LIVE' | 'STATIC';
 
 @Component({
   selector: 'app-parametric-trigger-card',
@@ -35,9 +31,7 @@ export class ParametricTriggerCardComponent {
   readonly liveValue = input<number | null>(null);
   readonly liveState = input<LiveConditionState | null>(null);
 
-  protected readonly configured = computed(() =>
-    hasTriggerCondition(this.trigger()),
-  );
+  protected readonly configured = computed(() => hasTriggerCondition(this.trigger()));
 
   protected readonly metricLabel = computed(() =>
     measurementTypeLabel(this.trigger()?.measurementType),
@@ -60,7 +54,6 @@ export class ParametricTriggerCardComponent {
   protected readonly liveProgress = computed(() => {
     if (this.mode() !== 'LIVE') return { percent: 0, color: 'bg-brand-500' };
     const value = this.liveValue();
-    const threshold = this.trigger()?.thresholdValue;
     if (value === null || value === undefined) {
       return { percent: 0, color: 'bg-gray-200' };
     }
@@ -80,9 +73,7 @@ export class ParametricTriggerCardComponent {
     () => LIVE_CONDITION_STATE_COLORS[this.resolvedLiveState()],
   );
 
-  protected readonly description = computed(() =>
-    this.trigger()?.triggerDescription?.trim() ?? '',
-  );
+  protected readonly description = computed(() => this.trigger()?.triggerDescription?.trim() ?? '');
 
   protected buildSentence(): string {
     return buildTriggerSentence(this.trigger() ?? {});

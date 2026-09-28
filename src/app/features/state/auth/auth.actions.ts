@@ -10,7 +10,10 @@ export const loginSuccess = createAction('[Auth] Login Success', props<{ auth: A
 export const loginFailure = createAction('[Auth] Login Failure', props<{ error: string }>());
 
 export const register = createAction('[Auth] Register', props<{ request: RegisterRequest }>());
-export const registerSuccess = createAction('[Auth] Register Success', props<{ auth: AuthResponse }>());
+export const registerSuccess = createAction(
+  '[Auth] Register Success',
+  props<{ auth: AuthResponse }>(),
+);
 export const registerFailure = createAction('[Auth] Register Failure', props<{ error: string }>());
 
 export const loadCurrentUser = createAction('[Auth] Load Current User');
@@ -47,7 +50,7 @@ export const logout = createAction('[Auth] Logout');
 export const logoutSuccess = createAction('[Auth] Logout Success');
 export const clearAuthError = createAction('[Auth] Clear Error');
 
-export interface UpdateProfileRequest {
+interface UpdateProfileRequest {
   id: number;
   fullName?: string;
   email?: string;

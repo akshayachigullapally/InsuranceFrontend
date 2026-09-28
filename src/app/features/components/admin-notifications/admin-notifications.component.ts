@@ -8,7 +8,10 @@ import {
   selectAdminNotificationsError,
   selectAdminNotificationsLoading,
 } from '../../state/notifications/notifications.selectors';
-import { loadAllNotifications, loadUnreadCount } from '../../state/notifications/notifications.actions';
+import {
+  loadAllNotifications,
+  loadUnreadCount,
+} from '../../state/notifications/notifications.actions';
 import { NotificationService } from '../../services/notification.service';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import {
@@ -26,9 +29,13 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 @Component({
   selector: 'app-admin-notifications',
   standalone: true,
-  imports: [EmptyStateComponent, ErrorMessageComponent, LoadingSpinnerComponent, ConfirmationDialogComponent],
+  imports: [
+    EmptyStateComponent,
+    ErrorMessageComponent,
+    LoadingSpinnerComponent,
+    ConfirmationDialogComponent,
+  ],
   templateUrl: './admin-notifications.component.html',
-  styleUrl: './admin-notifications.component.css',
 })
 export class AdminNotificationsComponent implements OnInit {
   protected readonly search = signal('');
@@ -49,15 +56,24 @@ export class AdminNotificationsComponent implements OnInit {
     if (!term) {
       return list;
     }
-    return list.filter(notification =>
-      [notification.title, notification.message, notification.type, this.recipient(notification)]
-        .some(value => value?.toLowerCase().includes(term)));
+    return list.filter((notification) =>
+      [
+        notification.title,
+        notification.message,
+        notification.type,
+        this.recipient(notification),
+      ].some((value) => value?.toLowerCase().includes(term)),
+    );
   });
 
   constructor(store: Store) {
     this.store = store;
-    this.notifications = toSignal(this.store.select(selectAdminNotifications), { initialValue: [] });
-    this.loading = toSignal(this.store.select(selectAdminNotificationsLoading), { initialValue: false });
+    this.notifications = toSignal(this.store.select(selectAdminNotifications), {
+      initialValue: [],
+    });
+    this.loading = toSignal(this.store.select(selectAdminNotificationsLoading), {
+      initialValue: false,
+    });
     this.error = toSignal(this.store.select(selectAdminNotificationsError), { initialValue: null });
   }
 
@@ -70,7 +86,11 @@ export class AdminNotificationsComponent implements OnInit {
   }
 
   protected markAsRead(notification: NotificationResponse): void {
-    this.run(notification.id, this.notificationService.adminMarkAsRead(notification.id), 'Could not mark it as read.');
+    this.run(
+      notification.id,
+      this.notificationService.adminMarkAsRead(notification.id),
+      'Could not mark it as read.',
+    );
   }
 
   protected askDelete(notification: NotificationResponse): void {
@@ -81,7 +101,11 @@ export class AdminNotificationsComponent implements OnInit {
     const target = this.deleteTarget();
     this.deleteTarget.set(null);
     if (target) {
-      this.run(target.id, this.notificationService.adminDelete(target.id), 'Could not delete the notification.');
+      this.run(
+        target.id,
+        this.notificationService.adminDelete(target.id),
+        'Could not delete the notification.',
+      );
     }
   }
 
@@ -101,7 +125,9 @@ export class AdminNotificationsComponent implements OnInit {
       },
       error: (error: unknown) => {
         this.busyId.set(null);
-        this.actionError.set((error as { error?: { message?: string } })?.error?.message ?? failure);
+        this.actionError.set(
+          (error as { error?: { message?: string } })?.error?.message ?? failure,
+        );
       },
     });
   }
@@ -118,7 +144,10 @@ export class AdminNotificationsComponent implements OnInit {
       return `Customer #${notification.recipientCustomerId}`;
     }
     if (notification.recipientRole) {
-      const role = notification.recipientRole.replace(/^ROLE_/, '').replaceAll('_', ' ').toLowerCase();
+      const role = notification.recipientRole
+        .replace(/^ROLE_/, '')
+        .replaceAll('_', ' ')
+        .toLowerCase();
       return `All ${role}s`;
     }
     return '—';

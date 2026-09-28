@@ -38,7 +38,6 @@ import { selectIsAuthenticated } from '../../state/auth/auth.selectors';
   standalone: true,
   imports: [CommonModule, EmptyStateComponent],
   templateUrl: './customer-notifications.component.html',
-  styleUrl: './customer-notifications.component.css',
 })
 export class CustomerNotificationsComponent implements OnInit, OnDestroy {
   notifications$: Observable<NotificationResponse[]>;
@@ -104,15 +103,24 @@ export class CustomerNotificationsComponent implements OnInit, OnDestroy {
     this.store.dispatch(deleteNotification({ notificationId }));
   }
 
-  isChannelEnabled(type: NotificationType, channel: 'inAppEnabled' | 'emailEnabled' | 'smsEnabled'): boolean {
+  isChannelEnabled(
+    type: NotificationType,
+    channel: 'inAppEnabled' | 'emailEnabled' | 'smsEnabled',
+  ): boolean {
     const pref = this.preferences.find((p) => p.notificationType === type);
     if (!pref) return true;
     return pref[channel];
   }
 
-  togglePreference(type: NotificationType, channel: 'inAppEnabled' | 'emailEnabled' | 'smsEnabled'): void {
+  togglePreference(
+    type: NotificationType,
+    channel: 'inAppEnabled' | 'emailEnabled' | 'smsEnabled',
+  ): void {
     const enabled = !this.isChannelEnabled(type, channel);
-    const request = { notificationType: type } as { notificationType: NotificationType; [k: string]: unknown };
+    const request = { notificationType: type } as {
+      notificationType: NotificationType;
+      [k: string]: unknown;
+    };
     request[channel] = enabled;
     this.store.dispatch(upsertPreference({ request }));
   }

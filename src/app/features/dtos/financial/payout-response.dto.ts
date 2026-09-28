@@ -1,9 +1,4 @@
-export const PAYOUT_STATUSES = [
-  'PENDING',
-  'PROCESSING',
-  'SUCCESS',
-  'FAILED',
-] as const;
+const PAYOUT_STATUSES = ['PENDING', 'PROCESSING', 'SUCCESS', 'FAILED'] as const;
 
 export type PayoutStatus = (typeof PAYOUT_STATUSES)[number];
 

@@ -1,18 +1,10 @@
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subject, takeUntil } from 'rxjs';
-import {
-  CreateQuoteRequest,
-  QuoteResponse,
-} from '../../dtos/financial/quote-response.dto';
+import { CreateQuoteRequest, QuoteResponse } from '../../dtos/financial/quote-response.dto';
 import { ProductResponse } from '../../dtos/products/product-response.dto';
 import { ZoneResponse } from '../../dtos/zones/zone-response.dto';
 import { ZoneService } from '../../services/zone.service';
@@ -58,7 +50,6 @@ interface QuoteForm {
     StatusBadgeComponent,
   ],
   templateUrl: './customer-quotes.component.html',
-  styleUrl: './customer-quotes.component.css',
 })
 export class CustomerQuotesComponent implements OnInit, OnDestroy {
   readonly quotes$: Observable<QuoteResponse[]>;
@@ -76,14 +67,12 @@ export class CustomerQuotesComponent implements OnInit, OnDestroy {
   readonly form = new FormGroup<QuoteForm>({
     productId: new FormControl<number | null>(null, Validators.required),
     locationZoneId: new FormControl<number | null>(null, Validators.required),
-    sumInsured: new FormControl<number | null>(
-      null,
-      [Validators.required, Validators.min(1)],
-    ),
-    termMonths: new FormControl<number | null>(
-      null,
-      [Validators.required, Validators.min(1), Validators.max(60)],
-    ),
+    sumInsured: new FormControl<number | null>(null, [Validators.required, Validators.min(1)]),
+    termMonths: new FormControl<number | null>(null, [
+      Validators.required,
+      Validators.min(1),
+      Validators.max(60),
+    ]),
   });
 
   private readonly destroy$ = new Subject<void>();
@@ -162,9 +151,7 @@ export class CustomerQuotesComponent implements OnInit, OnDestroy {
   }
 
   protected cancel(quote: QuoteResponse): void {
-    const confirmed = window.confirm(
-      `Cancel quote ${quote.quoteReference}?`,
-    );
+    const confirmed = window.confirm(`Cancel quote ${quote.quoteReference}?`);
 
     if (confirmed) {
       this.processingQuoteId = quote.id;
@@ -173,13 +160,11 @@ export class CustomerQuotesComponent implements OnInit, OnDestroy {
   }
 
   protected productName(products: ProductResponse[], productId: number): string {
-    return products.find(product => product.id === productId)?.name
-      ?? `Product #${productId}`;
+    return products.find((product) => product.id === productId)?.name ?? `Product #${productId}`;
   }
 
   protected zoneName(zoneId: number): string {
-    return this.zones.find(zone => zone.id === zoneId)?.zoneName
-      ?? `Zone #${zoneId}`;
+    return this.zones.find((zone) => zone.id === zoneId)?.zoneName ?? `Zone #${zoneId}`;
   }
 
   protected isExpired(quote: QuoteResponse): boolean {
@@ -199,7 +184,7 @@ export class CustomerQuotesComponent implements OnInit, OnDestroy {
       .getActiveZones()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: zones => {
+        next: (zones) => {
           this.zones = zones;
           this.zonesLoading = false;
           this.form.controls.locationZoneId.enable();
@@ -234,7 +219,7 @@ export class CustomerQuotesComponent implements OnInit, OnDestroy {
   }
 }
 
-export interface PremiumBreakdown {
+interface PremiumBreakdown {
   ratePercent: number;
   years: number;
   termFactor: number;

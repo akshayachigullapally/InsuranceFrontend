@@ -6,10 +6,9 @@ import {
   TriggerCondition,
   TriggerMeasurementTypeValue,
   TriggerMeasurementUnitValue,
-  TriggerSyncStatusValue,
 } from '../dtos/triggers/trigger-condition.dto';
 
-export const MEASUREMENT_TYPE_LABELS: Record<string, string> = {
+const MEASUREMENT_TYPE_LABELS: Record<string, string> = {
   RAINFALL: 'Rainfall',
   WATER_LEVEL: 'Water Level',
   RIVER_LEVEL: 'River Level',
@@ -20,7 +19,7 @@ export const MEASUREMENT_TYPE_LABELS: Record<string, string> = {
   OTHER: 'Other',
 };
 
-export const MEASUREMENT_UNIT_LABELS: Record<string, string> = {
+const MEASUREMENT_UNIT_LABELS: Record<string, string> = {
   MM: 'mm',
   CM: 'cm',
   METER: 'm',
@@ -40,13 +39,13 @@ const MEASUREMENT_UNIT_ALIASES: Record<string, string> = {
   '°C': 'CELSIUS',
   celsius: 'CELSIUS',
   'km/h': 'KM_PER_HOUR',
-  'kmh': 'KM_PER_HOUR',
+  kmh: 'KM_PER_HOUR',
   '%': 'PERCENTAGE',
   pct: 'PERCENTAGE',
   percentage: 'PERCENTAGE',
 };
 
-export const COMPARISON_OPERATOR_LABELS: Record<string, string> = {
+const COMPARISON_OPERATOR_LABELS: Record<string, string> = {
   GREATER_THAN: 'greater than',
   GREATER_THAN_OR_EQUAL: 'greater than or equal to',
   LESS_THAN: 'less than',
@@ -54,7 +53,7 @@ export const COMPARISON_OPERATOR_LABELS: Record<string, string> = {
   EQUAL: 'equal to',
 };
 
-export const COMPARISON_OPERATOR_SYMBOLS: Record<string, string> = {
+const COMPARISON_OPERATOR_SYMBOLS: Record<string, string> = {
   GREATER_THAN: '>',
   GREATER_THAN_OR_EQUAL: '≥',
   LESS_THAN: '<',
@@ -62,24 +61,12 @@ export const COMPARISON_OPERATOR_SYMBOLS: Record<string, string> = {
   EQUAL: '=',
 };
 
-export const AGGREGATION_TYPE_LABELS: Record<string, string> = {
+const AGGREGATION_TYPE_LABELS: Record<string, string> = {
   SUM: 'total',
   AVERAGE: 'average',
   MIN: 'minimum',
   MAX: 'maximum',
   LATEST: 'latest',
-};
-
-export const TRIGGER_SYNC_STATUS_LABELS: Record<string, string> = {
-  PENDING: 'Not synced',
-  SYNCED: 'Synced',
-  FAILED: 'Sync failed',
-};
-
-export const TRIGGER_SYNC_STATUS_COLORS: Record<string, string> = {
-  PENDING: 'bg-warn-50 text-warn-700',
-  SYNCED: 'bg-success-50 text-success-700',
-  FAILED: 'bg-danger-50 text-danger-700',
 };
 
 export function normalizeMeasurementType(value: string | null | undefined): string {
@@ -90,7 +77,7 @@ export function normalizeMeasurementType(value: string | null | undefined): stri
   return upper;
 }
 
-export function normalizeMeasurementUnit(value: string | null | undefined): string {
+function normalizeMeasurementUnit(value: string | null | undefined): string {
   if (!value) return '';
   const trimmed = value.trim();
   const upper = trimmed.toUpperCase();
@@ -116,9 +103,7 @@ export function measurementUnitLabel(
   return MEASUREMENT_UNIT_LABELS[key] ?? '';
 }
 
-export function comparisonOperatorLabel(
-  value: TriggerComparisonOperatorValue | null | undefined,
-): string {
+function comparisonOperatorLabel(value: TriggerComparisonOperatorValue | null | undefined): string {
   if (!value) return '';
   return COMPARISON_OPERATOR_LABELS[value] ?? value.toLowerCase();
 }
@@ -130,25 +115,9 @@ export function comparisonOperatorSymbol(
   return COMPARISON_OPERATOR_SYMBOLS[value] ?? value.toLowerCase();
 }
 
-export function aggregationTypeLabel(
-  value: TriggerAggregationTypeValue | null | undefined,
-): string {
+function aggregationTypeLabel(value: TriggerAggregationTypeValue | null | undefined): string {
   if (!value) return '';
   return AGGREGATION_TYPE_LABELS[value] ?? value.toLowerCase();
-}
-
-export function triggerSyncStatusLabel(
-  status: TriggerSyncStatusValue | null | undefined,
-): string {
-  if (!status) return TRIGGER_SYNC_STATUS_LABELS['PENDING'];
-  return TRIGGER_SYNC_STATUS_LABELS[status] ?? status;
-}
-
-export function triggerSyncStatusColor(
-  status: TriggerSyncStatusValue | null | undefined,
-): string {
-  if (!status) return TRIGGER_SYNC_STATUS_COLORS['PENDING'];
-  return TRIGGER_SYNC_STATUS_COLORS[status] ?? 'bg-gray-100 text-gray-700';
 }
 
 export function formatThresholdValue(value: number | null | undefined): string {
@@ -158,7 +127,7 @@ export function formatThresholdValue(value: number | null | undefined): string {
   }).format(value);
 }
 
-export function formatObservationWindowHours(hours: number | null | undefined): string {
+function formatObservationWindowHours(hours: number | null | undefined): string {
   if (hours === null || hours === undefined) return '';
   if (hours < 24) return `${hours}h`;
   const days = hours / 24;
@@ -209,7 +178,12 @@ export function liveConditionState(
   threshold: number | null | undefined,
   operator: TriggerComparisonOperatorValue | null | undefined,
 ): LiveConditionState {
-  if (liveValue === null || liveValue === undefined || threshold === null || threshold === undefined) {
+  if (
+    liveValue === null ||
+    liveValue === undefined ||
+    threshold === null ||
+    threshold === undefined
+  ) {
     return 'NO_DATA';
   }
   const exceeded = (value: number): boolean => {
@@ -260,9 +234,10 @@ export const LIVE_CONDITION_STATE_COLORS: Record<LiveConditionState, string> = {
   THRESHOLD_EXCEEDED: 'bg-danger-50 text-danger-700',
 };
 
-export function liveConditionProgress(
-  condition: LiveCondition,
-): { percent: number; color: string } {
+export function liveConditionProgress(condition: LiveCondition): {
+  percent: number;
+  color: string;
+} {
   const value = condition.liveValue;
   const threshold = condition.condition.thresholdValue;
   if (value === null || value === undefined || threshold === null || threshold === undefined) {

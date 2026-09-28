@@ -1,28 +1,11 @@
 import { AsyncPipe } from '@angular/common';
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
-import {
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
-import {
-  ActivatedRoute,
-  RouterLink,
-} from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
-import {
-  filter,
-  takeUntil,
-} from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import {
   PRODUCT_CATEGORIES,
   ProductCategory,
@@ -100,7 +83,6 @@ interface ProductFormValue {
     ErrorMessageComponent,
   ],
   templateUrl: './admin-product-edit.component.html',
-  styleUrl: './admin-product-edit.component.css',
 })
 export class AdminProductEditComponent implements OnInit, OnDestroy {
   readonly loading$: Observable<boolean>;
@@ -135,9 +117,7 @@ export class AdminProductEditComponent implements OnInit, OnDestroy {
     this.store.dispatch(clearProductsError());
     this.store.dispatch(clearSelectedProduct());
 
-    const productId = Number(
-      this.route.snapshot.paramMap.get('productId'),
-    );
+    const productId = Number(this.route.snapshot.paramMap.get('productId'));
 
     if (!Number.isInteger(productId) || productId <= 0) {
       this.invalidProductId = true;
@@ -150,34 +130,36 @@ export class AdminProductEditComponent implements OnInit, OnDestroy {
       .select(selectSelectedProduct)
       .pipe(
         filter(
-          (product): product is ProductResponse =>
-            product !== null &&
-            product.id === productId,
+          (product): product is ProductResponse => product !== null && product.id === productId,
         ),
         takeUntil(this.destroy$),
       )
-      .subscribe(product => {
+      .subscribe((product) => {
         this.product = product;
         this.form = this.buildForm(product);
       });
 
     this.actions$
       .pipe(ofType(updateProductSuccess), takeUntil(this.destroy$))
-      .subscribe(({ product }) => this.toast.show({
-        type: 'success',
-        icon: '✅',
-        title: 'Product updated',
-        message: `${product.name} was updated successfully.`,
-      }));
+      .subscribe(({ product }) =>
+        this.toast.show({
+          type: 'success',
+          icon: '✅',
+          title: 'Product updated',
+          message: `${product.name} was updated successfully.`,
+        }),
+      );
 
     this.actions$
       .pipe(ofType(updateProductFailure), takeUntil(this.destroy$))
-      .subscribe(({ error }) => this.toast.show({
-        type: 'error',
-        icon: '⚠️',
-        title: 'Could not update product',
-        message: error,
-      }));
+      .subscribe(({ error }) =>
+        this.toast.show({
+          type: 'error',
+          icon: '⚠️',
+          title: 'Could not update product',
+          message: error,
+        }),
+      );
   }
 
   ngOnDestroy(): void {
@@ -199,69 +181,12 @@ export class AdminProductEditComponent implements OnInit, OnDestroy {
     return Boolean(this.trigger?.get('triggerEnabled')?.value);
   }
 
-  private applyTriggerValidation(enabled: boolean): void {
-    const controls = [
-      'perilCode',
-      'measurementType',
-      'measurementUnit',
-      'thresholdValue',
-      'comparisonOperator',
-      'aggregationType',
-      'observationWindowHours',
-      'minimumObservationCount',
-    ];
-
-    for (const name of controls) {
-      const control = this.trigger?.get(name);
-      if (!control) continue;
-      if (enabled) {
-        control.setValidators([
-          Validators.required,
-          ...this.boundedValidators(name),
-        ]);
-      } else {
-        control.clearValidators();
-      }
-      control.updateValueAndValidity();
-    }
-  }
-
-  private boundedValidators(name: string): ValidatorFn[] {
-    switch (name) {
-      case 'thresholdValue':
-        return [Validators.min(0.01)];
-      case 'observationWindowHours':
-        return [Validators.min(1), Validators.max(720)];
-      case 'minimumObservationCount':
-        return [Validators.min(1)];
-      case 'perilCode':
-        return [Validators.maxLength(50)];
-      default:
-        return [];
-    }
-  }
-
   protected newCoverageGroup(): FormGroup {
     return this.fb.group({
-      coverageCode: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(50),
-        ],
-      ],
-      name: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(150),
-        ],
-      ],
+      coverageCode: ['', [Validators.required, Validators.maxLength(50)]],
+      name: ['', [Validators.required, Validators.maxLength(150)]],
       description: [''],
-      coverageLimit: [
-        null,
-        Validators.min(0),
-      ],
+      coverageLimit: [null, Validators.min(0)],
       mandatory: [false],
       active: [true],
     });
@@ -290,65 +215,50 @@ export class AdminProductEditComponent implements OnInit, OnDestroy {
     const raw = this.form.getRawValue() as ProductFormValue;
 
     if (raw.minimumSumInsured > raw.maximumSumInsured) {
-      this.rangeError =
-        'Minimum sum insured cannot exceed maximum sum insured.';
+      this.rangeError = 'Minimum sum insured cannot exceed maximum sum insured.';
       return;
     }
 
     if (raw.minimumTermMonths > raw.maximumTermMonths) {
-      this.rangeError =
-        'Minimum policy term cannot exceed maximum policy term.';
+      this.rangeError = 'Minimum policy term cannot exceed maximum policy term.';
       return;
     }
 
-    const duplicateCoverageCode =
-      this.findDuplicateCoverageCode(raw.coverages);
+    const duplicateCoverageCode = this.findDuplicateCoverageCode(raw.coverages);
 
     if (duplicateCoverageCode) {
-      this.rangeError =
-        `Duplicate coverage code: ${duplicateCoverageCode}`;
+      this.rangeError = `Duplicate coverage code: ${duplicateCoverageCode}`;
       return;
     }
 
     const request = this.buildRequest(raw);
 
     this.store.dispatch(clearProductsError());
-    this.store.dispatch(updateProduct({
-      productId: this.product.id,
-      request,
-    }));
+    this.store.dispatch(
+      updateProduct({
+        productId: this.product.id,
+        request,
+      }),
+    );
   }
 
   private buildForm(product: ProductResponse): FormGroup {
-    const coverageGroups = product.coverages.length > 0
-      ? product.coverages.map(coverage =>
-          this.fb.group({
-            coverageCode: [
-              coverage.coverageCode,
-              [
-                Validators.required,
-                Validators.maxLength(50),
+    const coverageGroups =
+      product.coverages.length > 0
+        ? product.coverages.map((coverage) =>
+            this.fb.group({
+              coverageCode: [
+                coverage.coverageCode,
+                [Validators.required, Validators.maxLength(50)],
               ],
-            ],
-            name: [
-              coverage.name,
-              [
-                Validators.required,
-                Validators.maxLength(150),
-              ],
-            ],
-            description: [
-              coverage.description ?? '',
-            ],
-            coverageLimit: [
-              coverage.coverageLimit ?? null,
-              Validators.min(0),
-            ],
-            mandatory: [coverage.mandatory],
-            active: [coverage.active],
-          }),
-        )
-      : [this.newCoverageGroup()];
+              name: [coverage.name, [Validators.required, Validators.maxLength(150)]],
+              description: [coverage.description ?? ''],
+              coverageLimit: [coverage.coverageLimit ?? null, Validators.min(0)],
+              mandatory: [coverage.mandatory],
+              active: [coverage.active],
+            }),
+          )
+        : [this.newCoverageGroup()];
 
     const triggerEnabled = Boolean(
       product.thresholdValue !== null &&
@@ -362,9 +272,7 @@ export class AdminProductEditComponent implements OnInit, OnDestroy {
       measurementType: [product.measurementType ?? 'RAINFALL'],
       measurementUnit: [product.measurementUnit ?? 'MM'],
       thresholdValue: [product.thresholdValue ?? null],
-      comparisonOperator: [
-        product.comparisonOperator ?? 'GREATER_THAN_OR_EQUAL',
-      ],
+      comparisonOperator: [product.comparisonOperator ?? 'GREATER_THAN_OR_EQUAL'],
       aggregationType: [product.aggregationType ?? 'AVERAGE'],
       observationWindowHours: [product.observationWindowHours ?? 24],
       minimumObservationCount: [product.minimumObservationCount ?? 2],
@@ -372,67 +280,24 @@ export class AdminProductEditComponent implements OnInit, OnDestroy {
     });
 
     return this.fb.group({
-      productCode: [
-        product.productCode,
-        [
-          Validators.required,
-          Validators.maxLength(50),
-        ],
-      ],
+      productCode: [product.productCode, [Validators.required, Validators.maxLength(50)]],
       name: [
         product.name,
-        [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(150),
-        ],
+        [Validators.required, Validators.minLength(3), Validators.maxLength(150)],
       ],
-      category: [
-        product.category,
-        Validators.required,
-      ],
-      description: [
-        product.description ?? '',
-      ],
-      minimumSumInsured: [
-        product.minimumSumInsured,
-        [
-          Validators.required,
-          Validators.min(1),
-        ],
-      ],
-      maximumSumInsured: [
-        product.maximumSumInsured,
-        [
-          Validators.required,
-          Validators.min(1),
-        ],
-      ],
-      minimumTermMonths: [
-        product.minimumTermMonths,
-        [
-          Validators.required,
-          Validators.min(1),
-        ],
-      ],
-      maximumTermMonths: [
-        product.maximumTermMonths,
-        [
-          Validators.required,
-          Validators.min(1),
-        ],
-      ],
-      eligibilityDescription: [
-        product.eligibilityDescription ?? '',
-      ],
+      category: [product.category, Validators.required],
+      description: [product.description ?? ''],
+      minimumSumInsured: [product.minimumSumInsured, [Validators.required, Validators.min(1)]],
+      maximumSumInsured: [product.maximumSumInsured, [Validators.required, Validators.min(1)]],
+      minimumTermMonths: [product.minimumTermMonths, [Validators.required, Validators.min(1)]],
+      maximumTermMonths: [product.maximumTermMonths, [Validators.required, Validators.min(1)]],
+      eligibilityDescription: [product.eligibilityDescription ?? ''],
       trigger: triggerGroup,
       coverages: this.fb.array(coverageGroups),
     });
   }
 
-  private buildRequest(
-    raw: ProductFormValue,
-  ): ProductRequest {
+  private buildRequest(raw: ProductFormValue): ProductRequest {
     return {
       productCode: raw.productCode.trim().toUpperCase(),
       name: raw.name.trim(),
@@ -442,28 +307,20 @@ export class AdminProductEditComponent implements OnInit, OnDestroy {
       maximumSumInsured: Number(raw.maximumSumInsured),
       minimumTermMonths: Number(raw.minimumTermMonths),
       maximumTermMonths: Number(raw.maximumTermMonths),
-      eligibilityDescription:
-        raw.eligibilityDescription.trim() || undefined,
+      eligibilityDescription: raw.eligibilityDescription.trim() || undefined,
       ...this.buildTriggerRequest(raw.trigger),
-      coverages: raw.coverages.map(coverage => ({
-        coverageCode:
-          coverage.coverageCode.trim().toUpperCase(),
+      coverages: raw.coverages.map((coverage) => ({
+        coverageCode: coverage.coverageCode.trim().toUpperCase(),
         name: coverage.name.trim(),
-        description:
-          coverage.description.trim() || undefined,
-        coverageLimit:
-          coverage.coverageLimit === null
-            ? undefined
-            : Number(coverage.coverageLimit),
+        description: coverage.description.trim() || undefined,
+        coverageLimit: coverage.coverageLimit === null ? undefined : Number(coverage.coverageLimit),
         mandatory: coverage.mandatory,
         active: coverage.active,
       })),
     };
   }
 
-  private buildTriggerRequest(
-    trigger: TriggerFormValue,
-  ): Partial<ProductRequest> {
+  private buildTriggerRequest(trigger: TriggerFormValue): Partial<ProductRequest> {
     if (!trigger.triggerEnabled) {
       return {
         perilCode: undefined,
@@ -496,15 +353,11 @@ export class AdminProductEditComponent implements OnInit, OnDestroy {
     return request;
   }
 
-  private findDuplicateCoverageCode(
-    coverages: CoverageFormValue[],
-  ): string | null {
+  private findDuplicateCoverageCode(coverages: CoverageFormValue[]): string | null {
     const codes = new Set<string>();
 
     for (const coverage of coverages) {
-      const code = coverage.coverageCode
-        .trim()
-        .toUpperCase();
+      const code = coverage.coverageCode.trim().toUpperCase();
 
       if (codes.has(code)) {
         return code;

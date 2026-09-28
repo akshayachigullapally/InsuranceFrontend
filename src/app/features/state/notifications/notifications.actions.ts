@@ -4,7 +4,6 @@ import {
   NotificationPreferenceResponse,
   NotificationTemplateResponse,
   DeliveryAttemptResponse,
-  MessageResponse,
   TemplateNotificationRequest,
   BatchNotificationRequest,
   AuditEventResponse,
@@ -61,7 +60,9 @@ export const stopNotificationPolling = createAction('[Notifications] Stop Notifi
 
 export const notificationPollTick = createAction('[Notifications] Notification Poll Tick');
 
-export const clearNotificationsOnLogout = createAction('[Notifications] Clear Notifications On Logout');
+export const clearNotificationsOnLogout = createAction(
+  '[Notifications] Clear Notifications On Logout',
+);
 
 export const markAsRead = createAction(
   '[Notifications] Mark As Read',

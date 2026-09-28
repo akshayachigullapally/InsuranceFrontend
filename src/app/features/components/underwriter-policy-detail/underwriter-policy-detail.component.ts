@@ -1,23 +1,7 @@
-import {
-  AsyncPipe,
-  DatePipe,
-  DecimalPipe,
-} from '@angular/common';
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  ActivatedRoute,
-  RouterLink,
-} from '@angular/router';
+import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -76,7 +60,6 @@ interface RejectionForm {
   ],
   providers: [DatePipe],
   templateUrl: './underwriter-policy-detail.component.html',
-  styleUrl: './underwriter-policy-detail.component.css',
 })
 export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
   readonly policy$: Observable<PolicyResponse | null>;
@@ -87,11 +70,7 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
   readonly rejectionForm = new FormGroup<RejectionForm>({
     reason: new FormControl('', {
       nonNullable: true,
-      validators: [
-        Validators.required,
-        Validators.maxLength(500),
-        Validators.pattern(/\S+/),
-      ],
+      validators: [Validators.required, Validators.maxLength(500), Validators.pattern(/\S+/)],
     }),
   });
 
@@ -127,9 +106,7 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
     this.store.dispatch(clearPoliciesError());
     this.store.dispatch(clearSelectedPolicy());
 
-    const policyId = Number(
-      this.route.snapshot.paramMap.get('policyId'),
-    );
+    const policyId = Number(this.route.snapshot.paramMap.get('policyId'));
 
     if (!Number.isInteger(policyId) || policyId <= 0) {
       this.invalidPolicyId = true;
@@ -139,18 +116,16 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
     this.policyId = policyId;
     this.store.dispatch(loadAdminPolicy({ policyId }));
 
-    this.policy$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(policy => {
-        if (!policy || policy.id !== policyId) {
-          return;
-        }
+    this.policy$.pipe(takeUntil(this.destroy$)).subscribe((policy) => {
+      if (!policy || policy.id !== policyId) {
+        return;
+      }
 
-        this.loadZone(policy.locationZoneId);
-        this.loadCustomer(policy.customerId);
-        this.loadProduct(policy.productId);
-        this.loadSnapshot(policy);
-      });
+      this.loadZone(policy.locationZoneId);
+      this.loadCustomer(policy.customerId);
+      this.loadProduct(policy.productId);
+      this.loadSnapshot(policy);
+    });
   }
 
   ngOnDestroy(): void {
@@ -165,7 +140,7 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
       .getZone(locationZoneId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: zone => {
+        next: (zone) => {
           this.zoneName = zone.zoneName;
         },
         error: () => {
@@ -179,7 +154,7 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
       .getUser(customerId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: user => {
+        next: (user) => {
           this.customerName = user.fullName;
         },
         error: () => {
@@ -195,7 +170,7 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
       .getProduct(productId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: product => {
+        next: (product) => {
           this.product = product;
           this.productLoading = false;
         },
@@ -219,7 +194,7 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
       .getPolicySnapshot(policy.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: snapshot => {
+        next: (snapshot) => {
           this.snapshot = snapshot;
           this.snapshotLoading = false;
         },
@@ -241,25 +216,16 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
       perilCode: snapshot.perilCode,
       measurementType: snapshot.measurementType || snapshot.triggerMetric,
       measurementUnit: snapshot.measurementUnit || snapshot.triggerMetric || undefined,
-      thresholdValue: snapshot.thresholdValue ??
-        snapshot.triggerThreshold ??
-        0,
-      comparisonOperator: snapshot.comparisonOperator ??
-        snapshot.triggerOperator ??
-        'GREATER_THAN_OR_EQUAL',
-      aggregationType: snapshot.aggregationType ??
-        snapshot.triggerAggregationType ??
-        'AVERAGE',
-      observationWindowHours: snapshot.observationWindowHours ??
-        snapshot.triggerDurationHours ??
-        24,
-      minimumObservationCount: snapshot.minimumObservationCount ??
-        snapshot.triggerMinObservationCount ??
-        2,
-      triggerDescription:
-        snapshot.triggerDescription ?? null,
-      humanReadableTrigger:
-        snapshot.humanReadableTrigger ?? null,
+      thresholdValue: snapshot.thresholdValue ?? snapshot.triggerThreshold ?? 0,
+      comparisonOperator:
+        snapshot.comparisonOperator ?? snapshot.triggerOperator ?? 'GREATER_THAN_OR_EQUAL',
+      aggregationType: snapshot.aggregationType ?? snapshot.triggerAggregationType ?? 'AVERAGE',
+      observationWindowHours:
+        snapshot.observationWindowHours ?? snapshot.triggerDurationHours ?? 24,
+      minimumObservationCount:
+        snapshot.minimumObservationCount ?? snapshot.triggerMinObservationCount ?? 2,
+      triggerDescription: snapshot.triggerDescription ?? null,
+      humanReadableTrigger: snapshot.humanReadableTrigger ?? null,
     };
   }
 
@@ -319,10 +285,7 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private estimatedCoverageLabel(
-    policy: PolicyResponse,
-    edge: 'start' | 'end',
-  ): string {
+  private estimatedCoverageLabel(policy: PolicyResponse, edge: 'start' | 'end'): string {
     if (policy.status !== 'PENDING') {
       return 'Not available';
     }
@@ -348,9 +311,11 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
     }
 
     this.approveOpen = false;
-    this.store.dispatch(approvePolicy({
-      policyId: this.policyId,
-    }));
+    this.store.dispatch(
+      approvePolicy({
+        policyId: this.policyId,
+      }),
+    );
   }
 
   protected dismissApproval(): void {
@@ -369,9 +334,7 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const reason = this.rejectionForm.controls.reason
-      .value
-      .trim();
+    const reason = this.rejectionForm.controls.reason.value.trim();
 
     if (!reason) {
       this.rejectionForm.controls.reason.setErrors({
@@ -382,10 +345,12 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
 
     this.rejectOpen = false;
 
-    this.store.dispatch(rejectPolicy({
-      policyId: this.policyId,
-      reason,
-    }));
+    this.store.dispatch(
+      rejectPolicy({
+        policyId: this.policyId,
+        reason,
+      }),
+    );
   }
 
   protected dismissRejection(): void {
@@ -402,10 +367,7 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
       return 'Not available';
     }
 
-    return this.datePipe.transform(
-      value,
-      'medium',
-    ) ?? 'Not available';
+    return this.datePipe.transform(value, 'medium') ?? 'Not available';
   }
 
   protected formatDateOnly(value?: string | null): string {
@@ -415,9 +377,6 @@ export class UnderwriterPolicyDetailComponent implements OnInit, OnDestroy {
       return 'Not available';
     }
 
-    return this.datePipe.transform(
-      date,
-      'mediumDate',
-    ) ?? 'Not available';
+    return this.datePipe.transform(date, 'mediumDate') ?? 'Not available';
   }
 }

@@ -1,22 +1,8 @@
-import {
-  AsyncPipe,
-  DatePipe,
-  DecimalPipe,
-} from '@angular/common';
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
-import {
-  ActivatedRoute,
-  RouterLink,
-} from '@angular/router';
+import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import {
-  Observable,
-  Subject,
-} from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {
   PolicyResponse,
@@ -61,7 +47,6 @@ interface DetailRow {
   ],
   providers: [DatePipe],
   templateUrl: './admin-policy-detail.component.html',
-  styleUrl: './admin-policy-detail.component.css',
 })
 export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
   readonly policy$: Observable<PolicyResponse | null>;
@@ -94,9 +79,7 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
     this.store.dispatch(clearPoliciesError());
     this.store.dispatch(clearSelectedPolicy());
 
-    const policyId = Number(
-      this.route.snapshot.paramMap.get('policyId'),
-    );
+    const policyId = Number(this.route.snapshot.paramMap.get('policyId'));
 
     if (!Number.isInteger(policyId) || policyId <= 0) {
       this.invalidPolicyId = true;
@@ -105,23 +88,21 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
 
     this.store.dispatch(loadAdminPolicy({ policyId }));
 
-    this.policy$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(policy => {
-        if (!policy || policy.id !== policyId) {
-          return;
-        }
+    this.policy$.pipe(takeUntil(this.destroy$)).subscribe((policy) => {
+      if (!policy || policy.id !== policyId) {
+        return;
+      }
 
-        this.loadSnapshot(policy);
-        this.loadCustomer(policy.customerId);
-        this.loadZone(policy.locationZoneId);
+      this.loadSnapshot(policy);
+      this.loadCustomer(policy.customerId);
+      this.loadZone(policy.locationZoneId);
 
-        if (policy.reviewedBy) {
-          this.loadReviewer(policy.reviewedBy);
-        } else {
-          this.reviewerName = null;
-        }
-      });
+      if (policy.reviewedBy) {
+        this.loadReviewer(policy.reviewedBy);
+      } else {
+        this.reviewerName = null;
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -172,9 +153,9 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
       {
         label: 'Reviewed by',
         value: policy.reviewedBy
-          ? (this.reviewerName
-              ? `${this.reviewerName} (User #${policy.reviewedBy})`
-              : `User #${policy.reviewedBy}`)
+          ? this.reviewerName
+            ? `${this.reviewerName} (User #${policy.reviewedBy})`
+            : `User #${policy.reviewedBy}`
           : 'Not reviewed',
       },
       {
@@ -195,25 +176,16 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
       perilCode: snapshot.perilCode,
       measurementType: snapshot.measurementType || snapshot.triggerMetric,
       measurementUnit: snapshot.measurementUnit || snapshot.triggerMetric || undefined,
-      thresholdValue: snapshot.thresholdValue ??
-        snapshot.triggerThreshold ??
-        0,
-      comparisonOperator: snapshot.comparisonOperator ??
-        snapshot.triggerOperator ??
-        'GREATER_THAN_OR_EQUAL',
-      aggregationType: snapshot.aggregationType ??
-        snapshot.triggerAggregationType ??
-        'AVERAGE',
-      observationWindowHours: snapshot.observationWindowHours ??
-        snapshot.triggerDurationHours ??
-        24,
-      minimumObservationCount: snapshot.minimumObservationCount ??
-        snapshot.triggerMinObservationCount ??
-        2,
-      triggerDescription:
-        snapshot.triggerDescription ?? null,
-      humanReadableTrigger:
-        snapshot.humanReadableTrigger ?? null,
+      thresholdValue: snapshot.thresholdValue ?? snapshot.triggerThreshold ?? 0,
+      comparisonOperator:
+        snapshot.comparisonOperator ?? snapshot.triggerOperator ?? 'GREATER_THAN_OR_EQUAL',
+      aggregationType: snapshot.aggregationType ?? snapshot.triggerAggregationType ?? 'AVERAGE',
+      observationWindowHours:
+        snapshot.observationWindowHours ?? snapshot.triggerDurationHours ?? 24,
+      minimumObservationCount:
+        snapshot.minimumObservationCount ?? snapshot.triggerMinObservationCount ?? 2,
+      triggerDescription: snapshot.triggerDescription ?? null,
+      humanReadableTrigger: snapshot.humanReadableTrigger ?? null,
     };
   }
 
@@ -230,7 +202,7 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
       .getPolicySnapshot(policy.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: snapshot => {
+        next: (snapshot) => {
           this.snapshot = snapshot;
           this.snapshotLoading = false;
         },
@@ -246,7 +218,7 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
       .getUser(customerId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: user => {
+        next: (user) => {
           this.customerName = user.fullName;
         },
         error: () => {
@@ -260,7 +232,7 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
       .getZone(locationZoneId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: zone => {
+        next: (zone) => {
           this.zoneName = zone.zoneName;
         },
         error: () => {
@@ -274,7 +246,7 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
       .getUser(reviewerId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: user => {
+        next: (user) => {
           this.reviewerName = user.fullName;
         },
         error: () => {
@@ -288,10 +260,7 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
       return 'Not available';
     }
 
-    return this.datePipe.transform(
-      value,
-      'medium',
-    ) ?? 'Not available';
+    return this.datePipe.transform(value, 'medium') ?? 'Not available';
   }
 
   protected formatDateOnly(value?: string | null): string {
@@ -301,9 +270,6 @@ export class AdminPolicyDetailComponent implements OnInit, OnDestroy {
       return 'Not available';
     }
 
-    return this.datePipe.transform(
-      date,
-      'mediumDate',
-    ) ?? 'Not available';
+    return this.datePipe.transform(date, 'mediumDate') ?? 'Not available';
   }
 }

@@ -1,10 +1,4 @@
-export const QUOTE_STATUSES = [
-  'CREATED',
-  'ACCEPTED',
-  'EXPIRED',
-  'CANCELLED',
-  'CONSUMED',
-] as const;
+const QUOTE_STATUSES = ['CREATED', 'ACCEPTED', 'EXPIRED', 'CANCELLED', 'CONSUMED'] as const;
 
 export type QuoteStatus = (typeof QUOTE_STATUSES)[number];
 

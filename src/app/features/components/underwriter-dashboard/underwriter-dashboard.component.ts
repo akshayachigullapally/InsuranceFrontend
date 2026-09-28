@@ -8,10 +8,7 @@ import { map } from 'rxjs/operators';
 import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { PolicyResponse } from '../../dtos/policies/policy-response.dto';
-import {
-  loadAdminPolicies,
-  loadReviewPolicies,
-} from '../../state/policies/policies.actions';
+import { loadAdminPolicies, loadReviewPolicies } from '../../state/policies/policies.actions';
 import {
   selectAdminActivePolicyCount,
   selectAdminActivePremium,
@@ -26,7 +23,6 @@ import {
   standalone: true,
   imports: [RouterLink, AsyncPipe, DatePipe, StatCardComponent, StatusBadgeComponent],
   templateUrl: './underwriter-dashboard.component.html',
-  styleUrl: './underwriter-dashboard.component.css',
 })
 export class UnderwriterDashboardComponent implements OnInit {
   readonly reviewPolicies$: Observable<PolicyResponse[]>;

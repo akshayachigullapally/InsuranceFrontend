@@ -8,10 +8,7 @@ import {
   PolicyResponse,
   PolicyStatus,
 } from '../../dtos/policies/policy-response.dto';
-import {
-  clearPoliciesError,
-  loadAdminPolicies,
-} from '../../state/policies/policies.actions';
+import { clearPoliciesError, loadAdminPolicies } from '../../state/policies/policies.actions';
 import {
   selectAdminPolicies,
   selectPoliciesError,
@@ -42,7 +39,6 @@ interface StatusFilter {
     StatusBadgeComponent,
   ],
   templateUrl: './admin-policies.component.html',
-  styleUrl: './admin-policies.component.css',
 })
 export class AdminPoliciesComponent implements OnInit {
   readonly policies$: Observable<PolicyResponse[]>;
@@ -51,7 +47,7 @@ export class AdminPoliciesComponent implements OnInit {
 
   protected readonly filters: StatusFilter[] = [
     { label: 'All', value: null },
-    ...POLICY_STATUSES.map(status => ({
+    ...POLICY_STATUSES.map((status) => ({
       label: this.statusLabel(status),
       value: status,
     })),
@@ -74,7 +70,7 @@ export class AdminPoliciesComponent implements OnInit {
     this.store.dispatch(clearPoliciesError());
     this.store.dispatch(loadAdminPolicies({}));
 
-    this.zoneService.getAllZones().subscribe(zones => {
+    this.zoneService.getAllZones().subscribe((zones) => {
       this.zoneNamesById = zones.reduce(
         (map, zone) => ({ ...map, [zone.id]: zone.zoneName }),
         {} as Record<number, string>,
@@ -85,16 +81,16 @@ export class AdminPoliciesComponent implements OnInit {
   protected zoneLabel(locationZoneId: number): string {
     const name = this.zoneNamesById[locationZoneId];
 
-    return name
-      ? `${name} (Zone #${locationZoneId})`
-      : `Zone #${locationZoneId}`;
+    return name ? `${name} (Zone #${locationZoneId})` : `Zone #${locationZoneId}`;
   }
 
   protected applyFilter(status: PolicyStatus | null): void {
     this.selectedStatus = status;
-    this.store.dispatch(loadAdminPolicies({
-      status: status ?? undefined,
-    }));
+    this.store.dispatch(
+      loadAdminPolicies({
+        status: status ?? undefined,
+      }),
+    );
   }
 
   protected statusLabel(status: PolicyStatus): string {

@@ -1,60 +1,39 @@
-import {
-  createFeatureSelector,
-  createSelector,
-} from '@ngrx/store';
+import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { ProductsState } from './products.state';
 
-const selectProductsState =
-  createFeatureSelector<ProductsState>('products');
+const selectProductsState = createFeatureSelector<ProductsState>('products');
 
-export const selectProducts = createSelector(
-  selectProductsState,
-  state => state.products,
-);
+export const selectProducts = createSelector(selectProductsState, (state) => state.products);
 
 export const selectAdminProducts = createSelector(
   selectProductsState,
-  state => state.adminProducts,
+  (state) => state.adminProducts,
 );
 
 export const selectSelectedProduct = createSelector(
   selectProductsState,
-  state => state.selectedProduct,
+  (state) => state.selectedProduct,
 );
 
 export const selectProductsLoading = createSelector(
   selectProductsState,
-  state => state.isLoading,
+  (state) => state.isLoading,
 );
 
-export const selectProductsSaving = createSelector(
-  selectProductsState,
-  state => state.isSaving,
-);
+export const selectProductsSaving = createSelector(selectProductsState, (state) => state.isSaving);
 
-export const selectProductsError = createSelector(
-  selectProductsState,
-  state => state.error,
-);
+export const selectProductsError = createSelector(selectProductsState, (state) => state.error);
 
-export const selectProductFilters = createSelector(
-  selectProductsState,
-  state => state.filters,
-);
+const selectProductFilters = createSelector(selectProductsState, (state) => state.filters);
 
 export const selectProductThresholdHistory = createSelector(
   selectProductsState,
-  state => state.thresholdHistory,
-);
-
-export const selectThresholdHistoryProductId = createSelector(
-  selectProductsState,
-  state => state.thresholdHistoryProductId,
+  (state) => state.thresholdHistory,
 );
 
 export const selectProductThresholdUpdate = createSelector(
   selectProductsState,
-  state => state.thresholdUpdate,
+  (state) => state.thresholdUpdate,
 );
 
 export const selectFilteredAdminProducts = createSelector(
@@ -63,14 +42,10 @@ export const selectFilteredAdminProducts = createSelector(
   (products, filters) => {
     const search = filters.search?.trim().toLowerCase();
 
-    return products.filter(product => {
-      const matchesCategory =
-        !filters.category ||
-        product.category === filters.category;
+    return products.filter((product) => {
+      const matchesCategory = !filters.category || product.category === filters.category;
 
-      const matchesStatus =
-        !filters.status ||
-        product.status === filters.status;
+      const matchesStatus = !filters.status || product.status === filters.status;
 
       const matchesSearch =
         !search ||
@@ -85,29 +60,25 @@ export const selectFilteredAdminProducts = createSelector(
 
 export const selectActiveProductCount = createSelector(
   selectAdminProducts,
-  products =>
-    products.filter(product => product.status === 'ACTIVE').length,
+  (products) => products.filter((product) => product.status === 'ACTIVE').length,
 );
 
 export const selectDraftProductCount = createSelector(
   selectAdminProducts,
-  products =>
-    products.filter(product => product.status === 'DRAFT').length,
+  (products) => products.filter((product) => product.status === 'DRAFT').length,
 );
 
 export const selectInactiveProductCount = createSelector(
   selectAdminProducts,
-  products =>
-    products.filter(product => product.status === 'INACTIVE').length,
+  (products) => products.filter((product) => product.status === 'INACTIVE').length,
 );
 
 export const selectArchivedProductCount = createSelector(
   selectAdminProducts,
-  products =>
-    products.filter(product => product.status === 'ARCHIVED').length,
+  (products) => products.filter((product) => product.status === 'ARCHIVED').length,
 );
 
 export const selectPublicProductCount = createSelector(
   selectProducts,
-  products => products.length,
+  (products) => products.length,
 );

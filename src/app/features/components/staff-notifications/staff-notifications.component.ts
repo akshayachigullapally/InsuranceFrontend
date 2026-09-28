@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
-import { Observable, filter, map, Subscription, take } from 'rxjs';
+import { Observable, filter, map, take } from 'rxjs';
 import { NotificationResponse } from '../../dtos/notifications/notification-response.dto';
 import {
   selectNotifications,
@@ -17,10 +17,7 @@ import {
   markAllAsRead,
   deleteNotification,
 } from '../../state/notifications/notifications.actions';
-import {
-  getNotificationIcon,
-  formatTimeAgo,
-} from '../../utils/notification-utils';
+import { getNotificationIcon, formatTimeAgo } from '../../utils/notification-utils';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { selectIsAuthenticated } from '../../state/auth/auth.selectors';
 

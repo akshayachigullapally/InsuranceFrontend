@@ -23,12 +23,9 @@ import {
 } from './quotes.actions';
 import { initialQuotesState, QuotesState } from './quotes.state';
 
-function upsert(
-  quotes: QuoteResponse[],
-  quote: QuoteResponse,
-): QuoteResponse[] {
-  return quotes.some(item => item.id === quote.id)
-    ? quotes.map(item => (item.id === quote.id ? quote : item))
+function upsert(quotes: QuoteResponse[], quote: QuoteResponse): QuoteResponse[] {
+  return quotes.some((item) => item.id === quote.id)
+    ? quotes.map((item) => (item.id === quote.id ? quote : item))
     : [quote, ...quotes];
 }
 
@@ -79,7 +76,7 @@ export const quotesReducer = createReducer(
     error: null,
   })),
 
-  on(acceptQuote, cancelQuote, (state, { quoteId }): QuotesState => ({
+  on(acceptQuote, cancelQuote, (state): QuotesState => ({
     ...state,
     isSaving: true,
     error: null,
@@ -92,20 +89,16 @@ export const quotesReducer = createReducer(
     isSaving: false,
   })),
 
-  on(
-    acceptQuoteSuccess,
-    (state, { quote }): QuotesState => ({
-      ...state,
-      quotes: upsert(state.quotes, quote),
-      selectedQuote:
-        state.selectedQuote?.id === quote.id ? quote : state.selectedQuote,
-      isSaving: false,
-    }),
-  ),
+  on(acceptQuoteSuccess, (state, { quote }): QuotesState => ({
+    ...state,
+    quotes: upsert(state.quotes, quote),
+    selectedQuote: state.selectedQuote?.id === quote.id ? quote : state.selectedQuote,
+    isSaving: false,
+  })),
 
   on(cancelQuoteSuccess, (state, { quoteId }): QuotesState => ({
     ...state,
-    quotes: state.quotes.map(q =>
+    quotes: state.quotes.map((q) =>
       q.id === quoteId ? { ...q, status: 'CANCELLED' as const } : q,
     ),
     selectedQuote:
@@ -147,9 +140,6 @@ export const quotesReducer = createReducer(
   })),
 );
 
-export function reducer(
-  state: QuotesState | undefined,
-  action: Action,
-): QuotesState {
+export function reducer(state: QuotesState | undefined, action: Action): QuotesState {
   return quotesReducer(state, action);
 }

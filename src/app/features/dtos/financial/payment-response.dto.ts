@@ -1,17 +1,8 @@
-export const PAYMENT_STATUSES = [
-  'PENDING',
-  'SUCCESS',
-  'FAILED',
-  'REFUNDED',
-] as const;
+const PAYMENT_STATUSES = ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'] as const;
 
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
-export const PAYMENT_METHODS = [
-  'MOCK_CARD',
-  'MOCK_BANK_TRANSFER',
-  'MOCK_UPI',
-] as const;
+export const PAYMENT_METHODS = ['MOCK_CARD', 'MOCK_BANK_TRANSFER', 'MOCK_UPI'] as const;
 
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 

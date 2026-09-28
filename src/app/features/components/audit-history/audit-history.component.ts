@@ -23,7 +23,7 @@ import { ErrorMessageComponent } from '../../../shared/components/error-message/
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 /** MINE: the signed-in user's own history. ALL: every user's history (admin only). */
-export type AuditScope = 'MINE' | 'ALL';
+type AuditScope = 'MINE' | 'ALL';
 
 const ROLE_FILTERS = ['CUSTOMER', 'UNDERWRITER', 'CLAIMS_OFFICER', 'ADMIN', 'SYSTEM'] as const;
 
@@ -65,10 +65,10 @@ export class AuditHistoryComponent implements OnInit {
     const all$ = this.store.select(selectAuditEvents);
     this.loading$ = this.store.select(selectNotificationsLoading);
     this.error$ = this.store.select(selectNotificationsError);
-    this.total$ = all$.pipe(map(events => events.length));
+    this.total$ = all$.pipe(map((events) => events.length));
 
     this.entityTypes$ = all$.pipe(
-      map(events => [...new Set(events.map(e => e.entityType).filter(Boolean))].sort()),
+      map((events) => [...new Set(events.map((e) => e.entityType).filter(Boolean))].sort()),
     );
 
     const value$ = (control: FormControl<string>) =>
@@ -85,12 +85,19 @@ export class AuditHistoryComponent implements OnInit {
         const term = search.trim().toLowerCase();
         const actorId = userId.trim();
 
-        return events.filter(e =>
-          (!entity || e.entityType === entity) &&
-          (!role || AuditHistoryComponent.roleKey(e.actorRole) === role) &&
-          (!actorId || String(e.actorUserId ?? '') === actorId) &&
-          (!term || [e.eventType, e.description, e.eventReference, e.entityType, String(e.entityId ?? '')]
-            .some(v => (v ?? '').toLowerCase().includes(term))),
+        return events.filter(
+          (e) =>
+            (!entity || e.entityType === entity) &&
+            (!role || AuditHistoryComponent.roleKey(e.actorRole) === role) &&
+            (!actorId || String(e.actorUserId ?? '') === actorId) &&
+            (!term ||
+              [
+                e.eventType,
+                e.description,
+                e.eventReference,
+                e.entityType,
+                String(e.entityId ?? ''),
+              ].some((v) => (v ?? '').toLowerCase().includes(term))),
         );
       }),
     );
@@ -106,9 +113,10 @@ export class AuditHistoryComponent implements OnInit {
   }
 
   protected showOnlyMine(): void {
-    this.store.select(selectAuthUser)
+    this.store
+      .select(selectAuthUser)
       .pipe(take(1))
-      .subscribe(user => this.userIdControl.setValue(user ? String(user.id) : ''));
+      .subscribe((user) => this.userIdControl.setValue(user ? String(user.id) : ''));
   }
 
   protected clearFilters(): void {
@@ -119,8 +127,12 @@ export class AuditHistoryComponent implements OnInit {
   }
 
   protected hasFilters(): boolean {
-    return !!(this.searchControl.value || this.entityControl.value ||
-      this.roleControl.value || this.userIdControl.value);
+    return !!(
+      this.searchControl.value ||
+      this.entityControl.value ||
+      this.roleControl.value ||
+      this.userIdControl.value
+    );
   }
 
   protected humanize(value: string | null | undefined): string {

@@ -1,11 +1,9 @@
 import {
-  DeliveryStatus,
   NotificationResponse,
-  NotificationType,
   RelatedEntityType,
 } from '../dtos/notifications/notification-response.dto';
 
-export const NOTIFICATION_ICONS: Record<string, string> = {
+const NOTIFICATION_ICONS: Record<string, string> = {
   POLICY_SUBMITTED: '📄',
   POLICY_APPROVED: '✅',
   POLICY_REJECTED: '❌',
@@ -70,7 +68,7 @@ export const NOTIFICATION_ICONS: Record<string, string> = {
   GENERAL: '📢',
 };
 
-export const NOTIFICATION_COLORS: Record<string, string> = {
+const NOTIFICATION_COLORS: Record<string, string> = {
   POLICY_SUBMITTED: 'bg-blue-100 text-blue-800',
   POLICY_APPROVED: 'bg-green-100 text-green-800',
   POLICY_REJECTED: 'bg-red-100 text-red-800',
@@ -135,19 +133,6 @@ export const NOTIFICATION_COLORS: Record<string, string> = {
   GENERAL: 'bg-gray-100 text-gray-800',
 };
 
-export const DELIVERY_STATUS_COLORS: Record<DeliveryStatus, string> = {
-  DELIVERED: 'bg-green-100 text-green-800',
-  FAILED: 'bg-red-100 text-red-800',
-  PENDING: 'bg-yellow-100 text-yellow-800',
-  SKIPPED: 'bg-gray-100 text-gray-800',
-};
-
-export const DELIVERY_CHANNEL_LABELS: Record<string, string> = {
-  IN_APP: 'In-App',
-  EMAIL: 'Email',
-  SMS: 'SMS',
-};
-
 export function getNotificationIcon(type: string): string {
   return NOTIFICATION_ICONS[type] || NOTIFICATION_ICONS['GENERAL'];
 }
@@ -156,16 +141,11 @@ export function getNotificationColor(type: string): string {
   return NOTIFICATION_COLORS[type] || NOTIFICATION_COLORS['GENERAL'];
 }
 
-export function getDeliveryStatusColor(status: string): string {
-  return DELIVERY_STATUS_COLORS[status as DeliveryStatus] || 'bg-gray-100 text-gray-800';
-}
-
-export function getDeliveryChannelLabel(channel: string): string {
-  return DELIVERY_CHANNEL_LABELS[channel] || channel;
-}
-
 export function formatNotificationType(type: string): string {
-  return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase());
+  return type
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 export function formatTimeAgo(dateString: string): string {
@@ -194,60 +174,6 @@ export function formatDateTime(dateString: string): string {
   });
 }
 
-export function groupNotificationTypesByCategory(types: readonly NotificationType[]): {
-  category: string;
-  types: NotificationType[];
-}[] {
-  const categories: Record<string, NotificationType[]> = {};
-  for (const type of types) {
-    const part = type.split('_')[0];
-    const category = categories[part] ?? [];
-    category.push(type);
-    categories[part] = category;
-  }
-  return Object.entries(categories).map(([category, items]) => ({ category, types: items }));
-}
-
-const IMPORTANT_NOTIFICATION_TYPES = new Set<NotificationType>([
-  'POLICY_APPROVED',
-  'POLICY_REJECTED',
-  'POLICY_EXPIRED',
-  'CLAIM_APPROVED',
-  'CLAIM_REJECTED',
-  'CLAIM_SETTLED',
-  'CLAIM_UNDER_REVIEW',
-  'CLAIM_ESCALATED',
-  'CLAIM_PAYMENT_INITIATED',
-  'MANUAL_CLAIM_SUBMITTED',
-  'MANUAL_CLAIM_INVESTIGATION_STARTED',
-  'MANUAL_CLAIM_INVESTIGATION_COMPLETED',
-  'AUTOMATIC_CLAIM_CREATED',
-  'TRIGGER_DETECTED',
-  'TRIGGER_VERIFIED',
-  'TRIGGER_REJECTED',
-  'TRIGGER_PROCESSED',
-  'THRESHOLD_APPROACHING',
-  'TRIGGER_THRESHOLD_EXCEEDED',
-  'TRIGGER_EVENT_DETECTED',
-  'TRIGGER_EVENT_VERIFIED',
-  'TRIGGER_EVENT_REJECTED',
-  'MANUAL_TRIGGER_CONFIRMED',
-  'MANUAL_TRIGGER_NOT_CONFIRMED',
-  'PARAMETRIC_COVERAGE_TRIGGERED',
-  'PAYOUT_INITIATED',
-  'PAYOUT_SUCCESS',
-  'PAYOUT_FAILED',
-  'PAYMENT_SUCCESS',
-  'PAYMENT_FAILED',
-  'PREMIUM_DUE',
-  'PREMIUM_OVERDUE',
-  'RECONCILIATION_DISCREPANCY',
-]);
-
-export function isImportantNotificationType(type: string): boolean {
-  return IMPORTANT_NOTIFICATION_TYPES.has(type as NotificationType);
-}
-
 const ROLE_NOTIFICATIONS_ROUTE: Record<string, string> = {
   ROLE_CUSTOMER: '/customer/notifications',
   ROLE_UNDERWRITER: '/underwriter/notifications',
@@ -261,17 +187,29 @@ function hasRole(role: string | null | undefined, expected: string): boolean {
   return role === expected || role === `ROLE_${expected}`;
 }
 
-const RELATED_ENTITY_ROUTES: Record<RelatedEntityTypeValue, (role: string, entityId?: number | null) => string | null> = {
+const RELATED_ENTITY_ROUTES: Record<
+  RelatedEntityTypeValue,
+  (role: string, entityId?: number | null) => string | null
+> = {
   POLICY: (role, id) => {
-    const prefix = hasRole(role, 'ADMIN') ? '/admin/policies' : hasRole(role, 'UNDERWRITER') ? '/underwriter/policies' : '/customer/policies';
+    const prefix = hasRole(role, 'ADMIN')
+      ? '/admin/policies'
+      : hasRole(role, 'UNDERWRITER')
+        ? '/underwriter/policies'
+        : '/customer/policies';
     return id ? `${prefix}/${id}` : prefix;
   },
   CLAIM: (role, id) => {
-    const prefix = hasRole(role, 'ADMIN') ? '/admin/claims' : hasRole(role, 'CLAIMS_OFFICER') ? '/claims-officer/claims' : '/customer/claims';
+    const prefix = hasRole(role, 'ADMIN')
+      ? '/admin/claims'
+      : hasRole(role, 'CLAIMS_OFFICER')
+        ? '/claims-officer/claims'
+        : '/customer/claims';
     return id ? `${prefix}/${id}` : prefix;
   },
   TRIGGER_EVENT: (role) => (hasRole(role, 'ADMIN') ? '/admin/trigger-events' : null),
-  PRODUCT: (role, id) => (hasRole(role, 'ADMIN') ? (id ? `/admin/products/${id}` : '/admin/products') : null),
+  PRODUCT: (role, id) =>
+    hasRole(role, 'ADMIN') ? (id ? `/admin/products/${id}` : '/admin/products') : null,
   PAYMENT: () => null,
   PAYOUT: () => null,
   QUOTE: () => null,
@@ -288,12 +226,7 @@ function notificationsRoute(role: string | null | undefined): string | null {
   if (route) {
     return route;
   }
-  const prefixes = [
-    'ROLE_CUSTOMER',
-    'ROLE_UNDERWRITER',
-    'ROLE_CLAIMS_OFFICER',
-    'ROLE_ADMIN',
-  ];
+  const prefixes = ['ROLE_CUSTOMER', 'ROLE_UNDERWRITER', 'ROLE_CLAIMS_OFFICER', 'ROLE_ADMIN'];
   for (const key of prefixes) {
     if (hasRole(role, key.replace('ROLE_', ''))) {
       return ROLE_NOTIFICATIONS_ROUTE[key];

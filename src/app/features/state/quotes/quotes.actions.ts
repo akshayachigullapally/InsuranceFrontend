@@ -1,9 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import {
-  CreateQuoteRequest,
-  MessageResponse,
-  QuoteResponse,
-} from '../../dtos/financial/quote-response.dto';
+import { CreateQuoteRequest, QuoteResponse } from '../../dtos/financial/quote-response.dto';
 
 export const loadQuotes = createAction('[Quotes] Load Quotes');
 
@@ -17,10 +13,7 @@ export const loadQuotesFailure = createAction(
   props<{ error: string }>(),
 );
 
-export const loadQuote = createAction(
-  '[Quotes] Load Quote',
-  props<{ quoteId: number }>(),
-);
+export const loadQuote = createAction('[Quotes] Load Quote', props<{ quoteId: number }>());
 
 export const loadQuoteSuccess = createAction(
   '[Quotes] Load Quote Success',
@@ -47,10 +40,7 @@ export const createQuoteFailure = createAction(
   props<{ error: string }>(),
 );
 
-export const acceptQuote = createAction(
-  '[Quotes] Accept Quote',
-  props<{ quoteId: number }>(),
-);
+export const acceptQuote = createAction('[Quotes] Accept Quote', props<{ quoteId: number }>());
 
 export const acceptQuoteSuccess = createAction(
   '[Quotes] Accept Quote Success',
@@ -62,10 +52,7 @@ export const acceptQuoteFailure = createAction(
   props<{ error: string }>(),
 );
 
-export const cancelQuote = createAction(
-  '[Quotes] Cancel Quote',
-  props<{ quoteId: number }>(),
-);
+export const cancelQuote = createAction('[Quotes] Cancel Quote', props<{ quoteId: number }>());
 
 export const cancelQuoteSuccess = createAction(
   '[Quotes] Cancel Quote Success',
@@ -77,10 +64,7 @@ export const cancelQuoteFailure = createAction(
   props<{ error: string }>(),
 );
 
-export const setQuotesSearch = createAction(
-  '[Quotes] Set Search',
-  props<{ search: string }>(),
-);
+export const setQuotesSearch = createAction('[Quotes] Set Search', props<{ search: string }>());
 
 export const clearQuotesFilters = createAction('[Quotes] Clear Filters');
 export const clearSelectedQuote = createAction('[Quotes] Clear Selected Quote');

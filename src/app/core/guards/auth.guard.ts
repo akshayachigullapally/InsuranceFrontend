@@ -1,9 +1,11 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { filter, map, switchMap, take } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
-import { selectIsAuthenticated, selectSessionRestored } from '../../features/state/auth/auth.selectors';
-import { restoreSession } from '../../features/state/auth/auth.actions';
+import {
+  selectIsAuthenticated,
+  selectSessionRestored,
+} from '../../features/state/auth/auth.selectors';
 import { TokenStorageService } from '../services/token-storage.service';
 
 export const authGuard: CanActivateFn = () => {

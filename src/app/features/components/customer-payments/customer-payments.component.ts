@@ -2,12 +2,7 @@ import { PayoutService } from '../../services/payout.service';
 import { blobErrorMessage, saveBlob } from '../../utils/file-download.util';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subject, interval, startWith, takeUntil } from 'rxjs';
@@ -31,10 +26,7 @@ import {
   selectPaymentsSaving,
   selectTotalPremiumsPaid,
 } from '../../state/payments/payments.selectors';
-import {
-  clearPayoutsError,
-  loadMyPayouts,
-} from '../../state/payouts/payouts.actions';
+import { clearPayoutsError, loadMyPayouts } from '../../state/payouts/payouts.actions';
 import {
   selectPayouts,
   selectPayoutsError,
@@ -71,7 +63,6 @@ interface PaymentForm {
     StatusBadgeComponent,
   ],
   templateUrl: './customer-payments.component.html',
-  styleUrl: './customer-payments.component.css',
 })
 export class CustomerPaymentsComponent implements OnInit, OnDestroy {
   readonly payments$: Observable<PaymentResponse[]>;
@@ -91,10 +82,7 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
 
   readonly form = new FormGroup<PaymentForm>({
     policyId: new FormControl<number | null>(null, Validators.required),
-    method: new FormControl<PaymentMethod | null>(
-      'MOCK_CARD',
-      Validators.required,
-    ),
+    method: new FormControl<PaymentMethod | null>('MOCK_CARD', Validators.required),
   });
 
   private readonly destroy$ = new Subject<void>();
@@ -119,9 +107,7 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.activeTab =
-      this.route.snapshot.queryParamMap.get('tab') === 'payouts'
-        ? 'payouts'
-        : 'payments';
+      this.route.snapshot.queryParamMap.get('tab') === 'payouts' ? 'payouts' : 'payments';
     this.store.dispatch(clearPaymentsError());
     this.store.dispatch(clearPayoutsError());
     this.store.dispatch(loadMyPolicies({}));
@@ -186,7 +172,7 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
   }
 
   protected activePolicies(policies: PolicyResponse[]): PolicyResponse[] {
-    return policies.filter(policy => policy.status === 'ACTIVE');
+    return policies.filter((policy) => policy.status === 'ACTIVE');
   }
 
   protected receiptBusyId: number | null = null;
@@ -196,7 +182,7 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
     this.receiptBusyId = payout.id;
     this.receiptError = null;
     this.payoutService.downloadReceipt(payout.id).subscribe({
-      next: blob => {
+      next: (blob) => {
         this.receiptBusyId = null;
         saveBlob(blob, `${payout.payoutReference}-receipt.pdf`);
       },
@@ -206,5 +192,4 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
       },
     });
   }
-
 }

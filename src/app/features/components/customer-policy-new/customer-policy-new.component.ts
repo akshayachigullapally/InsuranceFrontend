@@ -1,34 +1,10 @@
-import {
-  AsyncPipe,
-  DecimalPipe,
-} from '@angular/common';
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  ActivatedRoute,
-  RouterLink,
-} from '@angular/router';
+import { AsyncPipe, DecimalPipe } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import {
-  Observable,
-  Subject,
-  defer,
-} from 'rxjs';
-import {
-  distinctUntilChanged,
-  map,
-  startWith,
-  takeUntil,
-} from 'rxjs/operators';
+import { Observable, Subject, defer } from 'rxjs';
+import { distinctUntilChanged, map, startWith, takeUntil } from 'rxjs/operators';
 import {
   PRODUCT_CATEGORIES,
   ProductCategory,
@@ -50,14 +26,8 @@ import {
   createCustomPolicy,
   createPolicy,
 } from '../../state/policies/policies.actions';
-import {
-  selectPoliciesError,
-  selectPoliciesSaving,
-} from '../../state/policies/policies.selectors';
-import {
-  clearProductsError,
-  loadProducts,
-} from '../../state/products/products.actions';
+import { selectPoliciesError, selectPoliciesSaving } from '../../state/policies/policies.selectors';
+import { clearProductsError, loadProducts } from '../../state/products/products.actions';
 import {
   selectProducts,
   selectProductsError,
@@ -99,13 +69,38 @@ interface CustomPolicyForm {
 
 const OTHER_VALUE = 'OTHER';
 
-export const CUSTOM_PERILS = [
-  { value: 'EXCESS_RAINFALL', label: 'Excess Rainfall', measurementType: 'RAINFALL', measurementUnit: 'MM' },
-  { value: 'DROUGHT', label: 'Drought', measurementType: 'SOIL_MOISTURE', measurementUnit: 'PERCENTAGE' },
+const CUSTOM_PERILS = [
+  {
+    value: 'EXCESS_RAINFALL',
+    label: 'Excess Rainfall',
+    measurementType: 'RAINFALL',
+    measurementUnit: 'MM',
+  },
+  {
+    value: 'DROUGHT',
+    label: 'Drought',
+    measurementType: 'SOIL_MOISTURE',
+    measurementUnit: 'PERCENTAGE',
+  },
   { value: 'FLOOD', label: 'Flood', measurementType: 'WATER_LEVEL', measurementUnit: 'METER' },
-  { value: 'EXTREME_TEMPERATURE', label: 'Extreme Temperature', measurementType: 'TEMPERATURE', measurementUnit: 'CELSIUS' },
-  { value: 'HIGH_WIND', label: 'High Wind', measurementType: 'WIND_SPEED', measurementUnit: 'KM_PER_HOUR' },
-  { value: 'CYCLONE', label: 'Cyclone', measurementType: 'WIND_SPEED', measurementUnit: 'KM_PER_HOUR' },
+  {
+    value: 'EXTREME_TEMPERATURE',
+    label: 'Extreme Temperature',
+    measurementType: 'TEMPERATURE',
+    measurementUnit: 'CELSIUS',
+  },
+  {
+    value: 'HIGH_WIND',
+    label: 'High Wind',
+    measurementType: 'WIND_SPEED',
+    measurementUnit: 'KM_PER_HOUR',
+  },
+  {
+    value: 'CYCLONE',
+    label: 'Cyclone',
+    measurementType: 'WIND_SPEED',
+    measurementUnit: 'KM_PER_HOUR',
+  },
   { value: 'OTHER', label: 'Other', measurementType: null, measurementUnit: null },
 ] as const;
 
@@ -123,35 +118,13 @@ export const CUSTOM_PERILS = [
     ParametricTriggerCardComponent,
   ],
   templateUrl: './customer-policy-new.component.html',
-  styleUrl: './customer-policy-new.component.css',
 })
 export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
   readonly form = new FormGroup<PolicyForm>({
-    productId: new FormControl<number | null>(
-      null,
-      Validators.required,
-    ),
-    sumInsured: new FormControl<number | null>(
-      null,
-      [
-        Validators.required,
-        Validators.min(1),
-      ],
-    ),
-    termMonths: new FormControl<number | null>(
-      null,
-      [
-        Validators.required,
-        Validators.min(1),
-      ],
-    ),
-    locationZoneId: new FormControl<number | null>(
-      null,
-      [
-        Validators.required,
-        Validators.min(1),
-      ],
-    ),
+    productId: new FormControl<number | null>(null, Validators.required),
+    sumInsured: new FormControl<number | null>(null, [Validators.required, Validators.min(1)]),
+    termMonths: new FormControl<number | null>(null, [Validators.required, Validators.min(1)]),
+    locationZoneId: new FormControl<number | null>(null, [Validators.required, Validators.min(1)]),
   });
 
   readonly customForm = new FormGroup<CustomPolicyForm>({
@@ -171,18 +144,9 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       nonNullable: true,
       validators: [Validators.maxLength(150)],
     }),
-    sumInsured: new FormControl<number | null>(
-      null,
-      [Validators.required, Validators.min(1)],
-    ),
-    termMonths: new FormControl<number | null>(
-      null,
-      [Validators.required, Validators.min(1)],
-    ),
-    locationZoneId: new FormControl<number | null>(
-      null,
-      [Validators.required, Validators.min(1)],
-    ),
+    sumInsured: new FormControl<number | null>(null, [Validators.required, Validators.min(1)]),
+    termMonths: new FormControl<number | null>(null, [Validators.required, Validators.min(1)]),
+    locationZoneId: new FormControl<number | null>(null, [Validators.required, Validators.min(1)]),
     perilCode: new FormControl('EXCESS_RAINFALL', {
       nonNullable: true,
       validators: [Validators.required],
@@ -207,10 +171,10 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       nonNullable: true,
       validators: [Validators.maxLength(150)],
     }),
-    thresholdValue: new FormControl<number | null>(
-      null,
-      [Validators.required, Validators.min(0.01)],
-    ),
+    thresholdValue: new FormControl<number | null>(null, [
+      Validators.required,
+      Validators.min(0.01),
+    ]),
     comparisonOperator: new FormControl('GREATER_THAN_OR_EQUAL', {
       nonNullable: true,
       validators: [Validators.required],
@@ -219,14 +183,15 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       nonNullable: true,
       validators: [Validators.required],
     }),
-    observationWindowHours: new FormControl<number | null>(
-      24,
-      [Validators.required, Validators.min(1), Validators.max(720)],
-    ),
-    minimumObservationCount: new FormControl<number | null>(
-      2,
-      [Validators.required, Validators.min(1)],
-    ),
+    observationWindowHours: new FormControl<number | null>(24, [
+      Validators.required,
+      Validators.min(1),
+      Validators.max(720),
+    ]),
+    minimumObservationCount: new FormControl<number | null>(2, [
+      Validators.required,
+      Validators.min(1),
+    ]),
     triggerDescription: new FormControl('', {
       nonNullable: true,
       validators: [Validators.maxLength(1000)],
@@ -281,10 +246,7 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
         startWith(null),
         map(() => {
           const { sumInsured, termMonths } = this.form.getRawValue();
-          return CustomerPolicyNewComponent.estimatePremium(
-            sumInsured,
-            termMonths,
-          );
+          return CustomerPolicyNewComponent.estimatePremium(sumInsured, termMonths);
         }),
       ),
     );
@@ -294,31 +256,18 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
         startWith(null),
         map(() => {
           const { sumInsured, termMonths } = this.customForm.getRawValue();
-          return CustomerPolicyNewComponent.estimatePremium(
-            sumInsured,
-            termMonths,
-          );
+          return CustomerPolicyNewComponent.estimatePremium(sumInsured, termMonths);
         }),
       ),
     );
   }
 
-  static estimatePremium(
-    sumInsured: number | null,
-    termMonths: number | null,
-  ): number {
-    if (
-      sumInsured === null ||
-      sumInsured <= 0 ||
-      termMonths === null ||
-      termMonths <= 0
-    ) {
+  static estimatePremium(sumInsured: number | null, termMonths: number | null): number {
+    if (sumInsured === null || sumInsured <= 0 || termMonths === null || termMonths <= 0) {
       return 0;
     }
 
-    return Math.round(
-      sumInsured * 0.02 * (termMonths / 12) * 100,
-    ) / 100;
+    return Math.round(sumInsured * 0.02 * (termMonths / 12) * 100) / 100;
   }
 
   ngOnInit(): void {
@@ -329,32 +278,24 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
     // Listen for product changes before the quote or store emits, so a product
     // preselected from ?productId= or ?quoteId= still applies its limits.
     this.form.controls.productId.valueChanges
-      .pipe(
-        distinctUntilChanged(),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(productId => {
+      .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((productId) => {
         this.updateSelectedProduct(productId);
       });
 
-    const queryProductId = Number(
-      this.route.snapshot.queryParamMap.get('productId'),
-    );
+    const queryProductId = Number(this.route.snapshot.queryParamMap.get('productId'));
 
     this.requestedProductId =
-      Number.isInteger(queryProductId) && queryProductId > 0
-        ? queryProductId
-        : null;
+      Number.isInteger(queryProductId) && queryProductId > 0 ? queryProductId : null;
 
-    const queryQuoteId = Number(
-      this.route.snapshot.queryParamMap.get('quoteId'),
-    );
+    const queryQuoteId = Number(this.route.snapshot.queryParamMap.get('quoteId'));
 
     if (Number.isInteger(queryQuoteId) && queryQuoteId > 0) {
-      this.quoteService.getQuote(queryQuoteId)
+      this.quoteService
+        .getQuote(queryQuoteId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
-          next: quote => this.applyQuote(quote),
+          next: (quote) => this.applyQuote(quote),
           error: () => {
             this.quoteId = null;
             this.appliedQuote = null;
@@ -362,19 +303,14 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
         });
     }
 
-    this.products$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(products => {
-        this.products = products;
-        this.selectRequestedProduct();
-      });
+    this.products$.pipe(takeUntil(this.destroy$)).subscribe((products) => {
+      this.products = products;
+      this.selectRequestedProduct();
+    });
 
     this.customForm.controls.perilCode.valueChanges
-      .pipe(
-        distinctUntilChanged(),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(perilCode => {
+      .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((perilCode) => {
         this.applyPerilDefaults(perilCode);
       });
 
@@ -413,10 +349,7 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
   ): void {
     const sync = (value: string): void => {
       if (value === OTHER_VALUE) {
-        detailControl.setValidators([
-          Validators.required,
-          Validators.maxLength(150),
-        ]);
+        detailControl.setValidators([Validators.required, Validators.maxLength(150)]);
       } else {
         detailControl.setValidators([Validators.maxLength(150)]);
         detailControl.setValue('');
@@ -427,10 +360,7 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
     sync(selectControl.value);
 
     selectControl.valueChanges
-      .pipe(
-        distinctUntilChanged(),
-        takeUntil(this.destroy$),
-      )
+      .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe(sync);
   }
 
@@ -452,12 +382,12 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
   }
 
   protected perilLocksMeasurement(perilCode: string): boolean {
-    const peril = this.perils.find(item => item.value === perilCode);
+    const peril = this.perils.find((item) => item.value === perilCode);
     return !!peril?.measurementType;
   }
 
   private applyPerilDefaults(perilCode: string): void {
-    const peril = this.perils.find(item => item.value === perilCode);
+    const peril = this.perils.find((item) => item.value === perilCode);
 
     if (!peril?.measurementType || !peril.measurementUnit) {
       return;
@@ -488,12 +418,7 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const {
-      productId,
-      sumInsured,
-      termMonths,
-      locationZoneId,
-    } = this.form.getRawValue();
+    const { productId, sumInsured, termMonths, locationZoneId } = this.form.getRawValue();
 
     if (
       productId === null ||
@@ -507,30 +432,28 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
 
     this.store.dispatch(clearPoliciesError());
 
-    this.store.dispatch(createPolicy({
-      request: {
-        productId,
-        sumInsured,
-        termMonths,
-        locationZoneId,
-        quoteId: this.quoteId ?? undefined,
-        perilCode: this.selectedProduct.perilCode || undefined,
-        triggerMetric: this.selectedProduct.measurementType || undefined,
-        triggerOperator: this.selectedProduct.comparisonOperator || undefined,
-        triggerThreshold: this.selectedProduct.thresholdValue ?? undefined,
-        triggerDurationHours: this.selectedProduct.observationWindowHours ?? undefined,
-        triggerAggregationType: this.selectedProduct.aggregationType || undefined,
-        triggerMinObservationCount: this.selectedProduct.minimumObservationCount ?? undefined,
-      },
-    }));
+    this.store.dispatch(
+      createPolicy({
+        request: {
+          productId,
+          sumInsured,
+          termMonths,
+          locationZoneId,
+          quoteId: this.quoteId ?? undefined,
+          perilCode: this.selectedProduct.perilCode || undefined,
+          triggerMetric: this.selectedProduct.measurementType || undefined,
+          triggerOperator: this.selectedProduct.comparisonOperator || undefined,
+          triggerThreshold: this.selectedProduct.thresholdValue ?? undefined,
+          triggerDurationHours: this.selectedProduct.observationWindowHours ?? undefined,
+          triggerAggregationType: this.selectedProduct.aggregationType || undefined,
+          triggerMinObservationCount: this.selectedProduct.minimumObservationCount ?? undefined,
+        },
+      }),
+    );
   }
 
   protected onSubmitCustom(): void {
-    if (
-      this.customForm.invalid ||
-      this.zonesLoading ||
-      this.zones.length === 0
-    ) {
+    if (this.customForm.invalid || this.zonesLoading || this.zones.length === 0) {
       this.customForm.markAllAsTouched();
       return;
     }
@@ -575,35 +498,33 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       ),
       raw.triggerDescription.trim(),
     ]
-      .filter(part => part.length > 0)
+      .filter((part) => part.length > 0)
       .join(' | ');
 
-    this.store.dispatch(createCustomPolicy({
-      request: {
-        name: raw.name.trim() || undefined,
-        description: description || undefined,
-        category: raw.category,
-        sumInsured: raw.sumInsured,
-        termMonths: raw.termMonths,
-        locationZoneId: raw.locationZoneId,
-        perilCode: raw.perilCode,
-        measurementType: raw.measurementType,
-        measurementUnit: raw.measurementUnit,
-        thresholdValue: raw.thresholdValue,
-        comparisonOperator: raw.comparisonOperator,
-        aggregationType: raw.aggregationType,
-        observationWindowHours: raw.observationWindowHours,
-        minimumObservationCount: raw.minimumObservationCount,
-        triggerDescription: triggerDescription || undefined,
-      },
-    }));
+    this.store.dispatch(
+      createCustomPolicy({
+        request: {
+          name: raw.name.trim() || undefined,
+          description: description || undefined,
+          category: raw.category,
+          sumInsured: raw.sumInsured,
+          termMonths: raw.termMonths,
+          locationZoneId: raw.locationZoneId,
+          perilCode: raw.perilCode,
+          measurementType: raw.measurementType,
+          measurementUnit: raw.measurementUnit,
+          thresholdValue: raw.thresholdValue,
+          comparisonOperator: raw.comparisonOperator,
+          aggregationType: raw.aggregationType,
+          observationWindowHours: raw.observationWindowHours,
+          minimumObservationCount: raw.minimumObservationCount,
+          triggerDescription: triggerDescription || undefined,
+        },
+      }),
+    );
   }
 
-  private static appendOtherDetail(
-    base: string,
-    otherDetail: string,
-    label: string,
-  ): string {
+  private static appendOtherDetail(base: string, otherDetail: string, label: string): string {
     const trimmedBase = base.trim();
     const trimmedDetail = otherDetail.trim();
 
@@ -661,21 +582,15 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const product = this.products.find(
-      item => item.id === this.requestedProductId,
-    );
+    const product = this.products.find((item) => item.id === this.requestedProductId);
 
     if (product) {
       this.form.controls.productId.setValue(product.id);
     }
   }
 
-  private updateSelectedProduct(
-    productId: number | null,
-  ): void {
-    this.selectedProduct =
-      this.products.find(product => product.id === productId) ??
-      null;
+  private updateSelectedProduct(productId: number | null): void {
+    this.selectedProduct = this.products.find((product) => product.id === productId) ?? null;
 
     const sumControl = this.form.controls.sumInsured;
     const termControl = this.form.controls.termMonths;
@@ -688,22 +603,14 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
 
     sumControl.setValidators([
       Validators.required,
-      Validators.min(
-        this.selectedProduct.minimumSumInsured,
-      ),
-      Validators.max(
-        this.selectedProduct.maximumSumInsured,
-      ),
+      Validators.min(this.selectedProduct.minimumSumInsured),
+      Validators.max(this.selectedProduct.maximumSumInsured),
     ]);
 
     termControl.setValidators([
       Validators.required,
-      Validators.min(
-        this.selectedProduct.minimumTermMonths,
-      ),
-      Validators.max(
-        this.selectedProduct.maximumTermMonths,
-      ),
+      Validators.min(this.selectedProduct.minimumTermMonths),
+      Validators.max(this.selectedProduct.maximumTermMonths),
     ]);
 
     if (this.appliedQuote && this.appliedQuote.productId === productId) {
@@ -712,13 +619,9 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       sumControl.disable();
       termControl.disable();
     } else {
-      sumControl.setValue(
-        this.selectedProduct.minimumSumInsured,
-      );
+      sumControl.setValue(this.selectedProduct.minimumSumInsured);
 
-      termControl.setValue(
-        this.selectedProduct.minimumTermMonths,
-      );
+      termControl.setValue(this.selectedProduct.minimumTermMonths);
     }
 
     sumControl.updateValueAndValidity();
@@ -735,24 +638,21 @@ export class CustomerPolicyNewComponent implements OnInit, OnDestroy {
       .getActiveZones()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: zones => {
+        next: (zones) => {
           this.zones = zones;
           this.zonesLoading = false;
           this.form.controls.locationZoneId.enable();
           this.customForm.controls.locationZoneId.enable();
 
           if (this.pendingQuoteZoneId !== null) {
-            this.form.controls.locationZoneId.setValue(
-              this.pendingQuoteZoneId,
-            );
+            this.form.controls.locationZoneId.setValue(this.pendingQuoteZoneId);
             this.form.controls.locationZoneId.disable();
           }
         },
         error: () => {
           this.zones = [];
           this.zonesLoading = false;
-          this.zonesError =
-            'Location zones could not be loaded. Please try again.';
+          this.zonesError = 'Location zones could not be loaded. Please try again.';
           this.form.controls.locationZoneId.disable();
           this.customForm.controls.locationZoneId.disable();
         },

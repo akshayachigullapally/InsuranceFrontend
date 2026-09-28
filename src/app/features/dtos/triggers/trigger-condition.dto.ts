@@ -1,15 +1,3 @@
-export const TRIGGER_MEASUREMENT_TYPES = [
-  'RAINFALL',
-  'WATER_LEVEL',
-  'RIVER_LEVEL',
-  'TEMPERATURE',
-  'WIND_SPEED',
-  'HUMIDITY',
-  'SOIL_MOISTURE',
-  'OTHER',
-] as const;
-
-export type TriggerMeasurementType = (typeof TRIGGER_MEASUREMENT_TYPES)[number];
 export type TriggerMeasurementTypeValue = string;
 
 export const PRODUCT_MEASUREMENT_TYPES = [
@@ -34,7 +22,6 @@ export const TRIGGER_MEASUREMENT_UNITS = [
   'OTHER',
 ] as const;
 
-export type TriggerMeasurementUnit = (typeof TRIGGER_MEASUREMENT_UNITS)[number];
 export type TriggerMeasurementUnitValue = string;
 
 export const TRIGGER_COMPARISON_OPERATORS = [
@@ -45,28 +32,12 @@ export const TRIGGER_COMPARISON_OPERATORS = [
   'EQUAL',
 ] as const;
 
-export type TriggerComparisonOperator =
-  (typeof TRIGGER_COMPARISON_OPERATORS)[number];
 export type TriggerComparisonOperatorValue = string;
 
-export const TRIGGER_AGGREGATION_TYPES = [
-  'SUM',
-  'AVERAGE',
-  'MIN',
-  'MAX',
-  'LATEST',
-] as const;
+export const TRIGGER_AGGREGATION_TYPES = ['SUM', 'AVERAGE', 'MIN', 'MAX', 'LATEST'] as const;
 
-export type TriggerAggregationType = (typeof TRIGGER_AGGREGATION_TYPES)[number];
 export type TriggerAggregationTypeValue = string;
 
-export const TRIGGER_SYNC_STATUSES = [
-  'PENDING',
-  'SYNCED',
-  'FAILED',
-] as const;
-
-export type TriggerSyncStatus = (typeof TRIGGER_SYNC_STATUSES)[number];
 export type TriggerSyncStatusValue = string;
 
 export interface TriggerCondition {
@@ -135,11 +106,7 @@ export interface ProductTriggerThresholdHistoryResponse {
   triggerSyncStatus?: string | null;
 }
 
-export type LiveConditionState =
-  | 'NO_DATA'
-  | 'NORMAL'
-  | 'APPROACHING'
-  | 'THRESHOLD_EXCEEDED';
+export type LiveConditionState = 'NO_DATA' | 'NORMAL' | 'APPROACHING' | 'THRESHOLD_EXCEEDED';
 
 export interface LiveCondition {
   zoneId: number;
