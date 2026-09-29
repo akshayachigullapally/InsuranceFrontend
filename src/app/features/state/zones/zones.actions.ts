@@ -80,6 +80,16 @@ export const updateZoneStatusFailure = createAction(
   props<{ error: string }>(),
 );
 
+export const updateZoneAlert = createAction(
+  '[Zones] Update Zone Alert',
+  props<{ zoneId: number; active: boolean; message?: string }>(),
+);
+
+export const updateZoneExposureCap = createAction(
+  '[Zones] Update Zone Exposure Cap',
+  props<{ zoneId: number; maxExposure: number | null }>(),
+);
+
 export const archiveZone = createAction(
   '[Zones] Archive Zone',
   props<{ zoneId: number }>(),

@@ -1,0 +1,101 @@
+<section class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">Underwriting controls</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">Zone exposure</h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Total cover of active and pending policies in each zone against its cap. Sales stop when a zone
+        reaches its cap or is under a weather alert.
+      </p>
+    </div>
+
+    <div class="flex gap-3">
+      <a routerLink="/admin/zones" class="btn-outline">Manage alerts &amp; caps</a>
+      <button type="button" class="btn-brand" (click)="load()" [disabled]="loading()">Refresh</button>
+    </div>
+  </div>
+
+  <app-error-message [error]="error()" />
+
+  <div class="grid gap-4 sm:grid-cols-3">
+    <app-stat-card label="Total cover in force" [value]="'₹ ' + (totalCover() | number: '1.0-0')" icon="🛡️" color="blue" hint="Active + pending" />
+    <app-stat-card label="Zones under weather alert" [value]="zonesOnAlert()" icon="⚠️" color="red" hint="Sales paused" />
+    <app-stat-card label="Zones closed to new sales" [value]="zonesClosed()" icon="⛔" color="amber" hint="Alert or cap reached" />
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner label="Loading zone exposure..." />
+  } @else if (zones().length) {
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Zone</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Cover used</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Utilisation</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Policies</th>
+              <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">New sales</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            @for (zone of zones(); track zone.zoneId) {
+              <tr>
+                <td class="px-6 py-4">
+                  <p class="text-sm font-semibold text-gray-900">{{ zone.zoneName }}</p>
+                  <p class="text-xs text-gray-400">{{ zone.zoneCode }}</p>
+                </td>
+
+                <td class="px-6 py-4 text-sm text-gray-700">
+                  <p class="font-semibold">₹ {{ zone.usedExposure | number: '1.0-0' }}</p>
+                  <p class="text-xs text-gray-500">
+                    @if (zone.maxExposure) {
+                      of ₹ {{ zone.maxExposure | number: '1.0-0' }} cap · ₹ {{ zone.remainingExposure | number: '1.0-0' }} left
+                    } @else {
+                      No cap set
+                    }
+                  </p>
+                </td>
+
+                <td class="w-64 px-6 py-4">
+                  @if (zone.maxExposure) {
+                    <div class="h-2.5 w-full overflow-hidden rounded-full bg-gray-100" role="progressbar"
+                         [attr.aria-valuenow]="zone.utilizationPercent" aria-valuemin="0" aria-valuemax="100"
+                         [attr.aria-label]="zone.zoneName + ' exposure used'">
+                      <div class="h-full rounded-full" [class]="barClass(zone)" [style.width.%]="barWidth(zone)"></div>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-600">{{ zone.utilizationPercent | number: '1.1-1' }}% used</p>
+                  } @else {
+                    <p class="text-xs text-gray-400">—</p>
+                  }
+                </td>
+
+                <td class="px-6 py-4 text-xs text-gray-600">
+                  <p>{{ zone.activePolicyCount }} active · ₹ {{ zone.activeExposure | number: '1.0-0' }}</p>
+                  <p>{{ zone.pendingPolicyCount }} pending · ₹ {{ zone.pendingExposure | number: '1.0-0' }}</p>
+                </td>
+
+                <td class="px-6 py-4 text-xs">
+                  <span class="inline-flex rounded-full px-2 py-0.5 font-semibold"
+                        [class]="zone.salesOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                    {{ salesLabel(zone) }}
+                  </span>
+                  @if (zone.weatherAlert && zone.alertMessage) {
+                    <p class="mt-1 max-w-48 text-gray-500">
+                      {{ zone.alertMessage }}
+                      @if (zone.alertRaisedAt) {
+                        · since {{ zone.alertRaisedAt | date: 'd MMM, HH:mm' }}
+                      }
+                    </p>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  } @else if (!error()) {
+    <app-empty-state title="No active zones" message="Activate a location zone to see its exposure." icon="📍" />
+  }
+</section>

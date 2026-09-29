@@ -224,5 +224,9 @@ export interface AuditEventResponse {
   entityId: number;
   description?: string | null;
   correlationId?: string | null;
+  /** Value before the change, e.g. "Threshold: 150 mm"; absent for events that change nothing. */
+  oldValue?: string | null;
+  /** Value after the change, e.g. "Threshold: 200 mm". */
+  newValue?: string | null;
   createdAt: string;
 }

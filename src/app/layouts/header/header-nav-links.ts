@@ -60,6 +60,7 @@ export const ROLE_MORE_MENU: Record<string, HeaderMoreGroup[]> = {
       items: [
         { label: 'Perils', routerLink: '/admin/perils', icon: '⚡' },
         { label: 'Zones', routerLink: '/admin/zones', icon: '📍' },
+        { label: 'Zone Exposure', routerLink: '/admin/zone-exposure', icon: '📊' },
       ],
     },
     {

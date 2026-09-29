@@ -43,12 +43,12 @@ function watchEvents(page: AuditInternals): () => string[] {
   return () => latest;
 }
 
-async function setup(auditScope: 'ALL' | 'MINE') {
+async function setup(auditScope: 'ALL' | 'MINE', events: object[] = auditEvents) {
   await TestBed.configureTestingModule({
     providers: pageTestProviders(
       {
         auth: loggedInAuth('ROLE_ADMIN'),
-        notifications: { ...mockRootState().notifications, auditEvents },
+        notifications: { ...mockRootState().notifications, auditEvents: events },
       },
       [{ path: 'audit', component: AuditHistoryComponent, data: { auditScope } }],
     ),
@@ -58,10 +58,41 @@ async function setup(auditScope: 'ALL' | 'MINE') {
   vi.spyOn(store, 'dispatch');
   const harness = await RouterTestingHarness.create();
   const component = await harness.navigateByUrl('/audit', AuditHistoryComponent);
-  return { page: component as unknown as AuditInternals, store };
+  return { page: component as unknown as AuditInternals, store, harness };
 }
 
+const thresholdChange = {
+  id: 4,
+  eventReference: 'AUD-4',
+  eventType: 'PRODUCT_THRESHOLD_UPDATED',
+  entityType: 'PRODUCT',
+  entityId: 1,
+  actorRole: 'ROLE_ADMIN',
+  actorUserId: 1,
+  description: 'Changed trigger threshold of product WEATHER-001 from 150 to 200',
+  oldValue: 'Threshold: 150 mm',
+  newValue: 'Threshold: 200 mm',
+};
+
 describe('AuditHistoryComponent', () => {
+  it('shows the before and after values of a change', async () => {
+    const { harness } = await setup('ALL', [...auditEvents, thresholdChange]);
+    harness.detectChanges();
+
+    const changes = harness.routeNativeElement!.querySelectorAll('[data-testid="audit-change"]');
+    expect(changes.length).toBe(1);
+    expect(changes[0].textContent).toContain('Threshold: 150 mm');
+    expect(changes[0].textContent).toContain('Threshold: 200 mm');
+  });
+
+  it('finds events by their before or after value', async () => {
+    const { page } = await setup('ALL', [...auditEvents, thresholdChange]);
+    const visible = watchEvents(page);
+
+    page.searchControl.setValue('200 mm');
+    expect(visible()).toEqual(['AUD-4']);
+  });
+
   it('loads every audit event for the ALL scope', async () => {
     const { page, store } = await setup('ALL');
 

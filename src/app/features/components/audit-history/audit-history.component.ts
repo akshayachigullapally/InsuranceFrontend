@@ -94,6 +94,8 @@ export class AuditHistoryComponent implements OnInit {
               [
                 e.eventType,
                 e.description,
+                e.oldValue,
+                e.newValue,
                 e.eventReference,
                 e.entityType,
                 String(e.entityId ?? ''),

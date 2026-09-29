@@ -24,6 +24,8 @@ describe('ZonesEffects', () => {
       getAllZones: vi.fn(),
       createZone: vi.fn(),
       updateZoneStatus: vi.fn(),
+      updateZoneAlert: vi.fn(),
+      updateZoneExposureCap: vi.fn(),
       archiveZone: vi.fn(),
     };
 
@@ -50,6 +52,26 @@ describe('ZonesEffects', () => {
     actions$ = of(ZonesActions.loadZones({}));
 
     expect(collect(effects.loadZones$)).toEqual([ZonesActions.loadZonesFailure({ error: 'Service down' })]);
+  });
+
+  it('raises a weather alert and returns the updated zone', () => {
+    const alerted = { ...zone, weatherAlert: true, alertMessage: 'Cyclone' } as ZoneResponse;
+    zoneService['updateZoneAlert'].mockReturnValue(of(alerted));
+    actions$ = of(ZonesActions.updateZoneAlert({ zoneId: 1, active: true, message: 'Cyclone' }));
+
+    expect(collect(effects.updateZoneAlert$)).toEqual([ZonesActions.updateZoneStatusSuccess({ zone: alerted })]);
+    expect(zoneService['updateZoneAlert']).toHaveBeenCalledWith(1, true, 'Cyclone');
+  });
+
+  it('sets an exposure cap and maps errors to a failure', () => {
+    zoneService['updateZoneExposureCap'].mockReturnValue(
+      throwError(() => ({ error: { message: 'Exposure cap must be greater than zero' } })),
+    );
+    actions$ = of(ZonesActions.updateZoneExposureCap({ zoneId: 1, maxExposure: 0 }));
+
+    expect(collect(effects.updateZoneExposureCap$)).toEqual([
+      ZonesActions.updateZoneStatusFailure({ error: 'Exposure cap must be greater than zero' }),
+    ]);
   });
 
   it('creates a zone', () => {

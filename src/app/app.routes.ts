@@ -370,6 +370,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'zone-exposure',
+        loadComponent: () =>
+          import('./features/components/admin-zone-exposure/admin-zone-exposure.component').then(
+            (m) => m.AdminZoneExposureComponent,
+          ),
+      },
+      {
         path: 'current-measurements',
         loadComponent: () =>
           import('./features/components/admin-current-measurements/admin-current-measurements.component').then(

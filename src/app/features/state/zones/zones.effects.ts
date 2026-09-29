@@ -19,6 +19,8 @@ import {
   loadZonesSuccess,
   updateZone,
   updateZoneFailure,
+  updateZoneAlert,
+  updateZoneExposureCap,
   updateZoneStatus,
   updateZoneStatusFailure,
   updateZoneStatusSuccess,
@@ -93,6 +95,35 @@ export class ZonesEffects {
       ofType(updateZoneStatus),
       exhaustMap(({ zoneId, status }) =>
         this.zoneService.updateZoneStatus(zoneId, status).pipe(
+          map(zone => updateZoneStatusSuccess({ zone })),
+          catchError(error =>
+            of(updateZoneStatusFailure({ error: httpErrorMessage(error) })),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  // Alert and cap changes return the updated zone, so they reuse the status-update result actions.
+  updateZoneAlert$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(updateZoneAlert),
+      exhaustMap(({ zoneId, active, message }) =>
+        this.zoneService.updateZoneAlert(zoneId, active, message).pipe(
+          map(zone => updateZoneStatusSuccess({ zone })),
+          catchError(error =>
+            of(updateZoneStatusFailure({ error: httpErrorMessage(error) })),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  updateZoneExposureCap$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(updateZoneExposureCap),
+      exhaustMap(({ zoneId, maxExposure }) =>
+        this.zoneService.updateZoneExposureCap(zoneId, maxExposure).pipe(
           map(zone => updateZoneStatusSuccess({ zone })),
           catchError(error =>
             of(updateZoneStatusFailure({ error: httpErrorMessage(error) })),

@@ -81,6 +81,7 @@
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Coordinates</th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Radius</th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Sales controls</th>
                 <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
               </tr>
             </thead>
@@ -117,6 +118,26 @@
                     <app-status-badge [status]="zone.status" />
                   </td>
 
+                  <td class="px-6 py-4 text-xs">
+                    @if (zone.weatherAlert) {
+                      <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 font-semibold text-red-800">
+                        ⚠ Weather alert – sales paused
+                      </span>
+                      @if (zone.alertMessage) {
+                        <p class="mt-1 max-w-48 text-gray-500">{{ zone.alertMessage }}</p>
+                      }
+                    } @else {
+                      <span class="text-gray-500">No alert</span>
+                    }
+                    <p class="mt-1 text-gray-600">
+                      @if (zone.maxExposure) {
+                        Cap: ₹ {{ zone.maxExposure | number:'1.0-0' }}
+                      } @else {
+                        No exposure cap
+                      }
+                    </p>
+                  </td>
+
                   <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
                     <div class="flex items-center justify-end gap-3">
                       <button
@@ -149,6 +170,24 @@
                           }
                         </select>
                       }
+
+                      <button
+                        type="button"
+                        [class]="zone.weatherAlert
+                          ? 'font-semibold text-success-700 hover:underline'
+                          : 'font-semibold text-warn-700 hover:underline'"
+                        (click)="toggleAlert(zone)"
+                      >
+                        {{ zone.weatherAlert ? 'Clear alert' : 'Raise alert' }}
+                      </button>
+
+                      <button
+                        type="button"
+                        class="font-semibold text-brand-600 hover:text-brand-700"
+                        (click)="setExposureCap(zone)"
+                      >
+                        Set cap
+                      </button>
 
                       <button
                         type="button"

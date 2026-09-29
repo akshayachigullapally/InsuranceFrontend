@@ -5,6 +5,9 @@ import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
 import {
   MessageResponse,
   UpdateZoneStatusRequest,
+  ZoneAlertRequest,
+  ZoneExposureCapRequest,
+  ZoneExposureResponse,
   ZoneManageableStatus,
   ZoneRequest,
   ZoneResponse,
@@ -65,6 +68,24 @@ export class ZoneService {
       API_ENDPOINTS.triggers.zoneStatus(zoneId),
       request,
     );
+  }
+
+  /** Raise (active=true) or clear the zone's weather alert; a raised alert pauses new sales. */
+  updateZoneAlert(zoneId: number, active: boolean, message?: string): Observable<ZoneResponse> {
+    const request: ZoneAlertRequest = { active, message: message?.trim() || undefined };
+
+    return this.http.put<ZoneResponse>(API_ENDPOINTS.triggers.zoneAlert(zoneId), request);
+  }
+
+  /** Set the zone's maximum total cover; null removes the cap. */
+  updateZoneExposureCap(zoneId: number, maxExposure: number | null): Observable<ZoneResponse> {
+    const request: ZoneExposureCapRequest = { maxExposure };
+
+    return this.http.put<ZoneResponse>(API_ENDPOINTS.triggers.zoneExposureCap(zoneId), request);
+  }
+
+  getZoneExposure(): Observable<ZoneExposureResponse[]> {
+    return this.http.get<ZoneExposureResponse[]>(API_ENDPOINTS.policies.zoneExposure);
   }
 
   archiveZone(zoneId: number): Observable<MessageResponse> {

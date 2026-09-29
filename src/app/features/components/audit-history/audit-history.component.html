@@ -126,6 +126,17 @@
                   </td>
                   <td class="max-w-md px-6 py-3 text-sm break-words text-gray-900">
                     {{ event.description || '—' }}
+                    @if (event.oldValue || event.newValue) {
+                      <div class="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs" data-testid="audit-change">
+                        <span class="rounded bg-red-50 px-1.5 py-0.5 text-red-700 line-through decoration-red-300">
+                          {{ event.oldValue || '—' }}
+                        </span>
+                        <span class="text-gray-400" aria-label="changed to">→</span>
+                        <span class="rounded bg-green-50 px-1.5 py-0.5 font-medium text-green-700">
+                          {{ event.newValue || '—' }}
+                        </span>
+                      </div>
+                    }
                   </td>
                   <td class="px-6 py-3 text-sm whitespace-nowrap text-gray-600">
                     {{ humanize(event.entityType) }}

@@ -19,6 +19,8 @@ import {
   setZonesSearch,
   updateZone,
   updateZoneFailure,
+  updateZoneAlert,
+  updateZoneExposureCap,
   updateZoneStatus,
   updateZoneStatusFailure,
   updateZoneStatusSuccess,
@@ -91,6 +93,8 @@ export const zonesReducer = createReducer(
   on(
     updateZone,
     updateZoneStatus,
+    updateZoneAlert,
+    updateZoneExposureCap,
     (state, { zoneId }): ZonesState => ({
       ...state,
       isSaving: true,

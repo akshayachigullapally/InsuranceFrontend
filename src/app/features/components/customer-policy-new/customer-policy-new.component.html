@@ -228,13 +228,16 @@
             </option>
 
             @for (zone of zones; track zone.id) {
-              <option [ngValue]="zone.id">
+              <option [ngValue]="zone.id" [disabled]="zone.weatherAlert">
                 {{ zone.zoneName }}
                 @if (zone.district) {
                   - {{ zone.district }}
                 }
                 @if (zone.state) {
                   , {{ zone.state }}
+                }
+                @if (zone.weatherAlert) {
+                  (sales paused – weather alert)
                 }
               </option>
             }

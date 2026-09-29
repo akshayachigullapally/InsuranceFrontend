@@ -19,6 +19,8 @@ import {
   loadZones,
   setZonesSearch,
   updateZone,
+  updateZoneAlert,
+  updateZoneExposureCap,
   updateZoneStatus,
 } from '../../state/zones/zones.actions';
 import {
@@ -262,6 +264,47 @@ export class AdminZonesComponent implements OnInit, OnDestroy {
     if (confirmed) {
       this.store.dispatch(archiveZone({ zoneId: zone.id }));
     }
+  }
+
+  protected toggleAlert(zone: ZoneResponse): void {
+    if (zone.weatherAlert) {
+      if (window.confirm(`Clear the weather alert for ${zone.zoneName}? New policies can be sold there again.`)) {
+        this.store.dispatch(updateZoneAlert({ zoneId: zone.id, active: false }));
+      }
+      return;
+    }
+
+    const message = window.prompt(
+      `Raise a weather alert for ${zone.zoneName}? No new policies can be sold there until it is cleared.\n\nAlert message:`,
+      'Heavy rainfall warning',
+    );
+
+    if (message !== null) {
+      this.store.dispatch(updateZoneAlert({ zoneId: zone.id, active: true, message }));
+    }
+  }
+
+  protected setExposureCap(zone: ZoneResponse): void {
+    const input = window.prompt(
+      `Maximum total cover (₹) for ${zone.zoneName}.\nLeave empty to remove the cap.`,
+      zone.maxExposure ? String(zone.maxExposure) : '',
+    );
+
+    if (input === null) return;
+
+    const text = input.replace(/[,\s₹]/g, '');
+    if (text === '') {
+      this.store.dispatch(updateZoneExposureCap({ zoneId: zone.id, maxExposure: null }));
+      return;
+    }
+
+    const maxExposure = Number(text);
+    if (!Number.isFinite(maxExposure) || maxExposure <= 0) {
+      window.alert('Enter an amount greater than zero, or leave it empty to remove the cap.');
+      return;
+    }
+
+    this.store.dispatch(updateZoneExposureCap({ zoneId: zone.id, maxExposure }));
   }
 
   protected isUpdating(zoneId: number, updatingZoneId: number | null): boolean {
