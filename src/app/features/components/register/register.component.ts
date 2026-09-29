@@ -27,6 +27,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   readonly error$: Observable<string | null>;
   private readonly destroy$ = new Subject<void>();
   private submittedFlag = false;
+  protected showPassword = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -73,5 +74,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
       return;
     }
     this.store.dispatch(register({ request: this.registerForm.value }));
+  }
+
+  protected togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 }

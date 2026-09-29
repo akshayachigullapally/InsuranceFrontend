@@ -97,4 +97,23 @@ describe('LoginComponent', () => {
     expect(button.disabled).toBe(true);
     expect(button.textContent).toContain('Please wait');
   });
+
+  it('toggles password visibility with the eye button', () => {
+    const input = element.querySelector('#password') as HTMLInputElement;
+    const toggle = element.querySelector('button[aria-label="Show password"]') as HTMLButtonElement;
+
+    expect(input.type).toBe('password');
+    expect(toggle.type).toBe('button');
+
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(input.type).toBe('text');
+    expect(element.querySelector('button[aria-label="Hide password"]')).not.toBeNull();
+
+    (element.querySelector('button[aria-label="Hide password"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(input.type).toBe('password');
+  });
 });
