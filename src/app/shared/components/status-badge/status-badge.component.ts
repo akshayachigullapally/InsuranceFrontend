@@ -15,7 +15,7 @@ export class StatusBadgeComponent {
 
   protected badgeClass(): string {
     const s = this.status().toUpperCase();
-    if (['ACTIVE', 'APPROVED', 'VERIFIED', 'SUCCESS', 'MATCHED'].includes(s)) {
+    if (['ACTIVE', 'APPROVED', 'SETTLED', 'VERIFIED', 'SUCCESS', 'MATCHED'].includes(s)) {
       return 'bg-green-100 text-green-800';
     }
     if (['PENDING', 'SUBMITTED', 'DETECTED', 'RECEIVED'].includes(s)) {

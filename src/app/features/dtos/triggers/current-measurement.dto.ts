@@ -21,6 +21,8 @@ export interface CurrentMeasurementResult {
   triggerEventStatus?: string | null;
   activePolicyCount: number;
   matchedPolicyCount: number;
+  /** Policies that crossed the threshold but were skipped because the premium is unpaid. */
+  unpaidPolicyCount?: number;
   claimsCreatedCount: number;
   existingClaimsCount: number;
   notificationsCreatedCount: number;

@@ -41,6 +41,9 @@ import {
   loadSubmittedClaimsSuccess,
   rejectClaim,
   rejectClaimFailure,
+  settleClaim,
+  settleClaimFailure,
+  settleClaimSuccess,
   rejectClaimSuccess,
   startClaimReview,
   startClaimReviewFailure,
@@ -205,6 +208,24 @@ export class ClaimsEffects {
               })),
             ),
           ),
+      ),
+    ),
+  );
+
+  settleClaim$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(settleClaim),
+      exhaustMap(({ claimId, notes }) =>
+        this.claimService.settleClaim(claimId, notes).pipe(
+          map(claim =>
+            settleClaimSuccess({ claim }),
+          ),
+          catchError(error =>
+            of(settleClaimFailure({
+              error: httpErrorMessage(error),
+            })),
+          ),
+        ),
       ),
     ),
   );

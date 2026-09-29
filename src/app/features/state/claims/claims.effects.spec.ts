@@ -29,6 +29,7 @@ describe('ClaimsEffects', () => {
       cancelClaim: vi.fn(),
       approveClaim: vi.fn(),
       rejectClaim: vi.fn(),
+      settleClaim: vi.fn(),
       getAllClaims: vi.fn(),
     };
     router = { navigate: vi.fn().mockResolvedValue(true) };
@@ -75,6 +76,15 @@ describe('ClaimsEffects', () => {
 
     expect(collect(effects.approveClaim$)).toEqual([ClaimsActions.approveClaimSuccess({ claim })]);
     expect(claimService['approveClaim']).toHaveBeenCalledWith(1, 900);
+  });
+
+  it('settles a claim with the officer notes', () => {
+    const settled = { ...claim, status: 'SETTLED' } as ClaimResponse;
+    claimService['settleClaim'].mockReturnValue(of(settled));
+    actions$ = of(ClaimsActions.settleClaim({ claimId: 1, notes: 'Paid by bank transfer' }));
+
+    expect(collect(effects.settleClaim$)).toEqual([ClaimsActions.settleClaimSuccess({ claim: settled })]);
+    expect(claimService['settleClaim']).toHaveBeenCalledWith(1, 'Paid by bank transfer');
   });
 
   it('falls back to a generic message for unknown errors', () => {

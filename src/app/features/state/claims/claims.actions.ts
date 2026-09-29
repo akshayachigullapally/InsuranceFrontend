@@ -132,6 +132,24 @@ export const approveClaimFailure = createAction(
   props<{ error: string }>(),
 );
 
+export const settleClaim = createAction(
+  '[Claims] Settle Claim',
+  props<{
+    claimId: number;
+    notes?: string;
+  }>(),
+);
+
+export const settleClaimSuccess = createAction(
+  '[Claims] Settle Claim Success',
+  props<{ claim: ClaimResponse }>(),
+);
+
+export const settleClaimFailure = createAction(
+  '[Claims] Settle Claim Failure',
+  props<{ error: string }>(),
+);
+
 export const rejectClaim = createAction(
   '[Claims] Reject Claim',
   props<{

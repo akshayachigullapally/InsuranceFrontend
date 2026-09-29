@@ -105,6 +105,16 @@ describe('claimsReducer', () => {
     expect(state.isSaving).toBe(false);
   });
 
+  it('replaces the selected claim when it is settled', () => {
+    const current: ClaimsState = { ...initialClaimsState, selectedClaim: makeClaim(1), isSaving: true };
+    const settled = makeClaim(1, { status: 'SETTLED' });
+
+    const state = claimsReducer(current, ClaimsActions.settleClaimSuccess({ claim: settled }));
+
+    expect(state.selectedClaim?.status).toBe('SETTLED');
+    expect(state.isSaving).toBe(false);
+  });
+
   it('sets isSaving for write actions and clears it on failure', () => {
     const saving = claimsReducer(initialClaimsState, ClaimsActions.rejectClaim({ claimId: 1, reason: 'No' }));
     expect(saving.isSaving).toBe(true);

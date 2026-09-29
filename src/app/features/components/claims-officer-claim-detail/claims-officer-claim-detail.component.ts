@@ -15,6 +15,7 @@ import {
   clearSelectedClaim,
   loadReviewClaim,
   rejectClaim,
+  settleClaim,
   startClaimReview,
 } from '../../state/claims/claims.actions';
 import {
@@ -87,6 +88,7 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
   });
 
   protected startReviewOpen = false;
+  protected settleOpen = false;
   protected approvalOpen = false;
   protected rejectionOpen = false;
   protected invalidClaimId = false;
@@ -387,6 +389,27 @@ export class ClaimsOfficerClaimDetailComponent implements OnInit, OnDestroy {
 
   protected dismissStartReview(): void {
     this.startReviewOpen = false;
+  }
+
+  protected openSettle(): void {
+    this.store.dispatch(clearClaimsError());
+    this.settleOpen = true;
+  }
+
+  protected confirmSettle(): void {
+    if (this.claimId <= 0) return;
+
+    this.settleOpen = false;
+    this.store.dispatch(
+      settleClaim({
+        claimId: this.claimId,
+        notes: 'Settled manually by claims officer',
+      }),
+    );
+  }
+
+  protected dismissSettle(): void {
+    this.settleOpen = false;
   }
 
   protected openApproval(claim: ClaimResponse): void {

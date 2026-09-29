@@ -302,12 +302,43 @@
 
       @if (claim.status === 'APPROVED') {
         <div class="border-t border-success-100 bg-success-50 px-6 py-5">
-          <p class="text-sm font-semibold text-success-700">
-            ✓ Claim approved
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-semibold text-success-700">
+                ✓ Claim approved
+              </p>
+
+              <p class="mt-1 text-xs text-gray-500">
+                Approved amount:
+                ₹ {{ claim.approvedAmount | number:'1.2-2' }}
+              </p>
+
+              <p class="mt-1 text-xs text-gray-500">
+                The claim is settled automatically when its payout succeeds.
+                Settle it manually only if the payout was completed outside CityShield.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="btn-brand"
+              [disabled]="(saving$ | async) ?? false"
+              (click)="openSettle()"
+            >
+              {{ (saving$ | async) ? 'Settling...' : 'Mark as settled' }}
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (claim.status === 'SETTLED') {
+        <div class="border-t border-blue-100 bg-blue-50 px-6 py-5">
+          <p class="text-sm font-semibold text-blue-700">
+            Claim settled
           </p>
 
           <p class="mt-1 text-xs text-gray-500">
-            Approved amount:
+            Paid amount:
             ₹ {{ claim.approvedAmount | number:'1.2-2' }}
           </p>
         </div>
@@ -335,6 +366,16 @@
         </div>
       }
     </div>
+
+    @if (settleOpen) {
+      <app-confirmation-dialog
+        title="Mark this claim as settled?"
+        message="Use this only when the payout has been completed. The claim will move to settled and the customer will be notified."
+        confirmLabel="Mark as settled"
+        (confirmed)="confirmSettle()"
+        (dismissed)="dismissSettle()"
+      />
+    }
 
     @if (startReviewOpen) {
       <app-confirmation-dialog

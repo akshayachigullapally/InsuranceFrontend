@@ -154,6 +154,10 @@
                   <dd class="font-semibold">{{ result.matchedPolicyCount }}</dd>
                 </div>
                 <div>
+                  <dt class="text-gray-500">Skipped (premium unpaid)</dt>
+                  <dd class="font-semibold">{{ result.unpaidPolicyCount ?? 0 }}</dd>
+                </div>
+                <div>
                   <dt class="text-gray-500">Automatic claims</dt>
                   <dd class="font-semibold">{{ result.claimsCreatedCount }}</dd>
                 </div>

@@ -35,6 +35,9 @@ import {
   loadSubmittedClaimsSuccess,
   rejectClaim,
   rejectClaimFailure,
+  settleClaim,
+  settleClaimFailure,
+  settleClaimSuccess,
   rejectClaimSuccess,
   startClaimReview,
   startClaimReviewFailure,
@@ -233,6 +236,7 @@ export const claimsReducer = createReducer(
     startClaimReview,
     approveClaim,
     rejectClaim,
+    settleClaim,
     (state): ClaimsState => ({
       ...state,
       isSaving: true,
@@ -300,6 +304,7 @@ export const claimsReducer = createReducer(
   on(
     approveClaimSuccess,
     rejectClaimSuccess,
+    settleClaimSuccess,
     (state, { claim }): ClaimsState => ({
       ...state,
       submittedClaims: state.submittedClaims.filter(
@@ -326,6 +331,7 @@ export const claimsReducer = createReducer(
     startClaimReviewFailure,
     approveClaimFailure,
     rejectClaimFailure,
+    settleClaimFailure,
     (state, { error }): ClaimsState => ({
       ...state,
       isSaving: false,
