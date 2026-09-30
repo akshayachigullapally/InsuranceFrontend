@@ -334,4 +334,110 @@
       </div>
     </div>
   }
+  @if (zoneAction?.kind === 'archive') {
+    <app-confirmation-dialog
+      [title]="'Archive ' + zoneAction!.zone.zoneName + '?'"
+      message="Archived zones are hidden from the zone list and can no longer be used for new policies."
+      confirmLabel="Archive zone"
+      [danger]="true"
+      (confirmed)="confirmZoneAction()"
+      (dismissed)="closeZoneAction()"
+    />
+  }
+
+  @if (zoneAction?.kind === 'clearAlert') {
+    <app-confirmation-dialog
+      [title]="'Clear the weather alert for ' + zoneAction!.zone.zoneName + '?'"
+      message="New policies can be sold in this zone again as soon as the alert is cleared."
+      confirmLabel="Clear alert"
+      (confirmed)="confirmZoneAction()"
+      (dismissed)="closeZoneAction()"
+    />
+  }
+
+  @if (zoneAction?.kind === 'raiseAlert') {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="zone-alert-title"
+    >
+      <form class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" [formGroup]="alertForm" (ngSubmit)="submitAlert()">
+        <p class="text-xs font-semibold tracking-widest text-warn-700 uppercase">Weather alert</p>
+        <h2 id="zone-alert-title" class="mt-1 text-xl font-bold text-gray-900">
+          Raise alert for {{ zoneAction!.zone.zoneName }}
+        </h2>
+        <p class="mt-2 text-sm text-gray-600">
+          While the alert is active, no new policies can be sold or approved in this zone. Existing policies stay covered.
+        </p>
+
+        <label class="label-base mt-5" for="alertMessage">Alert message</label>
+        <textarea
+          id="alertMessage"
+          rows="3"
+          class="input-base"
+          formControlName="message"
+          placeholder="e.g. Cyclone warning issued by IMD"
+        ></textarea>
+        @if (alertForm.controls.message.touched && alertForm.controls.message.invalid) {
+          <p class="mt-1 text-xs text-danger-500">Enter a message of up to 500 characters.</p>
+        }
+
+        <div class="mt-6 flex justify-end gap-3">
+          <button type="button" class="btn-outline" (click)="closeZoneAction()">Cancel</button>
+          <button type="submit" class="btn-danger">Raise alert</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (zoneAction?.kind === 'cap') {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="zone-cap-title"
+    >
+      <form class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" [formGroup]="capForm" (ngSubmit)="submitCap()">
+        <p class="text-xs font-semibold tracking-widest text-brand-600 uppercase">Exposure cap</p>
+        <h2 id="zone-cap-title" class="mt-1 text-xl font-bold text-gray-900">
+          Set cap for {{ zoneAction!.zone.zoneName }}
+        </h2>
+        <p class="mt-2 text-sm text-gray-600">
+          The maximum total sum insured of active and pending policies in this zone. New sales stop once it is reached.
+        </p>
+
+        <label class="label-base mt-5" for="maxExposure">Maximum total cover (₹)</label>
+        <input
+          id="maxExposure"
+          type="number"
+          min="1"
+          step="1"
+          class="input-base"
+          formControlName="maxExposure"
+          placeholder="e.g. 50000000"
+        />
+        @if (capForm.controls.maxExposure.value) {
+          <p class="mt-1 text-xs text-gray-500">₹ {{ capForm.controls.maxExposure.value | number: '1.0-0' }}</p>
+        }
+        @if (capForm.controls.maxExposure.touched && capForm.controls.maxExposure.invalid) {
+          <p class="mt-1 text-xs text-danger-500">Enter an amount greater than zero.</p>
+        }
+
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+          @if (zoneAction!.zone.maxExposure) {
+            <button type="button" class="text-sm font-semibold text-danger-500 hover:underline" (click)="submitCap(true)">
+              Remove cap
+            </button>
+          } @else {
+            <span></span>
+          }
+          <div class="flex gap-3">
+            <button type="button" class="btn-outline" (click)="closeZoneAction()">Cancel</button>
+            <button type="submit" class="btn-brand">Save cap</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  }
 </section>

@@ -11,6 +11,8 @@ import {
   loadZones,
   setZonesSearch,
   updateZone,
+  updateZoneAlert,
+  updateZoneExposureCap,
   updateZoneStatus,
 } from '../../state/zones/zones.actions';
 import { ZoneResponse } from '../../dtos/zones/zone-response.dto';
@@ -24,6 +26,8 @@ type ZonesInternals = {
   submit(): void;
   changeStatus(zone: ZoneResponse, event: Event): void;
   archive(zone: ZoneResponse): void;
+  toggleAlert(zone: ZoneResponse): void;
+  setExposureCap(zone: ZoneResponse): void;
   selectedState: string | null;
   formOpen: boolean;
   editingZone: ZoneResponse | null;
@@ -152,9 +156,93 @@ describe('AdminZonesComponent', () => {
     page.changeStatus(zone, { target: { value: 'INACTIVE' } } as unknown as Event);
     expect(store.dispatch).toHaveBeenCalledWith(updateZoneStatus({ zoneId: 12, status: 'INACTIVE' as never }));
 
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     page.archive(zone);
+    fixture.detectChanges();
+    expect(store.dispatch).not.toHaveBeenCalledWith(archiveZone({ zoneId: 12 }));
+    clickButton('Archive zone');
     expect(store.dispatch).toHaveBeenCalledWith(archiveZone({ zoneId: 12 }));
+  });
+
+  function dialog(): HTMLElement | null {
+    return (fixture.nativeElement as HTMLElement).querySelector('[role="dialog"]');
+  }
+
+  function clickButton(label: string): void {
+    const button = Array.from(dialog()!.querySelectorAll('button')).find(
+      (b) => b.textContent?.trim() === label,
+    ) as HTMLButtonElement;
+    button.click();
+    fixture.detectChanges();
+  }
+
+  it('raises a weather alert from an in-app dialog, never a browser popup', () => {
+    const prompt = vi.spyOn(window, 'prompt');
+
+    page.toggleAlert(zone);
+    fixture.detectChanges();
+    expect(dialog()!.textContent).toContain('Raise alert for Hyderabad Gachibowli Zone');
+
+    const message = dialog()!.querySelector('#alertMessage') as HTMLTextAreaElement;
+    message.value = '  Cyclone warning  ';
+    message.dispatchEvent(new Event('input'));
+    clickButton('Raise alert');
+
+    expect(store.dispatch).toHaveBeenCalledWith(
+      updateZoneAlert({ zoneId: 12, active: true, message: 'Cyclone warning' }),
+    );
+    expect(dialog()).toBeNull();
+    expect(prompt).not.toHaveBeenCalled();
+  });
+
+  it('does not raise an alert with an empty message', () => {
+    page.toggleAlert(zone);
+    fixture.detectChanges();
+    const message = dialog()!.querySelector('#alertMessage') as HTMLTextAreaElement;
+    message.value = '';
+    message.dispatchEvent(new Event('input'));
+    clickButton('Raise alert');
+
+    expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: updateZoneAlert.type }));
+    expect(dialog()!.textContent).toContain('Enter a message');
+  });
+
+  it('clears an alert after confirming in the dialog', () => {
+    const confirm = vi.spyOn(window, 'confirm');
+
+    page.toggleAlert({ ...zone, weatherAlert: true, alertMessage: 'Flood' });
+    fixture.detectChanges();
+    expect(dialog()!.textContent).toContain('Clear the weather alert for Hyderabad Gachibowli Zone?');
+    clickButton('Clear alert');
+
+    expect(store.dispatch).toHaveBeenCalledWith(updateZoneAlert({ zoneId: 12, active: false }));
+    expect(confirm).not.toHaveBeenCalled();
+  });
+
+  it('sets and removes an exposure cap from the dialog', () => {
+    page.setExposureCap(zone);
+    fixture.detectChanges();
+    const input = dialog()!.querySelector('#maxExposure') as HTMLInputElement;
+    input.value = '50000000';
+    input.dispatchEvent(new Event('input'));
+    clickButton('Save cap');
+    expect(store.dispatch).toHaveBeenCalledWith(updateZoneExposureCap({ zoneId: 12, maxExposure: 50000000 }));
+
+    page.setExposureCap({ ...zone, maxExposure: 50000000 });
+    fixture.detectChanges();
+    clickButton('Remove cap');
+    expect(store.dispatch).toHaveBeenCalledWith(updateZoneExposureCap({ zoneId: 12, maxExposure: null }));
+  });
+
+  it('rejects a cap of zero', () => {
+    page.setExposureCap(zone);
+    fixture.detectChanges();
+    const input = dialog()!.querySelector('#maxExposure') as HTMLInputElement;
+    input.value = '0';
+    input.dispatchEvent(new Event('input'));
+    clickButton('Save cap');
+
+    expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: updateZoneExposureCap.type }));
+    expect(dialog()!.textContent).toContain('Enter an amount greater than zero.');
   });
 
   it('closes the form and clears selection on destroy', () => {

@@ -34,6 +34,7 @@ import {
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 
 interface ZoneForm {
@@ -48,6 +49,13 @@ interface ZoneForm {
   radiusKm: FormControl<number | null>;
 }
 
+const DEFAULT_ALERT_MESSAGE = 'Heavy rainfall warning';
+
+type ZoneAction = {
+  kind: 'raiseAlert' | 'clearAlert' | 'cap' | 'archive';
+  zone: ZoneResponse;
+};
+
 @Component({
   selector: 'app-admin-zones',
   standalone: true,
@@ -59,6 +67,7 @@ interface ZoneForm {
     ErrorMessageComponent,
     LoadingSpinnerComponent,
     StatusBadgeComponent,
+    ConfirmationDialogComponent,
   ],
   templateUrl: './admin-zones.component.html',
   styleUrl: './admin-zones.component.css',
@@ -114,6 +123,19 @@ export class AdminZonesComponent implements OnInit, OnDestroy {
   protected readonly statuses = ZONE_MANAGEABLE_STATUSES;
   protected selectedState: string | null = null;
   protected formOpen = false;
+  /** Alert, cap or archive dialog currently open, and the zone it acts on. */
+  protected zoneAction: ZoneAction | null = null;
+
+  readonly alertForm = new FormGroup({
+    message: new FormControl(DEFAULT_ALERT_MESSAGE, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(500)],
+    }),
+  });
+
+  readonly capForm = new FormGroup({
+    maxExposure: new FormControl<number | null>(null, [Validators.required, Validators.min(1)]),
+  });
   protected editingZone: ZoneResponse | null = null;
 
   private readonly destroy$ = new Subject<void>();
@@ -257,54 +279,75 @@ export class AdminZonesComponent implements OnInit, OnDestroy {
   }
 
   protected archive(zone: ZoneResponse): void {
-    const confirmed = window.confirm(
-      `Archive ${zone.zoneName}? Archived zones cannot be retrieved through the normal zone endpoints.`,
-    );
-
-    if (confirmed) {
-      this.store.dispatch(archiveZone({ zoneId: zone.id }));
-    }
+    this.zoneAction = { kind: 'archive', zone };
   }
 
   protected toggleAlert(zone: ZoneResponse): void {
+    this.store.dispatch(clearZonesError());
     if (zone.weatherAlert) {
-      if (window.confirm(`Clear the weather alert for ${zone.zoneName}? New policies can be sold there again.`)) {
-        this.store.dispatch(updateZoneAlert({ zoneId: zone.id, active: false }));
-      }
+      this.zoneAction = { kind: 'clearAlert', zone };
       return;
     }
-
-    const message = window.prompt(
-      `Raise a weather alert for ${zone.zoneName}? No new policies can be sold there until it is cleared.\n\nAlert message:`,
-      'Heavy rainfall warning',
-    );
-
-    if (message !== null) {
-      this.store.dispatch(updateZoneAlert({ zoneId: zone.id, active: true, message }));
-    }
+    this.alertForm.reset({ message: DEFAULT_ALERT_MESSAGE });
+    this.zoneAction = { kind: 'raiseAlert', zone };
   }
 
   protected setExposureCap(zone: ZoneResponse): void {
-    const input = window.prompt(
-      `Maximum total cover (₹) for ${zone.zoneName}.\nLeave empty to remove the cap.`,
-      zone.maxExposure ? String(zone.maxExposure) : '',
+    this.store.dispatch(clearZonesError());
+    this.capForm.reset({ maxExposure: zone.maxExposure ?? null });
+    this.zoneAction = { kind: 'cap', zone };
+  }
+
+  protected closeZoneAction(): void {
+    this.zoneAction = null;
+  }
+
+  /** Confirms the open archive / clear-alert dialog. */
+  protected confirmZoneAction(): void {
+    const action = this.zoneAction;
+    if (!action) return;
+    this.zoneAction = null;
+
+    if (action.kind === 'archive') {
+      this.store.dispatch(archiveZone({ zoneId: action.zone.id }));
+    } else if (action.kind === 'clearAlert') {
+      this.store.dispatch(updateZoneAlert({ zoneId: action.zone.id, active: false }));
+    }
+  }
+
+  protected submitAlert(): void {
+    const action = this.zoneAction;
+    if (action?.kind !== 'raiseAlert') return;
+    if (this.alertForm.invalid) {
+      this.alertForm.markAllAsTouched();
+      return;
+    }
+    this.zoneAction = null;
+    this.store.dispatch(
+      updateZoneAlert({
+        zoneId: action.zone.id,
+        active: true,
+        message: this.alertForm.controls.message.value.trim(),
+      }),
     );
+  }
 
-    if (input === null) return;
-
-    const text = input.replace(/[,\s₹]/g, '');
-    if (text === '') {
-      this.store.dispatch(updateZoneExposureCap({ zoneId: zone.id, maxExposure: null }));
+  /** Saves the cap; with removeCap (or an empty amount) the zone gets no cap. */
+  protected submitCap(removeCap = false): void {
+    const action = this.zoneAction;
+    if (action?.kind !== 'cap') return;
+    const amount = this.capForm.controls.maxExposure.value;
+    if (!removeCap && amount !== null && this.capForm.invalid) {
+      this.capForm.markAllAsTouched();
       return;
     }
-
-    const maxExposure = Number(text);
-    if (!Number.isFinite(maxExposure) || maxExposure <= 0) {
-      window.alert('Enter an amount greater than zero, or leave it empty to remove the cap.');
-      return;
-    }
-
-    this.store.dispatch(updateZoneExposureCap({ zoneId: zone.id, maxExposure }));
+    this.zoneAction = null;
+    this.store.dispatch(
+      updateZoneExposureCap({
+        zoneId: action.zone.id,
+        maxExposure: removeCap || amount === null ? null : amount,
+      }),
+    );
   }
 
   protected isUpdating(zoneId: number, updatingZoneId: number | null): boolean {
