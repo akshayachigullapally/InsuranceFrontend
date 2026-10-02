@@ -1,3 +1,4 @@
+import { DialogService } from '../../../shared/services/dialog.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
 import { AdminUsersComponent } from './admin-users.component';
@@ -77,21 +78,21 @@ describe('AdminUsersComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(setUsersSearch({ search: 'ravi' }));
   });
 
-  it('changes a user status only after confirmation', () => {
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+  it('changes a user status only after confirmation', async () => {
+    const confirm = vi.spyOn(TestBed.inject(DialogService), 'confirm').mockResolvedValue(false);
     const cancelled = selectEvent('SUSPENDED');
-    page.onUserStatusChange(user, cancelled);
+    await page.onUserStatusChange(user, cancelled);
     expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: updateUserStatus.type }));
 
-    confirm.mockReturnValue(true);
-    page.onUserStatusChange(user, selectEvent('SUSPENDED'));
+    confirm.mockResolvedValue(true);
+    await page.onUserStatusChange(user, selectEvent('SUSPENDED'));
     expect(store.dispatch).toHaveBeenCalledWith(updateUserStatus({ userId: 4, status: 'SUSPENDED' }));
   });
 
-  it('ignores selecting the current status', () => {
-    const confirm = vi.spyOn(window, 'confirm');
+  it('ignores selecting the current status', async () => {
+    const confirm = vi.spyOn(TestBed.inject(DialogService), 'confirm');
 
-    page.onUserStatusChange(user, selectEvent('ACTIVE'));
+    await page.onUserStatusChange(user, selectEvent('ACTIVE'));
 
     expect(confirm).not.toHaveBeenCalled();
   });

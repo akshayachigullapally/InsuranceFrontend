@@ -1,5 +1,12 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { ApplicationConfig, LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeEnIn from '@angular/common/locales/en-IN';
+import {
+  TitleStrategy,
+  provideRouter,
+  withComponentInputBinding,
+  withInMemoryScrolling,
+} from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -9,6 +16,7 @@ import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { PageTitleStrategy } from './core/services/page-title.strategy';
 import { authReducer } from './features/state/auth/auth.reducer';
 import { AuthEffects } from './features/state/auth/auth.effects';
 import { productsReducer } from './features/state/products/products.reducer';
@@ -36,10 +44,19 @@ import { PayoutsEffects } from './features/state/payouts/payouts.effects';
 import { pricingRulesReducer } from './features/state/pricing-rules/pricing-rules.reducer';
 import { PricingRulesEffects } from './features/state/pricing-rules/pricing-rules.effects';
 
+// Indian digit grouping everywhere: ₹ 1,50,000 rather than ₹ 150,000.
+registerLocaleData(localeEnIn);
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes, withComponentInputBinding()),
+    provideRouter(
+      routes,
+      withComponentInputBinding(),
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' }),
+    ),
+    { provide: TitleStrategy, useClass: PageTitleStrategy },
+    { provide: LOCALE_ID, useValue: 'en-IN' },
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     provideStore({
       auth: authReducer,

@@ -4,10 +4,11 @@ import { Store } from '@ngrx/store';
 import { restoreSession } from './features/state/auth/auth.actions';
 import { TokenStorageService } from './core/services/token-storage.service';
 import { ToastHostComponent } from './shared/components/toast/toast-host.component';
+import { DialogHostComponent } from './shared/components/dialog-host/dialog-host.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ToastHostComponent],
+  imports: [RouterOutlet, ToastHostComponent, DialogHostComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

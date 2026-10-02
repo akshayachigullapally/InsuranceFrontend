@@ -34,7 +34,7 @@
 
         <app-stat-card
           label="Total sum insured"
-          [value]="'₹ ' + ((activeSumInsured$ | async) ?? 0)"
+          [value]="'₹ ' + (((activeSumInsured$ | async) ?? 0) | number: '1.0-2')"
           icon="🛡️"
           color="green"
           hint="Active coverage"

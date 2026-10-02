@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -33,6 +33,7 @@ import {
   selectPerilsLoading,
   selectPerilsSaving,
 } from '../../state/perils/perils.selectors';
+import { DialogService } from '../../../shared/services/dialog.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -87,6 +88,8 @@ export class AdminPerilsComponent implements OnInit, OnDestroy {
   protected editingPeril: PerilResponse | null = null;
 
   private readonly destroy$ = new Subject<void>();
+
+  private readonly dialog = inject(DialogService);
 
   constructor(private readonly store: Store) {
     this.perils$ = this.store.select(selectFilteredPerils);
@@ -189,10 +192,13 @@ export class AdminPerilsComponent implements OnInit, OnDestroy {
     }));
   }
 
-  protected archive(peril: PerilResponse): void {
-    const confirmed = window.confirm(
-      `Archive ${peril.perilName}? Archived perils cannot be retrieved through the normal peril endpoints.`,
-    );
+  protected async archive(peril: PerilResponse): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: `Archive ${peril.perilName}?`,
+      message: 'Archived perils are hidden from products and cannot be picked again.',
+      confirmLabel: 'Archive peril',
+      danger: true,
+    });
 
     if (confirmed) {
       this.store.dispatch(archivePeril({ perilId: peril.id }));

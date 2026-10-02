@@ -1,5 +1,5 @@
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -23,6 +23,7 @@ import {
 } from '../../state/quotes/quotes.selectors';
 import { loadProducts } from '../../state/products/products.actions';
 import { selectProducts } from '../../state/products/products.selectors';
+import { DialogService } from '../../../shared/services/dialog.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -76,6 +77,8 @@ export class CustomerQuotesComponent implements OnInit, OnDestroy {
   });
 
   private readonly destroy$ = new Subject<void>();
+
+  private readonly dialog = inject(DialogService);
 
   constructor(
     private readonly store: Store,
@@ -161,8 +164,14 @@ export class CustomerQuotesComponent implements OnInit, OnDestroy {
     this.store.dispatch(acceptQuote({ quoteId: quote.id }));
   }
 
-  protected cancel(quote: QuoteResponse): void {
-    const confirmed = window.confirm(`Cancel quote ${quote.quoteReference}?`);
+  protected async cancel(quote: QuoteResponse): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: `Cancel quote ${quote.quoteReference}?`,
+      message: 'You can always request a new quote later.',
+      confirmLabel: 'Cancel quote',
+      cancelLabel: 'Keep quote',
+      danger: true,
+    });
 
     if (confirmed) {
       this.processingQuoteId = quote.id;

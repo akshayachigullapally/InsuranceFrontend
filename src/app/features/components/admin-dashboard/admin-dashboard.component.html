@@ -25,7 +25,7 @@
     <app-stat-card label="Registered users" [value]="(userCount$ | async) ?? 0" icon="👥" color="blue" hint="All roles" />
     <app-stat-card label="Active policies" [value]="(activePolicyCount$ | async) ?? 0" icon="📄" color="green" hint="In force today" />
     <app-stat-card label="Live products" [value]="(activeProductCount$ | async) ?? 0" icon="🛡️" color="navy" hint="Published lines" />
-    <app-stat-card label="Total payouts" [value]="'₹ ' + ((totalPayouts$ | async) ?? 0)" icon="💸" color="amber" hint="Lifetime settled" />
+    <app-stat-card label="Total payouts" [value]="'₹ ' + (((totalPayouts$ | async) ?? 0) | number: '1.0-2')" icon="💸" color="amber" hint="Lifetime settled" />
   </div>
 
   <!-- Platform management grid -->

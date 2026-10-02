@@ -1,3 +1,4 @@
+import { DialogService } from '../../../shared/services/dialog.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
 import { AdminPerilsComponent } from './admin-perils.component';
@@ -116,10 +117,10 @@ describe('AdminPerilsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(updatePerilStatus({ perilId: 2, status: 'INACTIVE' as never }));
   });
 
-  it('archives only after confirmation', () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
+  it('archives only after confirmation', async () => {
+    vi.spyOn(TestBed.inject(DialogService), 'confirm').mockResolvedValue(true);
 
-    page.archive(peril);
+    await page.archive(peril);
 
     expect(store.dispatch).toHaveBeenCalledWith(archivePeril({ perilId: 2 }));
   });

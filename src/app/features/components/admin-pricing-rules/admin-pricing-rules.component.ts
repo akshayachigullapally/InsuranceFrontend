@@ -1,5 +1,5 @@
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
@@ -31,6 +31,7 @@ import { loadAdminProducts } from '../../state/products/products.actions';
 import { selectAdminProducts } from '../../state/products/products.selectors';
 import { loadZones } from '../../state/zones/zones.actions';
 import { selectZones } from '../../state/zones/zones.selectors';
+import { DialogService } from '../../../shared/services/dialog.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -102,6 +103,8 @@ export class AdminPricingRulesComponent implements OnInit, OnDestroy {
   });
 
   private readonly destroy$ = new Subject<void>();
+
+  private readonly dialog = inject(DialogService);
 
   constructor(private readonly store: Store) {
     this.rules$ = this.store.select(selectPricingRules);
@@ -235,8 +238,13 @@ export class AdminPricingRulesComponent implements OnInit, OnDestroy {
     );
   }
 
-  protected archive(rule: PricingRuleResponse): void {
-    const confirmed = window.confirm(`Archive this pricing rule for product #${rule.productId}?`);
+  protected async archive(rule: PricingRuleResponse): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'Archive this pricing rule?',
+      message: `New quotes for product #${rule.productId} will no longer use it.`,
+      confirmLabel: 'Archive rule',
+      danger: true,
+    });
 
     if (confirmed) {
       this.store.dispatch(archivePricingRule({ ruleId: rule.id }));

@@ -1,5 +1,5 @@
 import { AsyncPipe, DecimalPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
@@ -27,6 +27,7 @@ import {
   selectProductsSaving,
 } from '../../state/products/products.selectors';
 import { ToastService } from '../../../shared/services/toast.service';
+import { DialogService } from '../../../shared/services/dialog.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -55,6 +56,8 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
   protected readonly statuses = PRODUCT_STATUSES;
 
   private readonly destroy$ = new Subject<void>();
+
+  private readonly dialog = inject(DialogService);
 
   constructor(
     private readonly store: Store,
@@ -139,10 +142,13 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     );
   }
 
-  protected onDelete(productId: number): void {
-    const confirmed = window.confirm(
-      'Archive this product? It will no longer be available to customers.',
-    );
+  protected async onDelete(productId: number): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'Archive this product?',
+      message: 'It will no longer be available to customers. Existing policies are not affected.',
+      confirmLabel: 'Archive product',
+      danger: true,
+    });
 
     if (!confirmed) {
       return;
@@ -152,6 +158,7 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
   }
 
   protected categoryLabel(category: string): string {
-    return category.replaceAll('_', ' ');
+    const words = category.replaceAll('_', ' ').toLowerCase();
+    return words.charAt(0).toUpperCase() + words.slice(1);
   }
 }

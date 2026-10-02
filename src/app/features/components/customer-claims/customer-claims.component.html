@@ -91,11 +91,7 @@
                   </th>
 
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Claimed amount
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Approved amount
+                    Amount
                   </th>
 
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -145,19 +141,15 @@
                       {{ zoneLabel(claim.locationZoneId) }}
                     </td>
 
-                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-                      ₹ {{ claim.claimedAmount | number:'1.2-2' }}
-                    </td>
-
-                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-                      @if (
-                        claim.approvedAmount !== null &&
-                        claim.approvedAmount !== undefined
-                      ) {
-                        ₹ {{ claim.approvedAmount | number:'1.2-2' }}
-                      } @else {
-                        <span class="text-gray-400">Not decided</span>
-                      }
+                    <td class="whitespace-nowrap px-6 py-4">
+                      <p class="text-sm font-medium text-gray-900">₹ {{ claim.claimedAmount | number:'1.0-2' }}</p>
+                      <p class="text-xs text-gray-400">
+                        @if (claim.approvedAmount !== null && claim.approvedAmount !== undefined) {
+                          <span class="text-success-700">Approved ₹ {{ claim.approvedAmount | number:'1.0-2' }}</span>
+                        } @else {
+                          Not decided
+                        }
+                      </p>
                     </td>
 
                     <td class="whitespace-nowrap px-6 py-4">

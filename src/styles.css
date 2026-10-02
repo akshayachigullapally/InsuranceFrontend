@@ -377,3 +377,19 @@
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
   }
 }
+/*
+ * Data tables: tighter horizontal cell padding so wide tables fit on a normal
+ * desktop instead of hiding their last columns behind a sideways scroll.
+ * Unlayered on purpose, so it wins over the px-6 utilities on individual cells.
+ */
+.card table :is(th, td) {
+  padding-inline: 0.875rem;
+}
+
+.card table :is(th, td):first-child {
+  padding-left: 1.5rem;
+}
+
+.card table :is(th, td):last-child {
+  padding-right: 1.5rem;
+}

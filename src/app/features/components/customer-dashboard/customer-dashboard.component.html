@@ -26,7 +26,7 @@
   <!-- KPI cards -->
   <div class="grid animate-fade-in-up gap-5 sm:grid-cols-2 lg:grid-cols-3">
     <app-stat-card label="Active policies" [value]="(activePolicyCount$ | async) ?? 0" icon="📄" color="blue" hint="Policies in force" />
-    <app-stat-card label="Sum insured" [value]="'₹ ' + ((sumInsured$ | async) ?? 0)" icon="🛡️" color="green" hint="Total coverage" />
+    <app-stat-card label="Sum insured" [value]="'₹ ' + (((sumInsured$ | async) ?? 0) | number: '1.0-2')" icon="🛡️" color="green" hint="Total coverage" />
     <app-stat-card label="Claims submitted" [value]="(claimCount$ | async) ?? 0" icon="📋" color="amber" hint="All statuses" />
     <app-stat-card label="Open notifications" [value]="(unreadCount$ | async) ?? 0" icon="🔔" color="navy" hint="Needs attention" />
     <app-stat-card label="Premiums paid" [value]="'₹ ' + ((premiumsPaid$ | async) ?? 0 | number: '1.0-2')" icon="💳" color="blue" hint="Completed payments" />
@@ -66,9 +66,9 @@
             @for (policy of policies$ | async; track policy.id) {
               <li class="flex items-center justify-between gap-4 py-3 transition-colors hover:bg-brand-50/40 rounded-lg px-2">
                 <div class="min-w-0">
-                  <p class="text-sm font-semibold text-gray-900 truncate">{{ policy.policyNumber }}</p>
+                  <a [routerLink]="['/customer/policies', policy.id]" class="block truncate text-sm font-semibold text-gray-900 hover:text-brand-700">{{ policy.policyNumber }}</a>
                   <p class="mt-0.5 text-xs text-gray-500 truncate">
-                    {{ policy.productName }} · ₹ {{ policy.sumInsured }}
+                    {{ policy.productName }} · ₹ {{ policy.sumInsured | number: '1.0-2' }}
                   </p>
                 </div>
                 <span class="flex shrink-0 flex-col items-end gap-1">
@@ -116,9 +116,9 @@
             @for (claim of claims$ | async; track claim.id) {
               <li class="flex items-center justify-between gap-4 py-3 transition-colors hover:bg-brand-50/40 rounded-lg px-2">
                 <div class="min-w-0">
-                  <p class="text-sm font-semibold text-gray-900 truncate">{{ claim.claimNumber }}</p>
+                  <a [routerLink]="['/customer/claims', claim.id]" class="block truncate text-sm font-semibold text-gray-900 hover:text-brand-700">{{ claim.claimNumber }}</a>
                   <p class="mt-0.5 text-xs text-gray-500 truncate">
-                    {{ claim.incidentType }} · ₹ {{ claim.claimedAmount }} · {{ claim.submittedAt | date:'mediumDate' }}
+                    {{ incidentLabel(claim.incidentType) }} · ₹ {{ claim.claimedAmount | number: '1.0-2' }} · {{ claim.submittedAt | date:'mediumDate' }}
                   </p>
                 </div>
                 <span class="shrink-0">

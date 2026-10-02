@@ -40,11 +40,11 @@ describe('ConfirmationDialogComponent', () => {
     expect(buttons().cancel.textContent?.trim()).toBe('Keep it');
   });
 
-  it('uses a red confirm button when danger is set', () => {
+  it('uses the danger button style when danger is set', () => {
     fixture.componentRef.setInput('danger', true);
     fixture.detectChanges();
 
-    expect(buttons().confirm.className).toContain('bg-red-600');
+    expect(buttons().confirm.className).toContain('btn-danger');
   });
 
   it('emits confirmed and dismissed from the buttons', () => {

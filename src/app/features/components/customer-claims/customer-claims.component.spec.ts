@@ -102,7 +102,7 @@ describe('CustomerClaimsComponent', () => {
     expect(rows[0].textContent).toContain('CLM-0001');
     expect(rows[0].textContent).toContain('Excess Rainfall');
     expect(rows[0].textContent).toContain('Not decided');
-    expect(rows[1].textContent).toContain('18,000.00');
+    expect(rows[1].textContent).toContain('Approved ₹ 18,000');
   });
 
   it('shows the zone name from the zone service', () => {

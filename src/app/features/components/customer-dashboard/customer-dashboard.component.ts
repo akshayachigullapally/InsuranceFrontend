@@ -36,6 +36,7 @@ interface QuickAction {
   routerLink: string;
   color: string;
 }
+import { measurementTypeLabel } from '../../utils/trigger-display';
 import { ClimateIllustrationComponent } from '../../../shared/components/climate-illustration/climate-illustration.component';
 
 @Component({
@@ -140,5 +141,9 @@ export class CustomerDashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  incidentLabel(incidentType: string | null | undefined): string {
+    return measurementTypeLabel(incidentType ?? '');
   }
 }

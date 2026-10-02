@@ -1,7 +1,7 @@
 import { PayoutService } from '../../services/payout.service';
 import { blobErrorMessage, saveBlob } from '../../utils/file-download.util';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { PayoutResponse } from '../../dtos/financial/payout-response.dto';
@@ -19,6 +19,7 @@ import {
   selectPayoutsLoading,
   selectPayoutsSaving,
 } from '../../state/payouts/payouts.selectors';
+import { DialogService } from '../../../shared/services/dialog.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -43,6 +44,8 @@ export class AdminPayoutsComponent implements OnInit, OnDestroy {
   readonly loading$: Observable<boolean>;
   readonly saving$: Observable<boolean>;
   readonly error$: Observable<string | null>;
+
+  private readonly dialog = inject(DialogService);
 
   constructor(
     private readonly store: Store,
@@ -83,11 +86,15 @@ export class AdminPayoutsComponent implements OnInit, OnDestroy {
     );
   }
 
-  protected markFail(payout: PayoutResponse): void {
-    const reason = window.prompt(
-      `Reason the payout ${payout.payoutReference} failed:`,
-      'Bank transfer rejected',
-    );
+  protected async markFail(payout: PayoutResponse): Promise<void> {
+    const reason = await this.dialog.prompt({
+      title: `Mark payout ${payout.payoutReference} as failed?`,
+      message: 'The claim stays approved so the payout can be retried later.',
+      inputLabel: 'Reason it failed',
+      defaultValue: 'Bank transfer rejected',
+      confirmLabel: 'Mark as failed',
+      danger: true,
+    });
 
     if (reason === null) return;
 

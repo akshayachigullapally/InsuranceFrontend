@@ -1,5 +1,5 @@
 import { AsyncPipe, DatePipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -29,6 +29,8 @@ import {
   selectUsersError,
   selectUsersLoading,
 } from '../../state/users/users.selectors';
+import { humanizeStatus } from '../../../shared/components/status-badge/status-badge.component';
+import { DialogService } from '../../../shared/services/dialog.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -64,6 +66,8 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   protected selectedSegment: CustomerSegment | null = null;
 
   private readonly destroy$ = new Subject<void>();
+
+  private readonly dialog = inject(DialogService);
 
   constructor(private readonly store: Store) {
     this.users$ = this.store.select(selectFilteredUsers);
@@ -113,10 +117,10 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
     this.loadUsers();
   }
 
-  protected onUserStatusChange(
+  protected async onUserStatusChange(
     user: UserResponse,
     event: Event,
-  ): void {
+  ): Promise<void> {
     const select = event.target as HTMLSelectElement;
     const status = select.value as UserStatus;
 
@@ -124,9 +128,12 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const confirmed = window.confirm(
-      `Change ${user.fullName}'s profile status to ${status}?`,
-    );
+    const confirmed = await this.dialog.confirm({
+      title: `Change ${user.fullName}'s status?`,
+      message: `Their profile will be marked as ${humanizeStatus(status)}.`,
+      confirmLabel: 'Change status',
+      danger: status !== 'ACTIVE',
+    });
 
     if (!confirmed) {
       select.value = user.profileStatus ?? '';

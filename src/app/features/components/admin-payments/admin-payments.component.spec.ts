@@ -1,3 +1,4 @@
+import { DialogService } from '../../../shared/services/dialog.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
 import { AdminPaymentsComponent } from './admin-payments.component';
@@ -41,13 +42,13 @@ describe('AdminPaymentsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadPayments());
   });
 
-  it('refunds only after confirmation', () => {
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    page.refund(payment);
+  it('refunds only after confirmation', async () => {
+    const confirm = vi.spyOn(TestBed.inject(DialogService), 'confirm').mockResolvedValue(false);
+    await page.refund(payment);
     expect(store.dispatch).not.toHaveBeenCalledWith(refundPayment({ paymentId: 4 }));
 
-    confirm.mockReturnValue(true);
-    page.refund(payment);
+    confirm.mockResolvedValue(true);
+    await page.refund(payment);
     expect(store.dispatch).toHaveBeenCalledWith(refundPayment({ paymentId: 4 }));
   });
 });

@@ -25,7 +25,7 @@
   <div class="grid animate-fade-in-up gap-5 sm:grid-cols-2 lg:grid-cols-4">
     <app-stat-card label="Pending applications" [value]="(pendingCount$ | async) ?? 0" icon="⏳" color="amber" hint="Awaiting review" />
     <app-stat-card label="Active policies" [value]="(activePolicyCount$ | async) ?? 0" icon="📄" color="blue" hint="In force today" />
-    <app-stat-card label="Premium in force" [value]="'₹ ' + ((activePremium$ | async) ?? 0)" icon="💰" color="green" hint="Annual GWP" />
+    <app-stat-card label="Premium in force" [value]="'₹ ' + (((activePremium$ | async) ?? 0) | number: '1.0-2')" icon="💰" color="green" hint="Annual GWP" />
     <app-stat-card label="Approval rate" [value]="((approvalRate$ | async) ?? 0) + '%'" icon="✅" color="navy" hint="Approved vs rejected" />
   </div>
 

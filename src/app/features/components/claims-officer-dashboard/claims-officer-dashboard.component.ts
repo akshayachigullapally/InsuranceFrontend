@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { fromEvent, interval, merge, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -31,7 +31,7 @@ import { ClimateIllustrationComponent } from '../../../shared/components/climate
 @Component({
   selector: 'app-claims-officer-dashboard',
   standalone: true,
-  imports: [RouterLink, AsyncPipe, DatePipe, StatCardComponent, StatusBadgeComponent, ClimateIllustrationComponent],
+  imports: [RouterLink, AsyncPipe, DecimalPipe, DatePipe, StatCardComponent, StatusBadgeComponent, ClimateIllustrationComponent],
   templateUrl: './claims-officer-dashboard.component.html',
 })
 export class ClaimsOfficerDashboardComponent implements OnInit {

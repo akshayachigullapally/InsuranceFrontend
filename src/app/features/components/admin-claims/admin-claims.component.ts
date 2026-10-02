@@ -28,6 +28,7 @@ interface StatusFilter {
   label: string;
   value: ClaimStatus | null;
 }
+import { measurementTypeLabel } from '../../utils/trigger-display';
 
 @Component({
   selector: 'app-admin-claims',
@@ -91,6 +92,10 @@ export class AdminClaimsComponent implements OnInit {
     return name
       ? `${name} (Zone #${locationZoneId})`
       : `Zone #${locationZoneId}`;
+  }
+
+  protected incidentLabel(incidentType: string | null | undefined): string {
+    return measurementTypeLabel(incidentType ?? '');
   }
 
   protected formatDateOnly(value?: string | null): string {

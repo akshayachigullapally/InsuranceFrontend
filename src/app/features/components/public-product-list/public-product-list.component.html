@@ -101,9 +101,9 @@
                 </p>
 
                 <p class="text-sm font-semibold text-gray-900">
-                  ₹ {{ product.minimumSumInsured | number }}
-                  -
-                  ₹ {{ product.maximumSumInsured | number }}
+                  <span class="whitespace-nowrap">₹ {{ product.minimumSumInsured | number }}</span>
+                  –
+                  <span class="whitespace-nowrap">₹ {{ product.maximumSumInsured | number }}</span>
                 </p>
               </div>
 
@@ -122,9 +122,14 @@
             </div>
 
             <div class="mt-4 flex items-center justify-between gap-3">
-              <span class="text-xs text-gray-400">
-                {{ product.coverages.length }}
-                {{ product.coverages.length === 1 ? 'coverage' : 'coverages' }}
+              <span class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                @if (product.coverages.length > 0) {
+                  {{ product.coverages.length }}
+                  {{ product.coverages.length === 1 ? 'coverage' : 'coverages' }}
+                } @else {
+                  <span class="h-1.5 w-1.5 rounded-full bg-success-500" aria-hidden="true"></span>
+                  Pays out automatically
+                }
               </span>
 
               <span class="inline-flex items-center text-sm font-semibold text-brand-600 group-hover:text-brand-700">

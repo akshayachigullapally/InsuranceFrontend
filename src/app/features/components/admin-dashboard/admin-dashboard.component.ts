@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Observable } from 'rxjs';
 import { selectAdminProducts } from '../../state/products/products.selectors';
 import { selectActiveProductCount } from '../../state/products/products.selectors';
@@ -27,7 +27,7 @@ import { ClimateIllustrationComponent } from '../../../shared/components/climate
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [RouterLink, AsyncPipe, StatCardComponent, ClimateIllustrationComponent],
+  imports: [RouterLink, AsyncPipe, DecimalPipe, StatCardComponent, ClimateIllustrationComponent],
   templateUrl: './admin-dashboard.component.html',
 })
 export class AdminDashboardComponent implements OnInit {

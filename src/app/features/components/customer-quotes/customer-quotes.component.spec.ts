@@ -1,3 +1,4 @@
+import { DialogService } from '../../../shared/services/dialog.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
 import { Observable, of, throwError } from 'rxjs';
@@ -106,8 +107,8 @@ describe('CustomerQuotesComponent', () => {
     expect(page.processingQuoteId).toBe(9);
     expect(store.dispatch).toHaveBeenCalledWith(acceptQuote({ quoteId: 9 }));
 
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
-    page.cancel(quote);
+    vi.spyOn(TestBed.inject(DialogService), 'confirm').mockResolvedValue(true);
+    await page.cancel(quote);
     expect(store.dispatch).toHaveBeenCalledWith(cancelQuote({ quoteId: 9 }));
   });
 

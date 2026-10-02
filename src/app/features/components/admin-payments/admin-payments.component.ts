@@ -1,5 +1,5 @@
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { PAYMENT_METHOD_LABELS, PaymentResponse } from '../../dtos/financial/payment-response.dto';
@@ -14,6 +14,7 @@ import {
   selectPaymentsLoading,
   selectPaymentsSaving,
 } from '../../state/payments/payments.selectors';
+import { DialogService } from '../../../shared/services/dialog.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -41,6 +42,8 @@ export class AdminPaymentsComponent implements OnInit, OnDestroy {
 
   protected readonly methodLabels = PAYMENT_METHOD_LABELS;
 
+  private readonly dialog = inject(DialogService);
+
   constructor(private readonly store: Store) {
     this.payments$ = this.store.select(selectPayments);
     this.loading$ = this.store.select(selectPaymentsLoading);
@@ -57,10 +60,14 @@ export class AdminPaymentsComponent implements OnInit, OnDestroy {
     this.store.dispatch(clearPaymentsError());
   }
 
-  protected refund(payment: PaymentResponse): void {
-    const confirmed = window.confirm(
-      `Refund payment ${payment.paymentReference} for ₹${payment.amount}?`,
-    );
+  protected async refund(payment: PaymentResponse): Promise<void> {
+    const amount = payment.amount.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    const confirmed = await this.dialog.confirm({
+      title: `Refund ₹ ${amount}?`,
+      message: `Payment ${payment.paymentReference} will be refunded to the customer.`,
+      confirmLabel: 'Refund payment',
+      danger: true,
+    });
 
     if (confirmed) {
       this.store.dispatch(refundPayment({ paymentId: payment.id }));

@@ -14,6 +14,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        title: 'Weather cover that pays itself',
         loadComponent: () =>
           import('./features/components/welcome/welcome.component').then((m) => m.WelcomeComponent),
       },
@@ -24,6 +25,7 @@ export const routes: Routes = [
       },
       {
         path: 'products',
+        title: 'Products',
         loadComponent: () =>
           import('./features/components/public-product-list/public-product-list.component').then(
             (m) => m.PublicProductListComponent,
@@ -31,6 +33,7 @@ export const routes: Routes = [
       },
       {
         path: 'products/:productId',
+        title: 'Product details',
         loadComponent: () =>
           import('./features/components/public-product-detail/public-product-detail.component').then(
             (m) => m.PublicProductDetailComponent,
@@ -44,12 +47,14 @@ export const routes: Routes = [
     children: [
       {
         path: 'login',
+        title: 'Sign in',
         canActivate: [guestGuard],
         loadComponent: () =>
           import('./features/components/login/login.component').then((m) => m.LoginComponent),
       },
       {
         path: 'register',
+        title: 'Create account',
         canActivate: [guestGuard],
         loadComponent: () =>
           import('./features/components/register/register.component').then((m) => m.RegisterComponent),
@@ -64,6 +69,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
+        title: 'Dashboard',
         loadComponent: () =>
           import('./features/components/customer-dashboard/customer-dashboard.component').then(
             (m) => m.CustomerDashboardComponent,
@@ -71,6 +77,7 @@ export const routes: Routes = [
       },
       {
         path: 'profile',
+        title: 'My profile',
         loadComponent: () =>
           import('./features/components/customer-profile/customer-profile.component').then(
             (m) => m.CustomerProfileComponent,
@@ -78,6 +85,7 @@ export const routes: Routes = [
       },
       {
         path: 'policies',
+        title: 'My policies',
         loadComponent: () =>
           import('./features/components/customer-policies/customer-policies.component').then(
             (m) => m.CustomerPoliciesComponent,
@@ -85,6 +93,7 @@ export const routes: Routes = [
       },
       {
         path: 'policies/new',
+        title: 'Buy a policy',
         loadComponent: () =>
           import('./features/components/customer-policy-new/customer-policy-new.component').then(
             (m) => m.CustomerPolicyNewComponent,
@@ -92,6 +101,7 @@ export const routes: Routes = [
       },
       {
         path: 'policies/:policyId',
+        title: 'Policy details',
         loadComponent: () =>
           import('./features/components/customer-policy-detail/customer-policy-detail.component').then(
             (m) => m.CustomerPolicyDetailComponent,
@@ -99,6 +109,7 @@ export const routes: Routes = [
       },
       {
         path: 'claims',
+        title: 'My claims',
         loadComponent: () =>
           import('./features/components/customer-claims/customer-claims.component').then(
             (m) => m.CustomerClaimsComponent,
@@ -106,6 +117,7 @@ export const routes: Routes = [
       },
       {
         path: 'claims/new',
+        title: 'Raise a claim',
         loadComponent: () =>
           import('./features/components/customer-claim-new/customer-claim-new.component').then(
             (m) => m.CustomerClaimNewComponent,
@@ -113,6 +125,7 @@ export const routes: Routes = [
       },
       {
         path: 'claims/:claimId',
+        title: 'Claim details',
         loadComponent: () =>
           import('./features/components/customer-claim-detail/customer-claim-detail.component').then(
             (m) => m.CustomerClaimDetailComponent,
@@ -120,6 +133,7 @@ export const routes: Routes = [
       },
       {
         path: 'notifications',
+        title: 'Notifications',
         loadComponent: () =>
           import('./features/components/customer-notifications/customer-notifications.component').then(
             (m) => m.CustomerNotificationsComponent,
@@ -127,6 +141,7 @@ export const routes: Routes = [
       },
       {
         path: 'quotes',
+        title: 'Quotes',
         loadComponent: () =>
           import('./features/components/customer-quotes/customer-quotes.component').then(
             (m) => m.CustomerQuotesComponent,
@@ -134,6 +149,7 @@ export const routes: Routes = [
       },
       {
         path: 'payments',
+        title: 'Payments',
         loadComponent: () =>
           import('./features/components/customer-payments/customer-payments.component').then(
             (m) => m.CustomerPaymentsComponent,
@@ -141,6 +157,7 @@ export const routes: Routes = [
       },
       {
         path: 'zone-map',
+        title: 'Zone map',
         data: { audience: 'customer' },
         loadComponent: () =>
           import('./features/components/zone-map-page/zone-map-page.component').then(
@@ -155,6 +172,7 @@ export const routes: Routes = [
       },
       {
         path: 'activity',
+        title: 'Activity',
         data: { auditScope: 'MINE' },
         loadComponent: () =>
           import('./features/components/audit-history/audit-history.component').then(
@@ -171,6 +189,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
+        title: 'Underwriting dashboard',
         loadComponent: () =>
           import('./features/components/underwriter-dashboard/underwriter-dashboard.component').then(
             (m) => m.UnderwriterDashboardComponent,
@@ -178,6 +197,7 @@ export const routes: Routes = [
       },
       {
         path: 'policies',
+        title: 'Policies to review',
         loadComponent: () =>
           import('./features/components/underwriter-policies/underwriter-policies.component').then(
             (m) => m.UnderwriterPoliciesComponent,
@@ -185,6 +205,7 @@ export const routes: Routes = [
       },
       {
         path: 'policies/:policyId',
+        title: 'Policy review',
         loadComponent: () =>
           import('./features/components/underwriter-policy-detail/underwriter-policy-detail.component').then(
             (m) => m.UnderwriterPolicyDetailComponent,
@@ -192,6 +213,7 @@ export const routes: Routes = [
       },
       {
         path: 'notifications',
+        title: 'Notifications',
         loadComponent: () =>
           import('./features/components/staff-notifications/staff-notifications.component').then(
             (m) => m.StaffNotificationsComponent,
@@ -199,6 +221,7 @@ export const routes: Routes = [
       },
       {
         path: 'activity',
+        title: 'Activity',
         data: { auditScope: 'MINE' },
         loadComponent: () =>
           import('./features/components/audit-history/audit-history.component').then(
@@ -207,6 +230,7 @@ export const routes: Routes = [
       },
       {
         path: 'history',
+        title: 'Review history',
         loadComponent: () =>
           import('./features/components/underwriter-review-history/underwriter-review-history.component').then(
             (m) => m.UnderwriterReviewHistoryComponent,
@@ -222,6 +246,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
+        title: 'Claims dashboard',
         loadComponent: () =>
           import('./features/components/claims-officer-dashboard/claims-officer-dashboard.component').then(
             (m) => m.ClaimsOfficerDashboardComponent,
@@ -229,6 +254,7 @@ export const routes: Routes = [
       },
       {
         path: 'claims',
+        title: 'Claims queue',
         loadComponent: () =>
           import('./features/components/claims-officer-claims/claims-officer-claims.component').then(
             (m) => m.ClaimsOfficerClaimsComponent,
@@ -236,6 +262,7 @@ export const routes: Routes = [
       },
       {
         path: 'claims/:claimId',
+        title: 'Claim review',
         loadComponent: () =>
           import('./features/components/claims-officer-claim-detail/claims-officer-claim-detail.component').then(
             (m) => m.ClaimsOfficerClaimDetailComponent,
@@ -243,6 +270,7 @@ export const routes: Routes = [
       },
       {
         path: 'notifications',
+        title: 'Notifications',
         loadComponent: () =>
           import('./features/components/staff-notifications/staff-notifications.component').then(
             (m) => m.StaffNotificationsComponent,
@@ -250,6 +278,7 @@ export const routes: Routes = [
       },
       {
         path: 'activity',
+        title: 'Activity',
         data: { auditScope: 'MINE' },
         loadComponent: () =>
           import('./features/components/audit-history/audit-history.component').then(
@@ -258,6 +287,7 @@ export const routes: Routes = [
       },
       {
         path: 'history',
+        title: 'Review history',
         loadComponent: () =>
           import('./features/components/claims-officer-review-history/claims-officer-review-history.component').then(
             (m) => m.ClaimsOfficerReviewHistoryComponent,
@@ -273,6 +303,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
+        title: 'Admin dashboard',
         loadComponent: () =>
           import('./features/components/admin-dashboard/admin-dashboard.component').then(
             (m) => m.AdminDashboardComponent,
@@ -280,6 +311,7 @@ export const routes: Routes = [
       },
       {
         path: 'products',
+        title: 'Products',
         loadComponent: () =>
           import('./features/components/admin-products/admin-products.component').then(
             (m) => m.AdminProductsComponent,
@@ -287,6 +319,7 @@ export const routes: Routes = [
       },
       {
         path: 'products/new',
+        title: 'New product',
         loadComponent: () =>
           import('./features/components/admin-product-new/admin-product-new.component').then(
             (m) => m.AdminProductNewComponent,
@@ -294,6 +327,7 @@ export const routes: Routes = [
       },
       {
         path: 'products/:productId',
+        title: 'Product details',
         loadComponent: () =>
           import('./features/components/admin-product-edit/admin-product-edit.component').then(
             (m) => m.AdminProductEditComponent,
@@ -301,6 +335,7 @@ export const routes: Routes = [
       },
       {
         path: 'product-thresholds',
+        title: 'Product thresholds',
         loadComponent: () =>
           import('./features/components/admin-product-thresholds/admin-product-thresholds.component').then(
             (m) => m.AdminProductThresholdsComponent,
@@ -308,6 +343,7 @@ export const routes: Routes = [
       },
       {
         path: 'products/:productId/threshold',
+        title: 'Edit threshold',
         loadComponent: () =>
           import('./features/components/admin-product-threshold/admin-product-threshold.component').then(
             (m) => m.AdminProductThresholdComponent,
@@ -315,6 +351,7 @@ export const routes: Routes = [
       },
       {
         path: 'users',
+        title: 'Users',
         loadComponent: () =>
           import('./features/components/admin-users/admin-users.component').then(
             (m) => m.AdminUsersComponent,
@@ -322,6 +359,7 @@ export const routes: Routes = [
       },
       {
         path: 'users/:userId',
+        title: 'User details',
         loadComponent: () =>
           import('./features/components/admin-user-detail/admin-user-detail.component').then(
             (m) => m.AdminUserDetailComponent,
@@ -329,6 +367,7 @@ export const routes: Routes = [
       },
       {
         path: 'policies',
+        title: 'Policies',
         loadComponent: () =>
           import('./features/components/admin-policies/admin-policies.component').then(
             (m) => m.AdminPoliciesComponent,
@@ -336,6 +375,7 @@ export const routes: Routes = [
       },
       {
         path: 'policies/:policyId',
+        title: 'Policy details',
         loadComponent: () =>
           import('./features/components/admin-policy-detail/admin-policy-detail.component').then(
             (m) => m.AdminPolicyDetailComponent,
@@ -343,6 +383,7 @@ export const routes: Routes = [
       },
       {
         path: 'claims',
+        title: 'Claims',
         loadComponent: () =>
           import('./features/components/admin-claims/admin-claims.component').then(
             (m) => m.AdminClaimsComponent,
@@ -350,6 +391,7 @@ export const routes: Routes = [
       },
       {
         path: 'claims/:claimId',
+        title: 'Claim details',
         loadComponent: () =>
           import('./features/components/admin-claim-detail/admin-claim-detail.component').then(
             (m) => m.AdminClaimDetailComponent,
@@ -357,6 +399,7 @@ export const routes: Routes = [
       },
       {
         path: 'perils',
+        title: 'Perils',
         loadComponent: () =>
           import('./features/components/admin-perils/admin-perils.component').then(
             (m) => m.AdminPerilsComponent,
@@ -364,6 +407,7 @@ export const routes: Routes = [
       },
       {
         path: 'zones',
+        title: 'Zones',
         loadComponent: () =>
           import('./features/components/admin-zones/admin-zones.component').then(
             (m) => m.AdminZonesComponent,
@@ -371,6 +415,7 @@ export const routes: Routes = [
       },
       {
         path: 'zone-exposure',
+        title: 'Zone exposure',
         loadComponent: () =>
           import('./features/components/admin-zone-exposure/admin-zone-exposure.component').then(
             (m) => m.AdminZoneExposureComponent,
@@ -378,6 +423,7 @@ export const routes: Routes = [
       },
       {
         path: 'current-measurements',
+        title: 'Live measurements',
         loadComponent: () =>
           import('./features/components/admin-current-measurements/admin-current-measurements.component').then(
             (m) => m.AdminCurrentMeasurementsComponent,
@@ -385,6 +431,7 @@ export const routes: Routes = [
       },
       {
         path: 'pricing-rules',
+        title: 'Pricing rules',
         loadComponent: () =>
           import('./features/components/admin-pricing-rules/admin-pricing-rules.component').then(
             (m) => m.AdminPricingRulesComponent,
@@ -392,6 +439,7 @@ export const routes: Routes = [
       },
       {
         path: 'payments',
+        title: 'Payments',
         loadComponent: () =>
           import('./features/components/admin-payments/admin-payments.component').then(
             (m) => m.AdminPaymentsComponent,
@@ -399,6 +447,7 @@ export const routes: Routes = [
       },
       {
         path: 'payouts',
+        title: 'Payouts',
         loadComponent: () =>
           import('./features/components/admin-payouts/admin-payouts.component').then(
             (m) => m.AdminPayoutsComponent,
@@ -406,6 +455,7 @@ export const routes: Routes = [
       },
       {
         path: 'trigger-events',
+        title: 'Trigger events',
         loadComponent: () =>
           import('./features/components/admin-trigger-events/admin-trigger-events.component').then(
             (m) => m.AdminTriggerEventsComponent,
@@ -413,6 +463,7 @@ export const routes: Routes = [
       },
       {
         path: 'zone-map',
+        title: 'Zone map',
         data: { audience: 'admin' },
         loadComponent: () =>
           import('./features/components/zone-map-page/zone-map-page.component').then(
@@ -421,6 +472,7 @@ export const routes: Routes = [
       },
       {
         path: 'notifications',
+        title: 'Notifications',
         loadComponent: () =>
           import('./features/components/admin-notifications/admin-notifications.component').then(
             (m) => m.AdminNotificationsComponent,
@@ -428,6 +480,7 @@ export const routes: Routes = [
       },
       {
         path: 'audit',
+        title: 'Audit log',
         data: { auditScope: 'ALL' },
         loadComponent: () =>
           import('./features/components/audit-history/audit-history.component').then(
@@ -436,6 +489,7 @@ export const routes: Routes = [
       },
       {
         path: 'activity',
+        title: 'Activity',
         data: { auditScope: 'MINE' },
         loadComponent: () =>
           import('./features/components/audit-history/audit-history.component').then(

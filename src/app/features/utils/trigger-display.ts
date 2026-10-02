@@ -45,14 +45,6 @@ const MEASUREMENT_UNIT_ALIASES: Record<string, string> = {
   percentage: 'PERCENTAGE',
 };
 
-const COMPARISON_OPERATOR_LABELS: Record<string, string> = {
-  GREATER_THAN: 'greater than',
-  GREATER_THAN_OR_EQUAL: 'greater than or equal to',
-  LESS_THAN: 'less than',
-  LESS_THAN_OR_EQUAL: 'less than or equal to',
-  EQUAL: 'equal to',
-};
-
 const COMPARISON_OPERATOR_SYMBOLS: Record<string, string> = {
   GREATER_THAN: '>',
   GREATER_THAN_OR_EQUAL: '≥',
@@ -65,7 +57,9 @@ const AGGREGATION_TYPE_LABELS: Record<string, string> = {
   SUM: 'total',
   AVERAGE: 'average',
   MIN: 'minimum',
+  MINIMUM: 'minimum',
   MAX: 'maximum',
+  MAXIMUM: 'maximum',
   LATEST: 'latest',
 };
 
@@ -103,11 +97,6 @@ export function measurementUnitLabel(
   return MEASUREMENT_UNIT_LABELS[key] ?? '';
 }
 
-function comparisonOperatorLabel(value: TriggerComparisonOperatorValue | null | undefined): string {
-  if (!value) return '';
-  return COMPARISON_OPERATOR_LABELS[value] ?? value.toLowerCase();
-}
-
 export function comparisonOperatorSymbol(
   value: TriggerComparisonOperatorValue | null | undefined,
 ): string {
@@ -127,42 +116,60 @@ export function formatThresholdValue(value: number | null | undefined): string {
   }).format(value);
 }
 
-function formatObservationWindowHours(hours: number | null | undefined): string {
-  if (hours === null || hours === undefined) return '';
-  if (hours < 24) return `${hours}h`;
-  const days = hours / 24;
-  if (Number.isInteger(days)) {
-    return `${days}d`;
+/** "of 150 mm or more", "of less than 15 %" — the threshold phrased the way people say it. */
+function thresholdPhrase(
+  operator: TriggerComparisonOperatorValue | null | undefined,
+  amount: string,
+): string {
+  switch (operator) {
+    case 'GREATER_THAN_OR_EQUAL':
+      return `of ${amount} or more`;
+    case 'GREATER_THAN':
+      return `of more than ${amount}`;
+    case 'LESS_THAN_OR_EQUAL':
+      return `of ${amount} or less`;
+    case 'LESS_THAN':
+      return `of less than ${amount}`;
+    case 'EQUAL':
+      return `of exactly ${amount}`;
+    default:
+      return `of ${amount}`;
   }
-  return `${hours}h`;
 }
 
+/** 6 → "6 hours", 24 → "24 hours", 72 → "3 days", 1 → "1 hour". */
+function windowPhrase(hours: number | null | undefined): string {
+  if (hours === null || hours === undefined || hours <= 0) return '';
+  if (hours > 24 && hours % 24 === 0) {
+    const days = hours / 24;
+    return `${days} days`;
+  }
+  return hours === 1 ? '1 hour' : `${hours} hours`;
+}
+
+/**
+ * Plain-English trigger rule, e.g. "Total rainfall of 150 mm or more within 24 hours"
+ * or "Maximum water level of 5 m or more within 6 hours".
+ */
 export function buildTriggerSentence(condition: TriggerCondition): string {
   const label = condition.humanReadableTrigger?.trim();
   if (label) return label;
 
-  const type = measurementTypeLabel(condition.measurementType);
-  const agg = aggregationTypeLabel(condition.aggregationType);
-  const op = comparisonOperatorLabel(condition.comparisonOperator);
-  const value = formatThresholdValue(condition.thresholdValue);
-  const unit = measurementUnitLabel(condition.measurementUnit);
-  const window = formatObservationWindowHours(condition.observationWindowHours);
-
-  const parts: string[] = [];
-  if (type) parts.push(type);
-  if (parts.length) {
-    if (agg) {
-      parts[0] = `${agg} ${parts[0]}`;
-    }
-  } else if (agg) {
-    parts.push(agg);
+  if (condition.thresholdValue === null || condition.thresholdValue === undefined) {
+    return 'Trigger condition not configured';
   }
 
-  const comparison = [op, value, unit].filter((p) => p).join(' ');
-  if (comparison) parts.push(comparison);
-  if (window) parts.push(`over the past ${window}`);
+  const type = measurementTypeLabel(condition.measurementType).toLowerCase();
+  const agg = aggregationTypeLabel(condition.aggregationType);
+  const unit = measurementUnitLabel(condition.measurementUnit);
+  const amount = [formatThresholdValue(condition.thresholdValue), unit].filter((p) => p).join(' ');
+  const window = windowPhrase(condition.observationWindowHours);
 
-  return parts.join(' ') || 'Trigger condition not configured';
+  const subject = agg ? `${agg} ${type}` : type;
+  const sentence = [subject, thresholdPhrase(condition.comparisonOperator, amount), window ? `within ${window}` : '']
+    .filter((p) => p)
+    .join(' ');
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1);
 }
 
 export function hasTriggerCondition(condition: TriggerCondition | null | undefined): boolean {

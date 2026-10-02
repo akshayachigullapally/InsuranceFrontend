@@ -1,3 +1,4 @@
+import { DialogService } from '../../../shared/services/dialog.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
 import { AdminPayoutsComponent } from './admin-payouts.component';
@@ -71,10 +72,10 @@ describe('AdminPayoutsComponent', () => {
     );
   });
 
-  it('uses a default reason when the prompt is left blank', () => {
-    vi.spyOn(window, 'prompt').mockReturnValue('   ');
+  it('uses a default reason when the reason is left blank', async () => {
+    vi.spyOn(TestBed.inject(DialogService), 'prompt').mockResolvedValue('   ');
 
-    page.markFail(payout);
+    await page.markFail(payout);
 
     expect(store.dispatch).toHaveBeenCalledWith(
       markPayoutFail({ payoutId: 6, request: { externalReference: '', failureReason: 'Payout failed' } }),

@@ -25,8 +25,8 @@
   <div class="grid animate-fade-in-up gap-5 sm:grid-cols-2 lg:grid-cols-4">
     <app-stat-card label="Claims to review" [value]="(submittedCount$ | async) ?? 0" icon="📋" color="amber" hint="In queue" />
     <app-stat-card label="Manual claims" [value]="(manualClaimCount$ | async) ?? 0" icon="✍️" color="red" hint="Customer submitted" />
-    <app-stat-card label="Total claimed" [value]="'₹ ' + ((totalClaimedAmount$ | async) ?? 0)" icon="🛡️" color="blue" hint="Across submitted claims" />
-    <app-stat-card label="Average claim" [value]="'₹ ' + ((averageClaimAmount$ | async) ?? 0)" icon="💳" color="green" hint="Average requested amount" />
+    <app-stat-card label="Total claimed" [value]="'₹ ' + (((totalClaimedAmount$ | async) ?? 0) | number: '1.0-2')" icon="🛡️" color="blue" hint="Across submitted claims" />
+    <app-stat-card label="Average claim" [value]="'₹ ' + (((averageClaimAmount$ | async) ?? 0) | number: '1.0-2')" icon="💳" color="green" hint="Average requested amount" />
   </div>
 
   <!-- Live trigger engine -->

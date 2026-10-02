@@ -1,3 +1,4 @@
+import { DialogService } from '../../../shared/services/dialog.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Action } from '@ngrx/store';
 import { MockStore } from '@ngrx/store/testing';
@@ -66,13 +67,13 @@ describe('AdminProductsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(updateProductStatus({ productId: 3, status: 'INACTIVE' }));
   });
 
-  it('archives a product only after confirmation', () => {
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    page.onDelete(3);
+  it('archives a product only after confirmation', async () => {
+    const confirm = vi.spyOn(TestBed.inject(DialogService), 'confirm').mockResolvedValue(false);
+    await page.onDelete(3);
     expect(store.dispatch).not.toHaveBeenCalledWith(deleteProduct({ productId: 3 }));
 
-    confirm.mockReturnValue(true);
-    page.onDelete(3);
+    confirm.mockResolvedValue(true);
+    await page.onDelete(3);
     expect(store.dispatch).toHaveBeenCalledWith(deleteProduct({ productId: 3 }));
   });
 
@@ -93,6 +94,6 @@ describe('AdminProductsComponent', () => {
   });
 
   it('formats category labels', () => {
-    expect(page.categoryLabel('BUSINESS_INTERRUPTION')).toBe('BUSINESS INTERRUPTION');
+    expect(page.categoryLabel('BUSINESS_INTERRUPTION')).toBe('Business interruption');
   });
 });

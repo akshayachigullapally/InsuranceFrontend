@@ -1,3 +1,4 @@
+import { DialogService } from '../../../shared/services/dialog.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
 import { AdminPricingRulesComponent } from './admin-pricing-rules.component';
@@ -118,12 +119,12 @@ describe('AdminPricingRulesComponent', () => {
     );
   });
 
-  it('changes status and archives with confirmation', () => {
+  it('changes status and archives with confirmation', async () => {
     page.changeStatus(rule, { target: { value: 'INACTIVE' } } as unknown as Event);
     expect(store.dispatch).toHaveBeenCalledWith(updatePricingRuleStatus({ ruleId: 5, status: 'INACTIVE' as never }));
 
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
-    page.archive(rule);
+    vi.spyOn(TestBed.inject(DialogService), 'confirm').mockResolvedValue(true);
+    await page.archive(rule);
     expect(store.dispatch).toHaveBeenCalledWith(archivePricingRule({ ruleId: 5 }));
   });
 

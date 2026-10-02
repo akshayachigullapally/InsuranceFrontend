@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { combineLatest } from 'rxjs';
@@ -22,7 +22,7 @@ import { ClimateIllustrationComponent } from '../../../shared/components/climate
 @Component({
   selector: 'app-underwriter-dashboard',
   standalone: true,
-  imports: [RouterLink, AsyncPipe, DatePipe, StatCardComponent, StatusBadgeComponent, ClimateIllustrationComponent],
+  imports: [RouterLink, AsyncPipe, DecimalPipe, DatePipe, StatCardComponent, StatusBadgeComponent, ClimateIllustrationComponent],
   templateUrl: './underwriter-dashboard.component.html',
 })
 export class UnderwriterDashboardComponent implements OnInit {

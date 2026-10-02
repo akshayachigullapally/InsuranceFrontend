@@ -16,7 +16,7 @@ export class ConfirmationDialogComponent {
   readonly dismissed = output<void>();
 
   protected confirmClass(): string {
-    return this.danger() ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700';
+    return this.danger() ? 'btn-danger' : 'btn-brand';
   }
 
   protected confirm(): void {
