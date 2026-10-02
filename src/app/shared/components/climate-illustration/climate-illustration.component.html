@@ -1,0 +1,162 @@
+<div class="scene" aria-hidden="true">
+  <svg class="art" viewBox="0 0 520 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="ciHalo" cx="0.5" cy="0.45" r="0.5">
+        <stop offset="0%" stop-color="#1e8bff" stop-opacity="0.55" />
+        <stop offset="70%" stop-color="#1e8bff" stop-opacity="0.08" />
+        <stop offset="100%" stop-color="#1e8bff" stop-opacity="0" />
+      </radialGradient>
+      <linearGradient id="ciShield" x1="228" y1="118" x2="372" y2="312" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#48b0ff" />
+        <stop offset="55%" stop-color="#0068f5" />
+        <stop offset="100%" stop-color="#0041b1" />
+      </linearGradient>
+      <linearGradient id="ciShieldShine" x1="240" y1="130" x2="300" y2="230" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45" />
+        <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+      </linearGradient>
+      <linearGradient id="ciCloud" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#ffffff" />
+        <stop offset="100%" stop-color="#c3ddef" />
+      </linearGradient>
+      <linearGradient id="ciWater" x1="0" y1="330" x2="0" y2="420" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#1e8bff" stop-opacity="0.75" />
+        <stop offset="100%" stop-color="#002453" stop-opacity="0.95" />
+      </linearGradient>
+      <linearGradient id="ciRain" x1="0" y1="140" x2="0" y2="310" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#b5e1ff" stop-opacity="0.95" />
+        <stop offset="100%" stop-color="#48b0ff" stop-opacity="0.1" />
+      </linearGradient>
+      <pattern id="ciWindows" width="14" height="18" patternUnits="userSpaceOnUse">
+        <rect x="4" y="5" width="6" height="7" rx="1" fill="#ffd56b" />
+      </pattern>
+      <!-- Fades the city and water out towards the edges so the scene has no hard box. -->
+      <radialGradient id="ciFadeGrad" cx="0.5" cy="0.4" r="0.6">
+        <stop offset="0%" stop-color="#ffffff" />
+        <stop offset="68%" stop-color="#ffffff" />
+        <stop offset="100%" stop-color="#000000" />
+      </radialGradient>
+      <mask id="ciFade" maskUnits="userSpaceOnUse" x="0" y="0" width="520" height="420">
+        <rect width="520" height="420" fill="url(#ciFadeGrad)" />
+      </mask>
+      <filter id="ciGlow" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="14" result="blur" />
+        <feColorMatrix in="blur" values="0 0 0 0 0.12  0 0 0 0 0.55  0 0 0 0 1  0 0 0 0.75 0" />
+        <feMerge>
+          <feMergeNode />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+
+    <!-- Glow and orbit -->
+    <circle cx="260" cy="200" r="200" fill="url(#ciHalo)" />
+    <circle cx="260" cy="205" r="168" stroke="#83ceff" stroke-opacity="0.25" stroke-dasharray="3 9" />
+    <circle cx="260" cy="205" r="122" stroke="#83ceff" stroke-opacity="0.15" />
+
+    <!-- Skyline -->
+    <g mask="url(#ciFade)">
+      <rect x="62" y="214" width="46" height="120" rx="3" fill="#1b4768" />
+      <rect x="112" y="172" width="38" height="162" rx="3" fill="#1d547e" />
+      <rect x="126" y="156" width="10" height="18" fill="#1d547e" />
+      <rect x="154" y="236" width="52" height="98" rx="3" fill="#1b4768" />
+      <rect x="326" y="194" width="44" height="140" rx="3" fill="#1d547e" />
+      <rect x="374" y="150" width="38" height="184" rx="3" fill="#1b4768" />
+      <rect x="390" y="132" width="6" height="20" fill="#1b4768" />
+      <rect x="416" y="222" width="50" height="112" rx="3" fill="#1d547e" />
+      <g class="window-glow">
+        <rect x="62" y="214" width="46" height="112" fill="url(#ciWindows)" opacity="0.6" />
+        <rect x="112" y="172" width="38" height="154" fill="url(#ciWindows)" opacity="0.5" />
+        <rect x="154" y="236" width="52" height="90" fill="url(#ciWindows)" opacity="0.6" />
+        <rect x="326" y="194" width="44" height="132" fill="url(#ciWindows)" opacity="0.55" />
+        <rect x="374" y="150" width="38" height="176" fill="url(#ciWindows)" opacity="0.5" />
+        <rect x="416" y="222" width="50" height="104" fill="url(#ciWindows)" opacity="0.6" />
+      </g>
+    </g>
+
+    <!-- Rain, falling behind the shield -->
+    <g stroke="url(#ciRain)" stroke-width="3" stroke-linecap="round">
+      @for (x of rain; track x; let i = $index) {
+        <line
+          class="rain-drop"
+          [attr.x1]="x"
+          y1="142"
+          [attr.x2]="x - 22"
+          y2="318"
+          [style.animation-delay.ms]="-i * 140"
+        />
+      }
+    </g>
+
+    <!-- Storm cloud -->
+    <g>
+      <ellipse cx="206" cy="112" rx="96" ry="30" fill="#8fc0e1" opacity="0.35" />
+      <circle cx="160" cy="104" r="32" fill="url(#ciCloud)" />
+      <circle cx="204" cy="86" r="44" fill="url(#ciCloud)" />
+      <circle cx="250" cy="104" r="30" fill="url(#ciCloud)" />
+      <rect x="128" y="100" width="152" height="38" rx="19" fill="url(#ciCloud)" />
+    </g>
+
+    <!-- Water -->
+    <g mask="url(#ciFade)">
+    <path d="M0 336 C 60 320 120 352 180 336 S 300 320 360 336 S 480 352 520 336 V 420 H 0 Z" fill="url(#ciWater)" />
+    <path d="M0 352 C 70 340 130 364 200 352 S 330 340 400 352 S 490 364 520 352" stroke="#83ceff" stroke-opacity="0.45" stroke-width="2" />
+    <path d="M40 380 C 100 372 150 388 210 380 S 340 372 400 380" stroke="#83ceff" stroke-opacity="0.2" stroke-width="2" />
+    </g>
+
+    <!-- Shield -->
+    <g class="shield" filter="url(#ciGlow)">
+      <path
+        d="M300 116 L374 146 V 214 C 374 264 341 298 300 314 C 259 298 226 264 226 214 V 146 Z"
+        fill="url(#ciShield)"
+        stroke="#ffffff"
+        stroke-opacity="0.45"
+        stroke-width="2.5"
+      />
+      <path d="M300 128 L362 153 V 208 C 362 214 300 186 240 222 V 153 Z" fill="url(#ciShieldShine)" />
+      <path
+        d="M266 214 L291 239 L338 190"
+        stroke="#ffffff"
+        stroke-width="13"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </g>
+  </svg>
+
+  @if (variant() === 'hero') {
+    <!-- Live reading crossing the policy threshold -->
+    <div class="float-card float-card--reading p-3.5">
+      <div class="flex items-center justify-between gap-2">
+        <p class="text-[11px] font-semibold tracking-wide text-gray-500 uppercase">Rainfall · 24 h</p>
+        <span class="flex items-center gap-1 text-[10px] font-semibold text-brand-700">
+          <span class="relative flex size-1.5">
+            <span class="absolute inline-flex size-full animate-ping rounded-full bg-brand-500 opacity-75"></span>
+            <span class="relative inline-flex size-1.5 rounded-full bg-brand-500"></span>
+          </span>
+          LIVE
+        </span>
+      </div>
+      <p class="mt-1 text-xl font-bold text-gray-900">172 <span class="text-sm font-semibold text-gray-500">mm</span></p>
+      <svg class="mt-1 block w-full" viewBox="0 0 160 46" fill="none">
+        <line x1="0" y1="16" x2="160" y2="16" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 4" />
+        <text x="0" y="11" font-size="8" font-weight="600" fill="#b45309">150 mm threshold</text>
+        <path class="spark-line" d="M0 42 L22 38 L44 40 L66 32 L88 30 L110 22 L132 14 L156 6" stroke="#0068f5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <circle cx="156" cy="6" r="3.5" fill="#0068f5" stroke="#ffffff" stroke-width="1.5" />
+      </svg>
+      <span class="mt-1.5 inline-flex items-center rounded-full bg-warn-50 px-2 py-0.5 text-[10px] font-semibold text-warn-700">
+        ⚡ Trigger matched
+      </span>
+    </div>
+
+    <!-- Automatic payout -->
+    <div class="float-card float-card--payout flex items-center gap-3 px-4 py-3">
+      <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-success-50 text-lg text-success-700">✓</span>
+      <div>
+        <p class="text-[11px] font-semibold tracking-wide text-gray-500 uppercase">Payout sent</p>
+        <p class="text-base font-bold text-gray-900">₹ 1,00,000</p>
+        <p class="text-[11px] text-gray-500">No claim form needed</p>
+      </div>
+    </div>
+  }
+</div>

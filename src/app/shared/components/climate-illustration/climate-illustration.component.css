@@ -1,0 +1,133 @@
+:host {
+  display: block;
+}
+
+.scene {
+  position: relative;
+}
+
+.art {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Falling rain: each streak is a dashed line whose dashes slide downwards. */
+.rain-drop {
+  stroke-dasharray: 10 26;
+  animation: rain-fall 1.1s linear infinite;
+}
+
+@keyframes rain-fall {
+  from {
+    stroke-dashoffset: 36;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.shield {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: shield-breathe 4s ease-in-out infinite;
+}
+
+@keyframes shield-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.window-glow {
+  animation: window-twinkle 5s ease-in-out infinite;
+}
+
+@keyframes window-twinkle {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* Floating story cards (hero variant). */
+.float-card {
+  position: absolute;
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.96);
+  box-shadow: 0 20px 40px -12px rgb(0 20 60 / 0.45);
+  color: #0f2739;
+  animation: card-float 6s ease-in-out infinite;
+}
+
+.float-card--reading {
+  top: 2%;
+  right: -5%;
+  width: 42%;
+  min-width: 11.5rem;
+}
+
+.float-card--payout {
+  bottom: 6%;
+  left: -4%;
+  animation-delay: -3s;
+}
+
+@keyframes card-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.spark-line {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: spark-draw 2.4s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+}
+
+@keyframes spark-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* On small phones keep the shield visible: drop the reading card, tuck the payout card in the corner. */
+@media (max-width: 30rem) {
+  .float-card--reading {
+    display: none;
+  }
+
+  .float-card--payout {
+    left: 0;
+    bottom: 0;
+    transform-origin: bottom left;
+    scale: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rain-drop,
+  .shield,
+  .window-glow,
+  .float-card,
+  .spark-line {
+    animation: none;
+  }
+
+  .spark-line {
+    stroke-dashoffset: 0;
+  }
+}

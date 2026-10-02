@@ -4,46 +4,60 @@
     <div class="absolute inset-0 animate-blob bg-[radial-gradient(ellipse_at_top_right,rgba(30,139,255,0.35),transparent_55%)]"></div>
     <div class="absolute inset-0 animate-blob bg-[radial-gradient(ellipse_at_bottom_left,rgba(0,80,219,0.25),transparent_50%)]" style="animation-delay: -6s"></div>
   </div>
-  <div class="relative mx-auto max-w-7xl px-6 pb-20 pt-20 lg:pt-28">
-    <div class="mx-auto max-w-3xl text-center">
-      <span class="inline-flex animate-fade-in items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-brand-200 backdrop-blur">
-        <span class="relative flex size-2">
-          <span class="absolute inline-flex size-full animate-ping rounded-full bg-brand-400 opacity-75"></span>
-          <span class="relative inline-flex size-2 rounded-full bg-brand-400"></span>
+  <div class="relative mx-auto max-w-7xl px-6 pb-16 pt-16 lg:pb-20 lg:pt-20">
+    <div class="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
+      <div class="text-center lg:text-left">
+        <span class="inline-flex animate-fade-in items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-brand-200 backdrop-blur">
+          <span class="relative flex size-2">
+            <span class="absolute inline-flex size-full animate-ping rounded-full bg-brand-400 opacity-75"></span>
+            <span class="relative inline-flex size-2 rounded-full bg-brand-400"></span>
+          </span>
+          Parametric insurance · Reactive by design
         </span>
-        Parametric insurance · Reactive by design
-      </span>
-      <h1 class="mt-6 animate-fade-in-up text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl" style="animation-delay: 100ms">
-        Insurance that pays out
-        <span class="bg-gradient-to-r from-brand-400 via-brand-300 to-cyan-300 bg-clip-text text-transparent">when the weather turns</span>
-      </h1>
-      <p class="mx-auto mt-6 max-w-2xl animate-fade-in-up text-lg leading-relaxed text-navy-200" style="animation-delay: 200ms">
-        ClimateSure links real-time rainfall, flood, temperature and wind data to your policy. When a
-        threshold is breached, your claim is evaluated automatically — and payouts follow fast.
-      </p>
-      <div class="mt-9 flex animate-fade-in-up flex-wrap items-center justify-center gap-4" style="animation-delay: 300ms">
-        <a routerLink="/register" class="btn-brand !rounded-full !px-7 !py-3 !text-base">
-          Start protecting today
-        </a>
-        <a
-          routerLink="/products"
-          class="group inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-7 py-3 text-base font-semibold text-white backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10"
-        >
-          Explore products
-          <span class="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
-        </a>
+        <h1 class="mt-6 animate-fade-in-up font-display text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.5rem]" style="animation-delay: 100ms">
+          Insurance that pays out
+          <span class="bg-gradient-to-r from-brand-400 via-brand-300 to-cyan-300 bg-clip-text text-transparent">when the weather turns</span>
+        </h1>
+        <p class="mx-auto mt-6 max-w-xl animate-fade-in-up text-lg leading-relaxed text-navy-200 lg:mx-0" style="animation-delay: 200ms">
+          ClimateSure links real-time rainfall, flood, temperature and wind data to your policy. When a
+          threshold is breached, your claim is evaluated automatically — and payouts follow fast.
+        </p>
+        <div class="mt-9 flex animate-fade-in-up flex-wrap items-center justify-center gap-4 lg:justify-start" style="animation-delay: 300ms">
+          <a routerLink="/register" class="btn-brand !rounded-full !px-7 !py-3 !text-base shadow-glow">
+            Start protecting today
+          </a>
+          <a
+            routerLink="/products"
+            class="group inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-7 py-3 text-base font-semibold text-white backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10"
+          >
+            Explore products
+            <span class="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+          </a>
+        </div>
+        <ul class="mt-8 flex animate-fade-in-up flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-navy-200 lg:justify-start" style="animation-delay: 350ms">
+          @for (point of heroPoints; track point) {
+            <li class="flex items-center gap-2">
+              <span class="flex size-5 items-center justify-center rounded-full bg-brand-500/20 text-xs text-brand-300" aria-hidden="true">✓</span>
+              {{ point }}
+            </li>
+          }
+        </ul>
       </div>
 
-      <!-- Stats strip -->
-      <dl class="mt-14 grid animate-fade-in-up grid-cols-2 gap-6 sm:grid-cols-4" style="animation-delay: 400ms">
-        @for (stat of stats; track stat.label) {
-          <div class="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur transition-all duration-200 hover:-translate-y-1 hover:border-brand-400/40 hover:bg-white/10">
-            <dt class="text-3xl font-bold text-white">{{ stat.value }}</dt>
-            <dd class="mt-1 text-xs font-medium tracking-wide text-brand-200 uppercase">{{ stat.label }}</dd>
-          </div>
-        }
-      </dl>
+      <div class="relative mx-auto w-full max-w-md animate-fade-in sm:max-w-lg lg:max-w-none" style="animation-delay: 250ms">
+        <app-climate-illustration />
+      </div>
     </div>
+
+    <!-- Stats strip -->
+    <dl class="mt-14 grid animate-fade-in-up grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6" style="animation-delay: 400ms">
+      @for (stat of stats; track stat.label) {
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur transition-all duration-200 hover:-translate-y-1 hover:border-brand-400/40 hover:bg-white/10">
+          <dt class="text-3xl font-bold text-white">{{ stat.value }}</dt>
+          <dd class="mt-1 text-xs font-medium tracking-wide text-brand-200 uppercase">{{ stat.label }}</dd>
+        </div>
+      }
+    </dl>
   </div>
 </section>
 
@@ -80,7 +94,7 @@
           <h3 class="mt-4 font-semibold text-gray-900">{{ step.title }}</h3>
           <p class="mt-2 text-sm leading-relaxed text-gray-500">{{ step.description }}</p>
           @if (!$last) {
-            <span class="absolute right-6 top-1/2 hidden -translate-y-1/2 text-brand-300 lg:block" aria-hidden="true">→</span>
+            <span class="absolute -right-[26px] top-1/2 z-10 hidden size-7 -translate-y-1/2 items-center justify-center rounded-full border border-brand-100 bg-white text-sm text-brand-500 shadow-sm lg:flex" aria-hidden="true">→</span>
           }
         </div>
       }

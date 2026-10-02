@@ -22,11 +22,12 @@ interface AdminLink {
   routerLink: string;
   color: string;
 }
+import { ClimateIllustrationComponent } from '../../../shared/components/climate-illustration/climate-illustration.component';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [RouterLink, AsyncPipe, StatCardComponent],
+  imports: [RouterLink, AsyncPipe, StatCardComponent, ClimateIllustrationComponent],
   templateUrl: './admin-dashboard.component.html',
 })
 export class AdminDashboardComponent implements OnInit {

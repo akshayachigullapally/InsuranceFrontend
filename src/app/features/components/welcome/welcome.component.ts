@@ -6,6 +6,7 @@ import { Observable, Subject, takeUntil } from 'rxjs';
 import { loadProducts } from '../../state/products/products.actions';
 import { selectProducts } from '../../state/products/products.selectors';
 import { ProductResponse } from '../../dtos/products/product-response.dto';
+import { ClimateIllustrationComponent } from '../../../shared/components/climate-illustration/climate-illustration.component';
 
 interface Feature {
   icon: string;
@@ -43,7 +44,7 @@ const CATEGORY_ICONS: Record<string, string> = {
 @Component({
   selector: 'app-welcome',
   standalone: true,
-  imports: [RouterLink, AsyncPipe, DecimalPipe],
+  imports: [RouterLink, AsyncPipe, DecimalPipe, ClimateIllustrationComponent],
   templateUrl: './welcome.component.html',
 })
 export class WelcomeComponent implements OnInit, OnDestroy {
@@ -120,6 +121,8 @@ export class WelcomeComponent implements OnInit, OnDestroy {
         'When a trigger matches, an event is verified and your eligible claim is processed straight through.',
     },
   ];
+
+  readonly heroPoints = ['No claim forms', 'Payouts in days', 'Clear, fixed triggers'];
 
   readonly stats: Stat[] = [
     { value: '10+', label: 'Active products' },

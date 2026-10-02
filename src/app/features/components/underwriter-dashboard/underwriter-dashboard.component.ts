@@ -17,11 +17,12 @@ import {
   selectPendingReviewCount,
   selectReviewPolicies,
 } from '../../state/policies/policies.selectors';
+import { ClimateIllustrationComponent } from '../../../shared/components/climate-illustration/climate-illustration.component';
 
 @Component({
   selector: 'app-underwriter-dashboard',
   standalone: true,
-  imports: [RouterLink, AsyncPipe, DatePipe, StatCardComponent, StatusBadgeComponent],
+  imports: [RouterLink, AsyncPipe, DatePipe, StatCardComponent, StatusBadgeComponent, ClimateIllustrationComponent],
   templateUrl: './underwriter-dashboard.component.html',
 })
 export class UnderwriterDashboardComponent implements OnInit {

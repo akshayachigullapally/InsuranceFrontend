@@ -26,11 +26,12 @@ const ACTIVE_TRIGGER_STATUSES = ['DETECTED', 'UNDER_VALIDATION', 'VERIFIED'];
 function isActiveTriggerEvent(event: TriggerEventResponse): boolean {
   return ACTIVE_TRIGGER_STATUSES.includes(event.status);
 }
+import { ClimateIllustrationComponent } from '../../../shared/components/climate-illustration/climate-illustration.component';
 
 @Component({
   selector: 'app-claims-officer-dashboard',
   standalone: true,
-  imports: [RouterLink, AsyncPipe, DatePipe, StatCardComponent, StatusBadgeComponent],
+  imports: [RouterLink, AsyncPipe, DatePipe, StatCardComponent, StatusBadgeComponent, ClimateIllustrationComponent],
   templateUrl: './claims-officer-dashboard.component.html',
 })
 export class ClaimsOfficerDashboardComponent implements OnInit {

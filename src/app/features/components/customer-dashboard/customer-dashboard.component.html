@@ -1,10 +1,10 @@
 <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
   <!-- Welcome banner -->
-  <section class="relative overflow-hidden rounded-2xl bg-brand-gradient px-8 py-10 text-white shadow-elevated">
+  <section class="relative overflow-hidden rounded-2xl bg-brand-gradient px-8 py-8 text-white shadow-elevated md:py-6">
     <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.15),transparent_55%)]"></div>
     <div class="absolute -bottom-20 -right-20 size-72 rounded-full bg-white/5 blur-3xl"></div>
-    <div class="relative flex flex-wrap items-center justify-between gap-6">
-      <div>
+    <div class="relative flex items-center justify-between gap-6">
+      <div class="py-2">
         <p class="text-xs font-semibold tracking-widest text-brand-200 uppercase">Customer Portal</p>
         <h1 class="mt-2 text-3xl font-bold tracking-tight">
           Welcome back, {{ (user$ | async)?.fullName || 'there' }}
@@ -12,11 +12,14 @@
         <p class="mt-2 max-w-lg text-sm text-brand-100">
           Manage your policies, track live weather triggers and follow claim payouts in real time.
         </p>
+        <a routerLink="/products" class="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-brand-800 shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-50">
+          Explore products
+          <span class="text-base">→</span>
+        </a>
       </div>
-      <a routerLink="/products" class="inline-flex items-center gap-2 rounded-full bg-white/15 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/25">
-        Explore products
-        <span class="text-lg">→</span>
-      </a>
+      <div class="hidden w-64 shrink-0 md:block lg:w-72">
+        <app-climate-illustration variant="compact" />
+      </div>
     </div>
   </section>
 

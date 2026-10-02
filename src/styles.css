@@ -132,6 +132,21 @@
     background-attachment: fixed;
   }
 
+  /* Respect the OS "reduce motion" setting across the whole app. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   ::selection {
     background-color: rgb(0 104 245 / 0.18);
     color: #003b8b;

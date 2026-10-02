@@ -36,11 +36,12 @@ interface QuickAction {
   routerLink: string;
   color: string;
 }
+import { ClimateIllustrationComponent } from '../../../shared/components/climate-illustration/climate-illustration.component';
 
 @Component({
   selector: 'app-customer-dashboard',
   standalone: true,
-  imports: [RouterLink, AsyncPipe, DatePipe, DecimalPipe, StatCardComponent, StatusBadgeComponent],
+  imports: [RouterLink, AsyncPipe, DatePipe, DecimalPipe, StatCardComponent, StatusBadgeComponent, ClimateIllustrationComponent],
   templateUrl: './customer-dashboard.component.html',
 })
 export class CustomerDashboardComponent implements OnInit, OnDestroy {
