@@ -58,77 +58,10 @@
   }
 }
 
-/* Floating story cards (hero variant). */
-.float-card {
-  position: absolute;
-  border-radius: 1rem;
-  border: 1px solid rgb(255 255 255 / 0.12);
-  background: rgb(255 255 255 / 0.96);
-  box-shadow: 0 20px 40px -12px rgb(0 20 60 / 0.45);
-  color: #0f2739;
-  animation: card-float 6s ease-in-out infinite;
-}
-
-.float-card--reading {
-  top: 0;
-  right: 0;
-  width: 40%;
-  min-width: 11rem;
-  max-width: 15rem;
-}
-
-.float-card--payout {
-  bottom: 4%;
-  left: 0;
-  animation-delay: -3s;
-}
-
-@keyframes card-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-.spark-line {
-  stroke-dasharray: 220;
-  stroke-dashoffset: 220;
-  animation: spark-draw 2.4s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
-}
-
-@keyframes spark-draw {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-/* On small phones keep the shield visible: drop the reading card, tuck the payout card in the corner. */
-@media (max-width: 30rem) {
-  .float-card--reading {
-    display: none;
-  }
-
-  .float-card--payout {
-    left: 0;
-    bottom: 0;
-    transform-origin: bottom left;
-    scale: 0.85;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .rain-drop,
   .shield,
-  .window-glow,
-  .float-card,
-  .spark-line {
+  .window-glow {
     animation: none;
-  }
-
-  .spark-line {
-    stroke-dashoffset: 0;
   }
 }
