@@ -70,15 +70,16 @@
 }
 
 .float-card--reading {
-  top: 2%;
-  right: -5%;
-  width: 42%;
-  min-width: 11.5rem;
+  top: 0;
+  right: 0;
+  width: 40%;
+  min-width: 11rem;
+  max-width: 15rem;
 }
 
 .float-card--payout {
-  bottom: 6%;
-  left: -4%;
+  bottom: 4%;
+  left: 0;
   animation-delay: -3s;
 }
 
