@@ -5,10 +5,12 @@
         Trigger administration
       </p>
       <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">
-        Environmental Measurements
+        Trigger simulator
       </h1>
       <p class="mt-1 text-sm text-gray-500">
-        View the configured threshold for every active product (including customer-defined custom policies) and enter the latest environmental value for a zone. Each active policy is checked against the threshold captured when it was created.
+        Pretend a sensor reported a value for one product in one zone. Every active policy of that
+        product in the zone is checked against the threshold locked in when it was bought, and paid
+        policies that cross it get an automatic claim.
       </p>
     </div>
   </div>
@@ -49,20 +51,20 @@
           @if (currentSnapshot(product); as snapshot) {
             <div class="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm">
               <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">
-                Current demo value
+                Last simulated value
               </p>
               <p class="mt-1 text-base font-semibold text-gray-900">
                 {{ snapshot.currentValue }} {{ snapshot.measurementUnit }}
               </p>
               @if (snapshot.updatedAt) {
                 <p class="mt-0.5 text-xs text-gray-500">
-                  Last updated {{ snapshot.updatedAt | date: 'medium' }}
+                  Sent {{ snapshot.updatedAt | date: 'medium' }} — the last value tested for this product
                 </p>
               }
             </div>
           } @else {
             <p class="mt-4 text-xs text-gray-500">
-              No demo value recorded yet for this product.
+              No value has been simulated for this product yet.
             </p>
           }
 
@@ -90,7 +92,7 @@
 
             <div>
               <label class="label-base" [for]="'value-' + product.id">
-                {{ label(product) }} ({{ product.measurementUnit }})
+                {{ label(product) }} to simulate ({{ product.measurementUnit }})
               </label>
               <input
                 [id]="'value-' + product.id"
@@ -111,7 +113,7 @@
                 class="btn-outline !px-4 !py-2 text-sm"
                 (click)="useMatchingValue(product)"
               >
-                Use matching demo value
+                Fill in a value that triggers
               </button>
 
               <a
@@ -127,7 +129,7 @@
               class="btn-brand w-full"
               [disabled]="processing.has(product.id)"
             >
-              {{ processing.has(product.id) ? 'Processing...' : 'Update measurement and process' }}
+              {{ processing.has(product.id) ? 'Checking policies…' : 'Simulate reading' }}
             </button>
           </form>
 

@@ -235,6 +235,7 @@ export class MeasurementStatusPanelComponent
       .setCurrentReading({
         measurementType: card.measurementType,
         value: Number(this.editingValue),
+        productIds: card.rows.map(row => row.productId),
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -412,14 +413,30 @@ export class MeasurementStatusPanelComponent
     this.editingType = null;
     this.editingValue = null;
     const unit = this.unitLabel(card.unit);
-    this.toast.show({
-      type: 'success',
-      icon: '✅',
-      title: `${this.typeLabel(card.measurementType)} updated`,
-      message:
-        `Now ${this.formatValue(result.value)} ${unit} in ${result.zoneCount} ` +
-        `zone${result.zoneCount === 1 ? '' : 's'}. The demo feed leaves it for ${result.holdMinutes} min.`,
-    });
+    const reading =
+      `Now ${this.formatValue(result.value)} ${unit} in ${result.zoneCount} ` +
+      `zone${result.zoneCount === 1 ? '' : 's'} for the next ${result.holdMinutes} min.`;
+    const triggered = result.triggeredProducts ?? [];
+
+    if (triggered.length > 0) {
+      const claims = result.claimsCreatedCount ?? 0;
+      const unpaid = result.unpaidPolicyCount ?? 0;
+      this.toast.show({
+        type: 'warning',
+        icon: '⚡',
+        title: `Trigger fired: ${triggered.join(', ')}`,
+        message:
+          `${reading} ${claims} automatic claim${claims === 1 ? '' : 's'} created` +
+          (unpaid > 0 ? `, ${unpaid} unpaid polic${unpaid === 1 ? 'y' : 'ies'} skipped.` : '.'),
+      });
+    } else {
+      this.toast.show({
+        type: 'success',
+        icon: '✅',
+        title: `${this.typeLabel(card.measurementType)} updated`,
+        message: `${reading} No policy threshold was crossed.`,
+      });
+    }
     this.refresh$.next();
   }
 }

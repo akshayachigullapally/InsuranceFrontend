@@ -47,8 +47,8 @@ export class AdminDashboardComponent implements OnInit {
     },
     {
       icon: '🌡️',
-      label: 'Environmental Measurements',
-      description: 'View current values & thresholds, update readings',
+      label: 'Trigger simulator',
+      description: 'Send a reading for a product and see which policies claim',
       routerLink: '/admin/current-measurements',
       color: 'bg-teal-50',
     },

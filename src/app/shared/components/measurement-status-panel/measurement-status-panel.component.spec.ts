@@ -49,7 +49,12 @@ describe('MeasurementStatusPanelComponent', () => {
   let measurementService: { setCurrentReading: ReturnType<typeof vi.fn> };
   let toast: { show: ReturnType<typeof vi.fn> };
 
-  const rainfallCard = { measurementType: 'RAINFALL', unit: 'MM', latestValue: 180 };
+  const rainfallCard = {
+    measurementType: 'RAINFALL',
+    unit: 'MM',
+    latestValue: 180,
+    rows: [{ productId: 1 }, { productId: 2 }],
+  };
 
   beforeEach(async () => {
     productService = {
@@ -120,17 +125,37 @@ describe('MeasurementStatusPanelComponent', () => {
     panel.onSave(rainfallCard);
 
     expect(panel.saving).toBe(true);
-    expect(measurementService.setCurrentReading).toHaveBeenCalledWith({ measurementType: 'RAINFALL', value: 160 });
+    expect(measurementService.setCurrentReading).toHaveBeenCalledWith({
+      measurementType: 'RAINFALL',
+      value: 160,
+      productIds: [1, 2],
+    });
     expect(store.dispatch).not.toHaveBeenCalled();
 
-    result.next({ value: 160, zoneCount: 2, holdMinutes: 30 });
+    result.next({ value: 160, zoneCount: 2, holdMinutes: 60, triggeredProducts: [], claimsCreatedCount: 0 });
     expect(panel.saving).toBe(false);
     expect(panel.editingType).toBeNull();
     expect(toast.show).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'success',
         title: 'Rainfall updated',
-        message: 'Now 160 mm in 2 zones. The demo feed leaves it for 30 min.',
+        message: 'Now 160 mm in 2 zones for the next 60 min. No policy threshold was crossed.',
+      }),
+    );
+  });
+
+  it('reports the trigger and claims when the reading crosses a threshold', () => {
+    measurementService.setCurrentReading.mockReturnValue(
+      of({ value: 160, zoneCount: 1, holdMinutes: 60, triggeredProducts: ['WEATHER-001'], claimsCreatedCount: 2, unpaidPolicyCount: 1 }),
+    );
+    panel.onEdit(rainfallCard);
+    panel.onSave(rainfallCard);
+
+    expect(toast.show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'warning',
+        title: 'Trigger fired: WEATHER-001',
+        message: 'Now 160 mm in 1 zone for the next 60 min. 2 automatic claims created, 1 unpaid policy skipped.',
       }),
     );
   });

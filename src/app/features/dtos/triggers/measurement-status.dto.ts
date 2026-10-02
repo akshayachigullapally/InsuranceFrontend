@@ -26,6 +26,8 @@ export interface AdminMeasurementStatusCard {
 export interface ManualReadingRequest {
   measurementType: string;
   value: number;
+  /** Products checked for triggered policies, like the trigger simulator does. */
+  productIds: number[];
 }
 
 export interface ManualReadingResponse {
@@ -36,4 +38,8 @@ export interface ManualReadingResponse {
   observedAt: string;
   zoneCount: number;
   holdMinutes: number;
+  matchedPolicyCount: number;
+  claimsCreatedCount: number;
+  unpaidPolicyCount: number;
+  triggeredProducts: string[];
 }

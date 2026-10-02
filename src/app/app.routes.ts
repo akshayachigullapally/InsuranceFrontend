@@ -423,7 +423,7 @@ export const routes: Routes = [
       },
       {
         path: 'current-measurements',
-        title: 'Live measurements',
+        title: 'Trigger simulator',
         loadComponent: () =>
           import('./features/components/admin-current-measurements/admin-current-measurements.component').then(
             (m) => m.AdminCurrentMeasurementsComponent,

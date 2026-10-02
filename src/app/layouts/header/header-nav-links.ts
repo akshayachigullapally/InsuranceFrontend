@@ -35,7 +35,7 @@ export const ROLE_PRIMARY_NAV: Record<string, HeaderNavLink[]> = {
     { label: 'Users', routerLink: '/admin/users' },
     { label: 'Policies', routerLink: '/admin/policies' },
     { label: 'Claims', routerLink: '/admin/claims' },
-    { label: 'Measurements', routerLink: '/admin/current-measurements', },
+    { label: 'Trigger simulator', routerLink: '/admin/current-measurements' },
   ],
 };
 
