@@ -58,10 +58,36 @@
   }
 }
 
+/* Each sensor's halo pulses in turn, like a live reading coming in. */
+.sensor-halo {
+  opacity: 0.18;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sensor-pulse 2.7s ease-in-out infinite;
+}
+
+@keyframes sensor-pulse {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.38;
+    transform: scale(1.12);
+  }
+}
+
+.sensor-label {
+  font-family: var(--font-sans);
+  letter-spacing: 0.01em;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rain-drop,
   .shield,
-  .window-glow {
+  .window-glow,
+  .sensor-halo {
     animation: none;
   }
 }
