@@ -29,10 +29,10 @@
 
         <p class="mt-1 text-sm text-gray-500">
           @if (isAdmin$ | async) {
-            All products with their trigger measurement and threshold. You can
-            edit any threshold.
+            Live sensor readings and the products they trigger. You can update
+            any current value.
           } @else {
-            The measurement and threshold used to pay out each product.
+            Live sensor readings and the threshold each product pays out at.
           }
         </p>
         </div>

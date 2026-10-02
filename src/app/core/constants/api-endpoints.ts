@@ -92,6 +92,7 @@ export const API_ENDPOINTS = {
     currentMeasurements: `${BASE}/api/triggers/current-measurements`,
     currentMeasurementsList: `${BASE}/api/triggers/current-measurements`,
     validatedMeasurementsList: `${BASE}/api/triggers/measurements/current`,
+    currentReading: `${BASE}/api/triggers/measurements/current`,
     zoneMeasurements: `${BASE}/api/triggers/measurements/zones`,
     events: `${BASE}/api/triggers/events`,
     eventById: (eventId: number) => `${BASE}/api/triggers/events/${eventId}`,

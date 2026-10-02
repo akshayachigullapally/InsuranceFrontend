@@ -1,22 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { SimpleChange } from '@angular/core';
-import { Action } from '@ngrx/store';
 import { MockStore } from '@ngrx/store/testing';
-import { provideMockActions } from '@ngrx/effects/testing';
-import { Subject, firstValueFrom, of } from 'rxjs';
+import { Subject, firstValueFrom, of, throwError } from 'rxjs';
 import { MeasurementStatusPanelComponent } from './measurement-status-panel.component';
 import { loggedInAuth, pageTestProviders } from '../../../../testing/test-helpers';
 import { ProductService } from '../../../features/services/product.service';
+import { CurrentMeasurementService } from '../../../features/services/current-measurement.service';
 import { ToastService } from '../../services/toast.service';
-import {
-  updateProductThreshold,
-  updateProductThresholdFailure,
-  updateProductThresholdSuccess,
-} from '../../../features/state/products/products.actions';
 import { ProductResponse } from '../../../features/dtos/products/product-response.dto';
 
 type PanelInternals = {
-  onEdit(row: { productId: number; threshold: number | null }): void;
+  onEdit(card: { measurementType: string; latestValue: number | null }): void;
   onCancelEdit(): void;
   onSave(card: unknown): void;
   isValidEdit(): boolean;
@@ -24,7 +18,7 @@ type PanelInternals = {
   rowState(value: number | null, threshold: number | null, operator: string | null, triggered: boolean): { state: string; progress: number | null };
   themeFor(type: string): { tile: string };
   summarize(cards: unknown[]): { live: number; products: number; approaching: number; triggered: number };
-  editingProductId: number | null;
+  editingType: string | null;
   editingValue: number | null;
   saving: boolean;
 };
@@ -51,24 +45,26 @@ describe('MeasurementStatusPanelComponent', () => {
   let component: MeasurementStatusPanelComponent;
   let panel: PanelInternals;
   let store: MockStore;
-  let actions$: Subject<Action>;
   let productService: { getAdminMeasurementStatus: ReturnType<typeof vi.fn>; getMeasurementStatus: ReturnType<typeof vi.fn> };
+  let measurementService: { setCurrentReading: ReturnType<typeof vi.fn> };
   let toast: { show: ReturnType<typeof vi.fn> };
 
+  const rainfallCard = { measurementType: 'RAINFALL', unit: 'MM', latestValue: 180 };
+
   beforeEach(async () => {
-    actions$ = new Subject<Action>();
     productService = {
       getAdminMeasurementStatus: vi.fn().mockReturnValue(of(statusCards)),
       getMeasurementStatus: vi.fn().mockReturnValue(of([])),
     };
+    measurementService = { setCurrentReading: vi.fn() };
     toast = { show: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [MeasurementStatusPanelComponent],
       providers: [
         ...pageTestProviders({ auth: loggedInAuth('ROLE_ADMIN') }),
-        provideMockActions(() => actions$),
         { provide: ProductService, useValue: productService },
+        { provide: CurrentMeasurementService, useValue: measurementService },
         { provide: ToastService, useValue: toast },
       ],
     }).compileComponents();
@@ -80,7 +76,6 @@ describe('MeasurementStatusPanelComponent', () => {
     panel = component as unknown as PanelInternals;
     component.products = [{ id: 1, measurementType: 'RAINFALL' } as ProductResponse];
     component.ngOnChanges({ products: new SimpleChange(null, component.products, true) });
-    component.ngOnInit();
   });
 
   afterEach(() => {
@@ -89,7 +84,6 @@ describe('MeasurementStatusPanelComponent', () => {
 
   it('builds cards sorted by measurement type from the admin status endpoint', async () => {
     const cards = await firstValueFrom(component.cards$);
-
     expect(productService.getAdminMeasurementStatus).toHaveBeenCalled();
     expect(cards.map((card) => card.measurementType)).toEqual(['RAINFALL', 'RIVER_LEVEL']);
     expect(cards[0].state).toBe('THRESHOLD_EXCEEDED');
@@ -97,58 +91,68 @@ describe('MeasurementStatusPanelComponent', () => {
     expect(cards[1].state).toBe('NO_DATA');
   });
 
-  it('validates the edited threshold value', () => {
-    panel.onEdit({ productId: 1, threshold: 150 });
-    expect(panel.isValidEdit()).toBe(true);
-
-    panel.editingValue = 0;
-    expect(panel.isValidEdit()).toBe(false);
-
+  it('starts editing the current reading, not a product threshold', () => {
+    panel.onEdit(rainfallCard);
+    expect(panel.editingType).toBe('RAINFALL');
+    expect(panel.editingValue).toBe(180);
     panel.onCancelEdit();
-    expect(panel.editingProductId).toBeNull();
+    expect(panel.editingType).toBeNull();
   });
 
-  it('dispatches a threshold update when saving a valid edit', () => {
-    panel.onEdit({ productId: 1, threshold: 175 });
+  it('allows zero but not negative readings, except for temperature', () => {
+    panel.onEdit(rainfallCard);
+    panel.editingValue = 0;
+    expect(panel.isValidEdit()).toBe(true);
+    panel.editingValue = -2;
+    expect(panel.isValidEdit()).toBe(false);
 
-    panel.onSave({});
+    panel.onEdit({ measurementType: 'TEMPERATURE', latestValue: 20 });
+    panel.editingValue = -2;
+    expect(panel.isValidEdit()).toBe(true);
+  });
+
+  it('saves the new reading, shows a toast and refreshes', () => {
+    const result = new Subject<unknown>();
+    measurementService.setCurrentReading.mockReturnValue(result);
+    panel.onEdit(rainfallCard);
+    panel.editingValue = 160;
+
+    panel.onSave(rainfallCard);
 
     expect(panel.saving).toBe(true);
-    expect(store.dispatch).toHaveBeenCalledWith(
-      expect.objectContaining({ type: updateProductThreshold.type, productId: 1 }),
+    expect(measurementService.setCurrentReading).toHaveBeenCalledWith({ measurementType: 'RAINFALL', value: 160 });
+    expect(store.dispatch).not.toHaveBeenCalled();
+
+    result.next({ value: 160, zoneCount: 2, holdMinutes: 30 });
+    expect(panel.saving).toBe(false);
+    expect(panel.editingType).toBeNull();
+    expect(toast.show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'success',
+        title: 'Rainfall updated',
+        message: 'Now 160 mm in 2 zones. The demo feed leaves it for 30 min.',
+      }),
     );
   });
 
   it('does not save an invalid value', () => {
-    panel.onEdit({ productId: 1, threshold: -5 });
-
-    panel.onSave({});
-
-    expect(store.dispatch).not.toHaveBeenCalled();
+    panel.onEdit(rainfallCard);
+    panel.editingValue = -5;
+    panel.onSave(rainfallCard);
+    expect(measurementService.setCurrentReading).not.toHaveBeenCalled();
   });
 
-  it('shows a success toast and resets editing on update success', () => {
-    panel.onEdit({ productId: 1, threshold: 175 });
-    panel.onSave({});
-
-    actions$.next(
-      updateProductThresholdSuccess({
-        result: { productId: 1, triggeredPolicyCount: 2, createdClaimCount: 1 } as never,
-      }),
+  it('shows the server reason when saving fails', () => {
+    measurementService.setCurrentReading.mockReturnValue(
+      throwError(() => ({ error: { messages: ['A percentage cannot be more than 100'] } })),
     );
+    panel.onEdit(rainfallCard);
+    panel.onSave(rainfallCard);
 
     expect(panel.saving).toBe(false);
-    expect(panel.editingProductId).toBeNull();
+    expect(panel.editingType).toBe('RAINFALL');
     expect(toast.show).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'success', message: '2 policies triggered. 1 claim created.' }),
-    );
-  });
-
-  it('shows an error toast on update failure', () => {
-    actions$.next(updateProductThresholdFailure({ error: 'Invalid threshold' }));
-
-    expect(toast.show).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'error', message: 'Invalid threshold' }),
+      expect.objectContaining({ type: 'error', message: 'A percentage cannot be more than 100' }),
     );
   });
 

@@ -18,5 +18,22 @@ export interface AdminMeasurementStatusCard {
   observedAt?: string | null;
   zoneCode?: string | null;
   zoneName?: string | null;
+  /** MOCK for the demo feed, MANUAL when an admin set the value. */
+  source?: string | null;
   products: AdminProductTriggerStatus[];
+}
+
+export interface ManualReadingRequest {
+  measurementType: string;
+  value: number;
+}
+
+export interface ManualReadingResponse {
+  measurementType: string;
+  measurementUnit: string;
+  value: number;
+  previousValue?: number | null;
+  observedAt: string;
+  zoneCount: number;
+  holdMinutes: number;
 }

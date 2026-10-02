@@ -4,15 +4,14 @@ import {
   Input,
   OnChanges,
   OnDestroy,
-  OnInit,
   SimpleChanges,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import {
   BehaviorSubject,
   combineLatest,
+  merge,
   Observable,
   of,
   Subject,
@@ -25,20 +24,16 @@ import {
   takeUntil,
 } from 'rxjs/operators';
 import { ProductResponse } from '../../../features/dtos/products/product-response.dto';
+import { LiveConditionState } from '../../../features/dtos/triggers/trigger-condition.dto';
 import {
-  LiveConditionState,
-  ProductTriggerThresholdUpdateRequest,
-  ProductTriggerThresholdUpdateResponse,
-} from '../../../features/dtos/triggers/trigger-condition.dto';
-import { AdminMeasurementStatusCard } from '../../../features/dtos/triggers/measurement-status.dto';
+  AdminMeasurementStatusCard,
+  ManualReadingResponse,
+} from '../../../features/dtos/triggers/measurement-status.dto';
 import { ProductService } from '../../../features/services/product.service';
+import { CurrentMeasurementService } from '../../../features/services/current-measurement.service';
 import { ROLES } from '../../../core/constants/roles';
 import { selectAuthUser } from '../../../features/state/auth/auth.selectors';
-import {
-  updateProductThreshold,
-  updateProductThresholdFailure,
-  updateProductThresholdSuccess,
-} from '../../../features/state/products/products.actions';
+import { httpErrorMessage } from '../../../features/state/products/products.effects';
 import {
   LIVE_CONDITION_STATE_COLORS,
   LIVE_CONDITION_STATE_LABELS,
@@ -67,6 +62,8 @@ interface MeasurementCard {
   unit: string;
   latestValue: number | null;
   observedAt: string | null;
+  /** MANUAL when an admin set the value, otherwise the demo feed. */
+  source: string | null;
   state: LiveConditionState;
   rows: ProductThresholdRow[];
 }
@@ -150,24 +147,26 @@ const DEFAULT_THEME: MeasurementTheme = {
   styleUrl: './measurement-status-panel.component.css',
 })
 export class MeasurementStatusPanelComponent
-  implements OnInit, OnChanges, OnDestroy
+  implements OnChanges, OnDestroy
 {
   @Input() products: ProductResponse[] | null = [];
 
   readonly cards$: Observable<MeasurementCard[]>;
   protected readonly isAdmin$: Observable<boolean>;
 
-  protected editingProductId: number | null = null;
+  /** Measurement type whose live reading is being edited. */
+  protected editingType: string | null = null;
   protected editingValue: number | null = null;
   protected saving = false;
 
   private readonly products$ = new BehaviorSubject<ProductResponse[]>([]);
+  private readonly refresh$ = new Subject<void>();
   private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly store: Store,
-    private readonly actions$: Actions,
     private readonly productService: ProductService,
+    private readonly measurementService: CurrentMeasurementService,
     private readonly toast: ToastService,
   ) {
     this.isAdmin$ = this.store.select(selectAuthUser).pipe(
@@ -178,7 +177,7 @@ export class MeasurementStatusPanelComponent
       this.products$,
       this.isAdmin$.pipe(
         switchMap(isAdmin =>
-          timer(0, POLL_INTERVAL_MS).pipe(
+          merge(timer(0, POLL_INTERVAL_MS), this.refresh$).pipe(
             switchMap(() =>
               (isAdmin
                 ? this.productService.getAdminMeasurementStatus()
@@ -195,22 +194,6 @@ export class MeasurementStatusPanelComponent
     );
   }
 
-  ngOnInit(): void {
-    this.actions$
-      .pipe(
-        ofType(updateProductThresholdSuccess),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(({ result }) => this.onUpdateSuccess(result));
-
-    this.actions$
-      .pipe(
-        ofType(updateProductThresholdFailure),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(({ error }) => this.onUpdateFailure(error));
-  }
-
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['products']) {
       this.products$.next(this.products ?? []);
@@ -221,57 +204,51 @@ export class MeasurementStatusPanelComponent
     this.destroy$.next();
     this.destroy$.complete();
     this.products$.complete();
+    this.refresh$.complete();
   }
 
-  protected onEdit(row: ProductThresholdRow): void {
-    this.editingProductId = row.productId;
-    this.editingValue = row.threshold;
+  protected onEdit(card: MeasurementCard): void {
+    this.editingType = card.measurementType;
+    this.editingValue = card.latestValue;
   }
 
   protected onCancelEdit(): void {
-    this.editingProductId = null;
+    this.editingType = null;
     this.editingValue = null;
   }
 
+  protected isValidEdit(): boolean {
+    if (this.editingValue === null || this.editingValue === undefined || Number.isNaN(this.editingValue)) {
+      return false;
+    }
+    // Only temperature can go below zero.
+    return this.editingType === 'TEMPERATURE' || this.editingValue >= 0;
+  }
+
   protected onSave(card: MeasurementCard): void {
-    const product = this.products?.find(
-      p => p.id === this.editingProductId,
-    );
-    if (
-      !product ||
-      this.saving ||
-      this.editingValue === null ||
-      this.editingValue <= 0
-    ) {
+    if (this.saving || !this.isValidEdit()) {
       return;
     }
 
-    const request: ProductTriggerThresholdUpdateRequest = {
-      perilCode: product.perilCode ?? '',
-      measurementType: product.measurementType ?? 'RAINFALL',
-      measurementUnit: product.measurementUnit ?? 'MM',
-      thresholdValue: Number(this.editingValue),
-      comparisonOperator:
-        product.comparisonOperator ?? 'GREATER_THAN_OR_EQUAL',
-      aggregationType: product.aggregationType ?? 'AVERAGE',
-      observationWindowHours: product.observationWindowHours ?? 24,
-      minimumObservationCount: product.minimumObservationCount ?? 2,
-      triggerDescription: product.triggerDescription?.trim() || undefined,
-      changeReason: 'Updated from admin measurement header',
-    };
-
     this.saving = true;
-    this.store.dispatch(
-      updateProductThreshold({ productId: product.id, request }),
-    );
-  }
-
-  protected isValidEdit(): boolean {
-    return (
-      this.editingValue !== null &&
-      this.editingValue !== undefined &&
-      this.editingValue > 0
-    );
+    this.measurementService
+      .setCurrentReading({
+        measurementType: card.measurementType,
+        value: Number(this.editingValue),
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: result => this.onSaveSuccess(card, result),
+        error: error => {
+          this.saving = false;
+          this.toast.show({
+            type: 'error',
+            icon: '⚠️',
+            title: 'Could not update the reading',
+            message: httpErrorMessage(error),
+          });
+        },
+      });
   }
 
   protected typeLabel(type: string): string {
@@ -376,6 +353,7 @@ export class MeasurementStatusPanelComponent
           unit: card.measurementUnit ?? '',
           latestValue,
           observedAt: card.observedAt ?? null,
+          source: card.source ?? null,
           state: this.cardState(latestValue, rows),
           rows,
         };
@@ -429,58 +407,19 @@ export class MeasurementStatusPanelComponent
     return 'NORMAL';
   }
 
-  private onUpdateSuccess(
-    result: ProductTriggerThresholdUpdateResponse,
-  ): void {
-    if (result.productId !== this.editingProductId) {
-      return;
-    }
+  private onSaveSuccess(card: MeasurementCard, result: ManualReadingResponse): void {
     this.saving = false;
-    this.editingProductId = null;
+    this.editingType = null;
     this.editingValue = null;
-
+    const unit = this.unitLabel(card.unit);
     this.toast.show({
       type: 'success',
       icon: '✅',
-      title: 'Threshold updated',
-      message: this.buildResultMessage(result),
+      title: `${this.typeLabel(card.measurementType)} updated`,
+      message:
+        `Now ${this.formatValue(result.value)} ${unit} in ${result.zoneCount} ` +
+        `zone${result.zoneCount === 1 ? '' : 's'}. The demo feed leaves it for ${result.holdMinutes} min.`,
     });
-  }
-
-  private onUpdateFailure(error: string): void {
-    this.saving = false;
-    this.toast.show({
-      type: 'error',
-      icon: '⚠️',
-      title: 'Threshold update failed',
-      message: error,
-    });
-  }
-
-  private buildResultMessage(
-    result: ProductTriggerThresholdUpdateResponse,
-  ): string {
-    const parts: string[] = [];
-    if (result.triggerSyncStatus === 'FAILED') {
-      parts.push('Trigger sync failed on the backend.');
-    }
-    if (result.triggeredPolicyCount) {
-      parts.push(
-        `${result.triggeredPolicyCount} polic${
-          result.triggeredPolicyCount === 1 ? 'y' : 'ies'
-        } triggered.`,
-      );
-    }
-    if (result.createdClaimCount) {
-      parts.push(
-        `${result.createdClaimCount} claim${
-          result.createdClaimCount === 1 ? '' : 's'
-        } created.`,
-      );
-    }
-    if (parts.length === 0 && result.message) {
-      return result.message;
-    }
-    return parts.join(' ') || 'The new threshold is now active.';
+    this.refresh$.next();
   }
 }

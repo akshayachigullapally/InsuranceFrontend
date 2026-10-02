@@ -8,6 +8,7 @@ import {
   CurrentMeasurementSnapshot,
   ZoneMeasurement,
 } from '../dtos/triggers/current-measurement.dto';
+import { ManualReadingRequest, ManualReadingResponse } from '../dtos/triggers/measurement-status.dto';
 
 @Injectable({ providedIn: 'root' })
 export class CurrentMeasurementService {
@@ -24,6 +25,11 @@ export class CurrentMeasurementService {
     return this.http.get<CurrentMeasurementSnapshot[]>(
       API_ENDPOINTS.triggers.currentMeasurementsList,
     );
+  }
+
+  /** Admin sets the live reading of one measurement type in every active zone. */
+  setCurrentReading(request: ManualReadingRequest): Observable<ManualReadingResponse> {
+    return this.http.put<ManualReadingResponse>(API_ENDPOINTS.triggers.currentReading, request);
   }
 
   /** Latest validated reading of every measurement type in every zone. */

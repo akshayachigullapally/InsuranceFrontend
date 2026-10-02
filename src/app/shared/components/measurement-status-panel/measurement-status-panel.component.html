@@ -57,15 +57,72 @@
             </header>
 
             <div class="ms-reading">
-              @if (card.latestValue !== null && card.latestValue !== undefined) {
-                <p class="ms-reading-value">
-                  {{ formatValue(card.latestValue) }}
-                  <span class="ms-reading-unit">{{ unitLabel(card.unit) }}</span>
-                </p>
-                <p class="ms-reading-time">Current value · updated {{ lastUpdated(card.observedAt) }}</p>
+              @if (editingType === card.measurementType) {
+                <form class="ms-reading-edit" (ngSubmit)="onSave(card)">
+                  <label class="ms-reading-edit-label" for="ms-reading-{{ card.measurementType }}">
+                    New current {{ typeLabel(card.measurementType).toLowerCase() }}
+                  </label>
+                  <div class="ms-reading-edit-row">
+                    <div class="ms-edit-input">
+                      <input
+                        id="ms-reading-{{ card.measurementType }}"
+                        name="value"
+                        type="number"
+                        step="0.01"
+                        [attr.min]="card.measurementType === 'TEMPERATURE' ? null : 0"
+                        [attr.max]="card.unit === 'PERCENTAGE' ? 100 : null"
+                        class="input-base !py-1.5 !pr-14 text-sm"
+                        [(ngModel)]="editingValue"
+                        autofocus
+                      />
+                      <span class="ms-edit-unit">{{ unitLabel(card.unit) }}</span>
+                    </div>
+                    <button type="submit" class="btn-brand !px-3 !py-1.5 text-xs" [disabled]="saving || !isValidEdit()">
+                      {{ saving ? 'Saving…' : 'Save' }}
+                    </button>
+                    <button type="button" class="btn-outline !px-3 !py-1.5 text-xs" [disabled]="saving" (click)="onCancelEdit()">
+                      Cancel
+                    </button>
+                  </div>
+                  <p class="ms-reading-edit-hint">
+                    Recorded as a sensor reading for every active zone. Products whose trigger it
+                    crosses will show as triggered.
+                  </p>
+                </form>
               } @else {
-                <p class="ms-reading-value ms-reading-value--empty">—</p>
-                <p class="ms-reading-time">No live data yet</p>
+                <div class="ms-reading-row">
+                  <div class="min-w-0">
+                    @if (card.latestValue !== null && card.latestValue !== undefined) {
+                      <p class="ms-reading-value">
+                        {{ formatValue(card.latestValue) }}
+                        <span class="ms-reading-unit">{{ unitLabel(card.unit) }}</span>
+                      </p>
+                      <p class="ms-reading-time">
+                        Current value · updated {{ lastUpdated(card.observedAt) }}
+                        @if (card.source === 'MANUAL') {
+                          <span class="ms-manual-tag">Set by admin</span>
+                        }
+                      </p>
+                    } @else {
+                      <p class="ms-reading-value ms-reading-value--empty">—</p>
+                      <p class="ms-reading-time">No live data yet</p>
+                    }
+                  </div>
+                  @if (isAdmin$ | async) {
+                    <button
+                      type="button"
+                      class="ms-edit-btn"
+                      (click)="onEdit(card)"
+                      [attr.aria-label]="'Update current ' + typeLabel(card.measurementType).toLowerCase()"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16v4z" />
+                        <path d="M13.5 6.5l4 4" />
+                      </svg>
+                      Update value
+                    </button>
+                  }
+                </div>
               }
             </div>
 
@@ -82,17 +139,6 @@
                           <strong>{{ operatorSymbol(row.operator) }} {{ formatValue(row.threshold) }} {{ unitLabel(row.unit) }}</strong>
                         </p>
                       </div>
-                      @if (isAdmin$ | async) {
-                        @if (editingProductId !== row.productId) {
-                          <button type="button" class="ms-edit-btn" (click)="onEdit(row)" [attr.aria-label]="'Edit threshold for ' + row.productName">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                              <path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16v4z" />
-                              <path d="M13.5 6.5l4 4" />
-                            </svg>
-                            Edit
-                          </button>
-                        }
-                      }
                     </div>
 
                     @if (row.progress !== null) {
@@ -121,39 +167,6 @@
                       </div>
                     }
 
-                    @if (editingProductId === row.productId) {
-                      <div class="ms-edit-actions">
-                        <label class="sr-only" for="ms-threshold-{{ row.productId }}">New threshold value</label>
-                        <div class="ms-edit-input">
-                          <input
-                            id="ms-threshold-{{ row.productId }}"
-                            type="number"
-                            step="0.01"
-                            min="0.01"
-                            class="input-base !py-1.5 !pr-12 text-sm"
-                            [(ngModel)]="editingValue"
-                            aria-label="New threshold value"
-                          />
-                          <span class="ms-edit-unit">{{ unitLabel(row.unit) }}</span>
-                        </div>
-                        <button
-                          type="button"
-                          class="btn-brand !px-3 !py-1.5 text-xs"
-                          [disabled]="saving || !isValidEdit()"
-                          (click)="onSave(card)"
-                        >
-                          {{ saving ? 'Saving…' : 'Save' }}
-                        </button>
-                        <button
-                          type="button"
-                          class="btn-outline !px-3 !py-1.5 text-xs"
-                          [disabled]="saving"
-                          (click)="onCancelEdit()"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    }
                   </li>
                 }
               </ul>

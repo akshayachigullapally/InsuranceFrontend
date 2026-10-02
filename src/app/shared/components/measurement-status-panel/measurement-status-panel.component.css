@@ -199,6 +199,46 @@
   padding: 0.625rem 0.875rem;
 }
 
+.ms-reading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.ms-manual-tag {
+  display: inline-flex;
+  margin-left: 0.375rem;
+  border-radius: 9999px;
+  background: #eef2ff;
+  padding: 0.0625rem 0.5rem;
+  color: #4338ca;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.ms-reading-edit-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ms-reading-edit-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.ms-reading-edit-hint {
+  margin: 0.5rem 0 0;
+  color: #64748b;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+}
+
 .ms-reading-value {
   margin: 0;
   color: #0f172a;
@@ -340,14 +380,6 @@
   font-weight: 600;
   text-align: right;
   font-variant-numeric: tabular-nums;
-}
-
-.ms-edit-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.375rem;
-  margin-top: 0.625rem;
 }
 
 .ms-edit-input {
