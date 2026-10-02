@@ -1,105 +1,166 @@
 <div class="ms-panel">
   @if (cards$ | async; as cards) {
     @if (cards.length > 0) {
+      @let summary = summarize(cards);
+      <div class="ms-summary">
+        <div class="ms-summary-item">
+          <span class="ms-summary-value">{{ summary.live }}<span class="ms-summary-of">/{{ cards.length }}</span></span>
+          <span class="ms-summary-label">Sensors reporting</span>
+        </div>
+        <div class="ms-summary-item">
+          <span class="ms-summary-value">{{ summary.products }}</span>
+          <span class="ms-summary-label">Products monitored</span>
+        </div>
+        <div class="ms-summary-item">
+          <span class="ms-summary-value" [class.text-warn-700]="summary.approaching > 0">{{ summary.approaching }}</span>
+          <span class="ms-summary-label">Near trigger</span>
+        </div>
+        <div class="ms-summary-item">
+          <span class="ms-summary-value" [class.text-danger-700]="summary.triggered > 0">{{ summary.triggered }}</span>
+          <span class="ms-summary-label">Triggered</span>
+        </div>
+        <span class="ms-live-badge">
+          <span class="ms-live-dot" aria-hidden="true"></span>
+          Live · refreshes every 10 s
+        </span>
+      </div>
+
       <div class="ms-cards">
         @for (card of cards; track card.measurementType) {
-          <div class="ms-card">
-            <div class="ms-card-header">
-              <div class="min-w-0">
-                <p class="ms-card-title">
-                  {{ typeLabel(card.measurementType) }}
-                  @if (card.unit) {
-                    <span class="ms-card-unit">({{ unitLabel(card.unit) }})</span>
+          @let theme = themeFor(card.measurementType);
+          <article
+            class="ms-card"
+            [class.ms-card--alert]="card.state === 'THRESHOLD_EXCEEDED'"
+            [class.ms-card--warn]="card.state === 'APPROACHING'"
+          >
+            <header class="ms-card-header">
+              <span class="ms-icon" [class]="theme.tile" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  @for (path of theme.paths; track $index) {
+                    <path [attr.d]="path" />
                   }
-                </p>
-
-                <p class="ms-card-live">
-                  @if (card.latestValue !== null && card.latestValue !== undefined) {
-                    <span class="ms-card-live-label">Current value</span>
-                    <span class="ms-card-live-value-chip">
-                      {{ formatValue(card.latestValue) }} {{ unitLabel(card.unit) }}
-                    </span>
-                    <span class="ms-card-live-time">· {{ lastUpdated(card.observedAt) }}</span>
-                  } @else {
-                    <span class="ms-card-live-time">No live data yet</span>
+                </svg>
+              </span>
+              <div class="min-w-0 flex-1">
+                <h3 class="ms-card-title">{{ typeLabel(card.measurementType) }}</h3>
+                <p class="ms-card-sub">
+                  {{ card.rows.length }} {{ card.rows.length === 1 ? 'product' : 'products' }}
+                  @if (card.unit) {
+                    · measured in {{ unitLabel(card.unit) }}
                   }
                 </p>
               </div>
-
-              <span
-                class="ms-pill"
-                [class]="stateColor(card.state)"
-              >
+              <span class="ms-pill" [class]="stateColor(card.state)">
+                <span class="ms-pill-dot" aria-hidden="true"></span>
                 {{ stateLabel(card.state) }}
               </span>
+            </header>
+
+            <div class="ms-reading">
+              @if (card.latestValue !== null && card.latestValue !== undefined) {
+                <p class="ms-reading-value">
+                  {{ formatValue(card.latestValue) }}
+                  <span class="ms-reading-unit">{{ unitLabel(card.unit) }}</span>
+                </p>
+                <p class="ms-reading-time">Current value · updated {{ lastUpdated(card.observedAt) }}</p>
+              } @else {
+                <p class="ms-reading-value ms-reading-value--empty">—</p>
+                <p class="ms-reading-time">No live data yet</p>
+              }
             </div>
 
             @if (card.rows.length > 0) {
               <ul class="ms-products">
                 @for (row of card.rows; track row.productId) {
                   <li class="ms-product">
-                    <div class="min-w-0">
-                      <p class="ms-product-name">
-                        {{ row.productName }}
-                        <span class="ms-product-code">· {{ row.productCode }}</span>
-                      </p>
-
-                      <p class="ms-product-threshold">
-                        {{ operatorSymbol(row.operator) }}
-                        {{ formatValue(row.threshold) }}
-                        {{ unitLabel(row.unit) }}
-                      </p>
+                    <div class="ms-product-top">
+                      <div class="min-w-0">
+                        <p class="ms-product-name" [title]="row.productName">{{ row.productName }}</p>
+                        <p class="ms-product-meta">
+                          <span class="ms-product-code">{{ row.productCode }}</span>
+                          Triggers at
+                          <strong>{{ operatorSymbol(row.operator) }} {{ formatValue(row.threshold) }} {{ unitLabel(row.unit) }}</strong>
+                        </p>
+                      </div>
+                      @if (isAdmin$ | async) {
+                        @if (editingProductId !== row.productId) {
+                          <button type="button" class="ms-edit-btn" (click)="onEdit(row)" [attr.aria-label]="'Edit threshold for ' + row.productName">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                              <path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16v4z" />
+                              <path d="M13.5 6.5l4 4" />
+                            </svg>
+                            Edit
+                          </button>
+                        }
+                      }
                     </div>
 
-                    @if (isAdmin$ | async) {
-                      @if (editingProductId === row.productId) {
-                        <div class="ms-edit-actions">
+                    @if (row.progress !== null) {
+                      <div class="ms-progress">
+                        <div
+                          class="ms-progress-track"
+                          role="progressbar"
+                          aria-valuemin="0"
+                          aria-valuemax="100"
+                          [attr.aria-valuenow]="row.progress"
+                          [attr.aria-label]="row.productName + ' progress to trigger'"
+                        >
+                          <span
+                            class="ms-progress-fill"
+                            [class]="progressColor(row.state, theme.bar)"
+                            [style.width.%]="row.progress"
+                          ></span>
+                        </div>
+                        <span class="ms-progress-text" [class]="progressTextColor(row.state)">
+                          @if (row.state === 'THRESHOLD_EXCEEDED') {
+                            Triggered
+                          } @else {
+                            {{ row.progress }}% of trigger
+                          }
+                        </span>
+                      </div>
+                    }
+
+                    @if (editingProductId === row.productId) {
+                      <div class="ms-edit-actions">
+                        <label class="sr-only" for="ms-threshold-{{ row.productId }}">New threshold value</label>
+                        <div class="ms-edit-input">
                           <input
+                            id="ms-threshold-{{ row.productId }}"
                             type="number"
                             step="0.01"
                             min="0.01"
-                            class="input-base !w-28 !px-2 !py-1.5 text-sm"
+                            class="input-base !py-1.5 !pr-12 text-sm"
                             [(ngModel)]="editingValue"
                             aria-label="New threshold value"
                           />
-
-                          <button
-                            type="button"
-                            class="btn-brand !px-3 !py-1.5 text-xs"
-                            [disabled]="saving || !isValidEdit()"
-                            (click)="onSave(card)"
-                          >
-                            {{ saving ? 'Saving…' : 'Save' }}
-                          </button>
-
-                          <button
-                            type="button"
-                            class="btn-outline !px-3 !py-1.5 text-xs"
-                            [disabled]="saving"
-                            (click)="onCancelEdit()"
-                          >
-                            Cancel
-                          </button>
+                          <span class="ms-edit-unit">{{ unitLabel(row.unit) }}</span>
                         </div>
-                      } @else {
+                        <button
+                          type="button"
+                          class="btn-brand !px-3 !py-1.5 text-xs"
+                          [disabled]="saving || !isValidEdit()"
+                          (click)="onSave(card)"
+                        >
+                          {{ saving ? 'Saving…' : 'Save' }}
+                        </button>
                         <button
                           type="button"
                           class="btn-outline !px-3 !py-1.5 text-xs"
-                          (click)="onEdit(row)"
+                          [disabled]="saving"
+                          (click)="onCancelEdit()"
                         >
-                          Edit threshold
+                          Cancel
                         </button>
-                      }
+                      </div>
                     }
                   </li>
                 }
               </ul>
             } @else {
-              <p class="ms-empty-products">
-                No products are measuring this type yet.
-              </p>
+              <p class="ms-empty-products">No products are measuring this yet.</p>
             }
-          </div>
+          </article>
         }
       </div>
     } @else {

@@ -21,6 +21,9 @@ type PanelInternals = {
   onSave(card: unknown): void;
   isValidEdit(): boolean;
   lastUpdated(at: string | null): string;
+  rowState(value: number | null, threshold: number | null, operator: string | null, triggered: boolean): { state: string; progress: number | null };
+  themeFor(type: string): { tile: string };
+  summarize(cards: unknown[]): { live: number; products: number; approaching: number; triggered: number };
   editingProductId: number | null;
   editingValue: number | null;
   saving: boolean;
@@ -156,5 +159,28 @@ describe('MeasurementStatusPanelComponent', () => {
     expect(panel.lastUpdated(new Date(now - 10_000).toISOString())).toBe('just now');
     expect(panel.lastUpdated(new Date(now - 5 * 60_000).toISOString())).toBe('5 min ago');
     expect(panel.lastUpdated(new Date(now - 3 * 3_600_000).toISOString())).toBe('3 h ago');
+  });
+
+  it('measures progress towards the trigger and flags values near it', () => {
+    expect(panel.rowState(75, 150, 'GREATER_THAN_OR_EQUAL', false)).toEqual({ state: 'NORMAL', progress: 50 });
+    expect(panel.rowState(135, 150, 'GREATER_THAN_OR_EQUAL', false)).toEqual({ state: 'APPROACHING', progress: 90 });
+    expect(panel.rowState(180, 150, 'GREATER_THAN_OR_EQUAL', true)).toEqual({ state: 'THRESHOLD_EXCEEDED', progress: 100 });
+    expect(panel.rowState(null, 150, 'GREATER_THAN_OR_EQUAL', false)).toEqual({ state: 'NO_DATA', progress: null });
+  });
+
+  it('measures "below" rules as the value falling towards the threshold', () => {
+    expect(panel.rowState(30, 15, 'LESS_THAN', false)).toEqual({ state: 'NORMAL', progress: 50 });
+    expect(panel.rowState(16, 15, 'LESS_THAN', false)).toEqual({ state: 'APPROACHING', progress: 94 });
+  });
+
+  it('gives each measurement its own icon colour, with a fallback', () => {
+    expect(panel.themeFor('RAINFALL').tile).toContain('sky');
+    expect(panel.themeFor('TEMPERATURE').tile).toContain('orange');
+    expect(panel.themeFor('SOMETHING_NEW').tile).toContain('violet');
+  });
+
+  it('summarises live sensors, products, near-trigger and triggered counts', async () => {
+    const cards = await firstValueFrom(component.cards$);
+    expect(panel.summarize(cards)).toEqual({ live: 1, products: 1, approaching: 0, triggered: 1 });
   });
 });

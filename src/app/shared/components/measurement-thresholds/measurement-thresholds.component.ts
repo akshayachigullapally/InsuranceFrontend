@@ -48,6 +48,7 @@ import { MeasurementStatusPanelComponent } from '../measurement-status-panel/mea
     MeasurementStatusPanelComponent,
   ],
   templateUrl: './measurement-thresholds.component.html',
+  host: { '(document:keydown.escape)': 'close()' },
   styleUrl: './measurement-thresholds.component.css',
 })
 export class MeasurementThresholdsComponent
