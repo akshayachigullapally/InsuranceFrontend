@@ -24,7 +24,6 @@ describe('PayoutsEffects', () => {
     payoutService = {
       getAllPayouts: vi.fn(),
       getMyPayouts: vi.fn(),
-      processPayout: vi.fn(),
       retryPayout: vi.fn(),
     };
 
@@ -48,12 +47,12 @@ describe('PayoutsEffects', () => {
     expect(collect(effects.loadMyPayouts$)).toEqual([PayoutsActions.loadMyPayoutsSuccess({ payouts: [payout] })]);
   });
 
-  it('processes a payout', () => {
-    payoutService['processPayout'].mockReturnValue(of(payout));
-    actions$ = of(PayoutsActions.processPayout({ payoutId: 1, request }));
+  it('retries a payout', () => {
+    payoutService['retryPayout'].mockReturnValue(of(payout));
+    actions$ = of(PayoutsActions.retryPayout({ payoutId: 1, request }));
 
-    expect(collect(effects.processPayout$)).toEqual([PayoutsActions.processPayoutSuccess({ payout })]);
-    expect(payoutService['processPayout']).toHaveBeenCalledWith(1, request);
+    expect(collect(effects.retryPayout$)).toEqual([PayoutsActions.retryPayoutSuccess({ payout })]);
+    expect(payoutService['retryPayout']).toHaveBeenCalledWith(1, request);
   });
 
   it('maps retry errors', () => {

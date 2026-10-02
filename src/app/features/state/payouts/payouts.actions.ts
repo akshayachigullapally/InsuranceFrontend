@@ -59,51 +59,6 @@ export const createPayoutFailure = createAction(
   props<{ error: string }>(),
 );
 
-export const processPayout = createAction(
-  '[Payouts] Process Payout',
-  props<{ payoutId: number; request: PayoutActionRequest }>(),
-);
-
-export const processPayoutSuccess = createAction(
-  '[Payouts] Process Payout Success',
-  props<{ payout: PayoutResponse }>(),
-);
-
-export const processPayoutFailure = createAction(
-  '[Payouts] Process Payout Failure',
-  props<{ error: string }>(),
-);
-
-export const markPayoutSuccess = createAction(
-  '[Payouts] Mark Payout Success',
-  props<{ payoutId: number; request: PayoutActionRequest }>(),
-);
-
-export const markPayoutSuccessSuccess = createAction(
-  '[Payouts] Mark Payout Success Success',
-  props<{ payout: PayoutResponse }>(),
-);
-
-export const markPayoutSuccessFailure = createAction(
-  '[Payouts] Mark Payout Success Failure',
-  props<{ error: string }>(),
-);
-
-export const markPayoutFail = createAction(
-  '[Payouts] Mark Payout Fail',
-  props<{ payoutId: number; request: PayoutActionRequest }>(),
-);
-
-export const markPayoutFailSuccess = createAction(
-  '[Payouts] Mark Payout Fail Success',
-  props<{ payout: PayoutResponse }>(),
-);
-
-export const markPayoutFailFailure = createAction(
-  '[Payouts] Mark Payout Fail Failure',
-  props<{ error: string }>(),
-);
-
 export const retryPayout = createAction(
   '[Payouts] Retry Payout',
   props<{ payoutId: number; request: PayoutActionRequest }>(),

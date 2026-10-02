@@ -1,4 +1,3 @@
-import { DialogService } from '../../../shared/services/dialog.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
 import { AdminPayoutsComponent } from './admin-payouts.component';
@@ -6,17 +5,12 @@ import { pageTestProviders } from '../../../../testing/test-helpers';
 import {
   clearPayoutsError,
   loadPayouts,
-  markPayoutFail,
-  markPayoutSuccess,
-  processPayout,
   retryPayout,
 } from '../../state/payouts/payouts.actions';
 import { PayoutResponse } from '../../dtos/financial/payout-response.dto';
+import { selectPayouts } from '../../state/payouts/payouts.selectors';
 
 type PayoutsInternals = {
-  process(payout: PayoutResponse): void;
-  markSuccess(payout: PayoutResponse): void;
-  markFail(payout: PayoutResponse): void;
   retry(payout: PayoutResponse): void;
 };
 
@@ -48,38 +42,28 @@ describe('AdminPayoutsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadPayouts());
   });
 
-  it('processes and retries payouts', () => {
-    page.process(payout);
+  it('retries a failed payout', () => {
     page.retry(payout);
 
-    expect(store.dispatch).toHaveBeenCalledWith(
-      processPayout({ payoutId: 6, request: { externalReference: '' } }),
-    );
     expect(store.dispatch).toHaveBeenCalledWith(
       retryPayout({ payoutId: 6, request: { externalReference: '' } }),
     );
   });
 
-  it('marks a payout successful with a mock reference', () => {
-    page.markSuccess(payout);
+  it('has no manual process, success or fail buttons', () => {
+    store.overrideSelector(selectPayouts, [
+      { id: 1, payoutReference: 'PO-1', status: 'PENDING', amount: 100, retryCount: 0 },
+      { id: 2, payoutReference: 'PO-2', status: 'SUCCESS', amount: 100, retryCount: 0, externalReference: 'AUTO-1' },
+    ] as PayoutResponse[]);
+    store.refreshState();
+    fixture.detectChanges();
 
-    expect(store.dispatch).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: markPayoutSuccess.type,
-        payoutId: 6,
-        request: { externalReference: expect.stringMatching(/^MOCK-PAYOUT-\d+$/) },
-      }),
-    );
-  });
-
-  it('uses a default reason when the reason is left blank', async () => {
-    vi.spyOn(TestBed.inject(DialogService), 'prompt').mockResolvedValue('   ');
-
-    await page.markFail(payout);
-
-    expect(store.dispatch).toHaveBeenCalledWith(
-      markPayoutFail({ payoutId: 6, request: { externalReference: '', failureReason: 'Payout failed' } }),
-    );
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).not.toContain('Process');
+    expect(text).not.toContain('Mark success');
+    expect(text).not.toContain('Mark failed');
+    expect(text).toContain('Paying automatically');
+    expect(text).toContain('Transfer AUTO-1');
   });
 
   it('clears errors on destroy', () => {

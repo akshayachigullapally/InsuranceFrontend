@@ -28,18 +28,6 @@ export class PayoutService {
     return this.http.get<PayoutResponse[]>(API_ENDPOINTS.financial.adminPayouts);
   }
 
-  processPayout(payoutId: number, request: PayoutActionRequest): Observable<PayoutResponse> {
-    return this.http.put<PayoutResponse>(API_ENDPOINTS.financial.payoutProcess(payoutId), request);
-  }
-
-  markSuccess(payoutId: number, request: PayoutActionRequest): Observable<PayoutResponse> {
-    return this.http.put<PayoutResponse>(API_ENDPOINTS.financial.payoutSuccess(payoutId), request);
-  }
-
-  markFail(payoutId: number, request: PayoutActionRequest): Observable<PayoutResponse> {
-    return this.http.put<PayoutResponse>(API_ENDPOINTS.financial.payoutFail(payoutId), request);
-  }
-
   retryPayout(payoutId: number, request: PayoutActionRequest): Observable<PayoutResponse> {
     return this.http.put<PayoutResponse>(API_ENDPOINTS.financial.payoutRetry(payoutId), request);
   }

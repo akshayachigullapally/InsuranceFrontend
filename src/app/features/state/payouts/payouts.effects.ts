@@ -17,15 +17,6 @@ import {
   loadPayoutsFailure,
   loadPayoutsSuccess,
   loadPayoutSuccess,
-  markPayoutFail,
-  markPayoutFailFailure,
-  markPayoutFailSuccess,
-  markPayoutSuccess,
-  markPayoutSuccessFailure,
-  markPayoutSuccessSuccess,
-  processPayout,
-  processPayoutFailure,
-  processPayoutSuccess,
   retryPayout,
   retryPayoutFailure,
   retryPayoutSuccess,
@@ -88,48 +79,6 @@ export class PayoutsEffects {
           map(payout => createPayoutSuccess({ payout })),
           catchError(error =>
             of(createPayoutFailure({ error: httpErrorMessage(error) })),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  processPayout$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(processPayout),
-      exhaustMap(({ payoutId, request }) =>
-        this.payoutService.processPayout(payoutId, request).pipe(
-          map(payout => processPayoutSuccess({ payout })),
-          catchError(error =>
-            of(processPayoutFailure({ error: httpErrorMessage(error) })),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  markPayoutSuccess$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(markPayoutSuccess),
-      exhaustMap(({ payoutId, request }) =>
-        this.payoutService.markSuccess(payoutId, request).pipe(
-          map(payout => markPayoutSuccessSuccess({ payout })),
-          catchError(error =>
-            of(markPayoutSuccessFailure({ error: httpErrorMessage(error) })),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  markPayoutFail$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(markPayoutFail),
-      exhaustMap(({ payoutId, request }) =>
-        this.payoutService.markFail(payoutId, request).pipe(
-          map(payout => markPayoutFailSuccess({ payout })),
-          catchError(error =>
-            of(markPayoutFailFailure({ error: httpErrorMessage(error) })),
           ),
         ),
       ),

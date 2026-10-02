@@ -16,15 +16,6 @@ import {
   loadPayoutsFailure,
   loadPayoutsSuccess,
   loadPayoutSuccess,
-  markPayoutFail,
-  markPayoutFailFailure,
-  markPayoutFailSuccess,
-  markPayoutSuccess,
-  markPayoutSuccessFailure,
-  markPayoutSuccessSuccess,
-  processPayout,
-  processPayoutFailure,
-  processPayoutSuccess,
   retryPayout,
   retryPayoutFailure,
   retryPayoutSuccess,
@@ -100,9 +91,6 @@ export const payoutsReducer = createReducer(
   })),
 
   on(
-    processPayout,
-    markPayoutSuccess,
-    markPayoutFail,
     retryPayout,
     (state): PayoutsState => ({
       ...state,
@@ -119,9 +107,6 @@ export const payoutsReducer = createReducer(
   })),
 
   on(
-    processPayoutSuccess,
-    markPayoutSuccessSuccess,
-    markPayoutFailSuccess,
     retryPayoutSuccess,
     (state, { payout }): PayoutsState => ({
       ...state,
@@ -136,9 +121,6 @@ export const payoutsReducer = createReducer(
 
   on(
     createPayoutFailure,
-    processPayoutFailure,
-    markPayoutSuccessFailure,
-    markPayoutFailFailure,
     retryPayoutFailure,
     (state, { error }): PayoutsState => ({
       ...state,

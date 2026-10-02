@@ -148,9 +148,6 @@ export const API_ENDPOINTS = {
     adminPayoutReceipt: (payoutId: number) =>
       `${BASE}/api/financial/payouts/admin/${payoutId}/receipt`,
     adminPayouts: `${BASE}/api/financial/payouts/admin/all`,
-    payoutProcess: (payoutId: number) => `${BASE}/api/financial/payouts/${payoutId}/process`,
-    payoutSuccess: (payoutId: number) => `${BASE}/api/financial/payouts/${payoutId}/success`,
-    payoutFail: (payoutId: number) => `${BASE}/api/financial/payouts/${payoutId}/fail`,
     payoutRetry: (payoutId: number) => `${BASE}/api/financial/payouts/${payoutId}/retry`,
     adminMetrics: `${BASE}/api/financial/admin/metrics`,
   },

@@ -7,8 +7,8 @@
       Payouts
     </h1>
     <p class="mt-1 text-sm text-gray-500">
-      Claim payouts are created automatically when a claims officer approves
-      a claim. Process them through to settlement here.
+      Payouts are fully automatic: the moment a claim is approved, the approved amount is
+      transferred, the customer is notified and the claim is settled. No admin step is needed.
     </p>
   </div>
 
@@ -61,36 +61,19 @@
                     @if (payout.failureReason) {
                       <p class="mt-1 text-xs text-danger-500">{{ payout.failureReason }}</p>
                     }
+                    @if (payout.status === 'SUCCESS' && payout.externalReference) {
+                      <p class="mt-1 text-xs text-gray-400">
+                        Transfer {{ payout.externalReference }}
+                        @if (payout.processedAt) {
+                          · {{ payout.processedAt | date: 'short' }}
+                        }
+                      </p>
+                    }
                   </td>
                   <td class="whitespace-nowrap px-6 py-3 text-right text-sm">
                     <div class="flex items-center justify-end gap-3">
-                      @if (payout.status === 'PENDING') {
-                        <button
-                          type="button"
-                          class="font-semibold text-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
-                          [disabled]="(saving$ | async) ?? false"
-                          (click)="process(payout)"
-                        >
-                          Process
-                        </button>
-                      }
-                      @if (payout.status === 'PROCESSING') {
-                        <button
-                          type="button"
-                          class="font-semibold text-success-700 hover:text-green-800 disabled:cursor-not-allowed disabled:opacity-50"
-                          [disabled]="(saving$ | async) ?? false"
-                          (click)="markSuccess(payout)"
-                        >
-                          Mark success
-                        </button>
-                        <button
-                          type="button"
-                          class="font-semibold text-danger-500 hover:text-danger-700 disabled:cursor-not-allowed disabled:opacity-50"
-                          [disabled]="(saving$ | async) ?? false"
-                          (click)="markFail(payout)"
-                        >
-                          Mark failed
-                        </button>
+                      @if (payout.status === 'PENDING' || payout.status === 'PROCESSING') {
+                        <span class="text-xs text-gray-500">Paying automatically…</span>
                       }
                       @if (payout.status === 'SUCCESS') {
                         <button
@@ -123,7 +106,7 @@
     } @else {
       <app-empty-state
         title="No payouts"
-        message="A payout is created automatically once a claims officer approves a claim."
+        message="A payout is made automatically as soon as a claim is approved."
         icon="🏦"
       />
     }

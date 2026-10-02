@@ -1,16 +1,13 @@
 import { PayoutService } from '../../services/payout.service';
 import { blobErrorMessage, saveBlob } from '../../utils/file-download.util';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { PayoutResponse } from '../../dtos/financial/payout-response.dto';
 import {
   clearPayoutsError,
   loadPayouts,
-  markPayoutFail,
-  markPayoutSuccess,
-  processPayout,
   retryPayout,
 } from '../../state/payouts/payouts.actions';
 import {
@@ -19,7 +16,6 @@ import {
   selectPayoutsLoading,
   selectPayoutsSaving,
 } from '../../state/payouts/payouts.selectors';
-import { DialogService } from '../../../shared/services/dialog.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -45,8 +41,6 @@ export class AdminPayoutsComponent implements OnInit, OnDestroy {
   readonly saving$: Observable<boolean>;
   readonly error$: Observable<string | null>;
 
-  private readonly dialog = inject(DialogService);
-
   constructor(
     private readonly store: Store,
     private readonly payoutService: PayoutService,
@@ -64,49 +58,6 @@ export class AdminPayoutsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.store.dispatch(clearPayoutsError());
-  }
-
-  protected process(payout: PayoutResponse): void {
-    this.store.dispatch(
-      processPayout({
-        payoutId: payout.id,
-        request: { externalReference: '' },
-      }),
-    );
-  }
-
-  protected markSuccess(payout: PayoutResponse): void {
-    this.store.dispatch(
-      markPayoutSuccess({
-        payoutId: payout.id,
-        request: {
-          externalReference: 'MOCK-PAYOUT-' + Date.now(),
-        },
-      }),
-    );
-  }
-
-  protected async markFail(payout: PayoutResponse): Promise<void> {
-    const reason = await this.dialog.prompt({
-      title: `Mark payout ${payout.payoutReference} as failed?`,
-      message: 'The claim stays approved so the payout can be retried later.',
-      inputLabel: 'Reason it failed',
-      defaultValue: 'Bank transfer rejected',
-      confirmLabel: 'Mark as failed',
-      danger: true,
-    });
-
-    if (reason === null) return;
-
-    this.store.dispatch(
-      markPayoutFail({
-        payoutId: payout.id,
-        request: {
-          externalReference: '',
-          failureReason: reason.trim() || 'Payout failed',
-        },
-      }),
-    );
   }
 
   protected retry(payout: PayoutResponse): void {

@@ -27,14 +27,14 @@ describe('payoutsReducer', () => {
     expect(state.error).toBe('Forbidden');
   });
 
-  it('replaces a processed payout and the selected payout', () => {
+  it('replaces a retried payout and the selected payout', () => {
     const current: PayoutsState = { ...initialPayoutsState, payouts: [makePayout(1)], selectedPayout: makePayout(1) };
-    const processing = makePayout(1, 'PROCESSING');
+    const paid = makePayout(1, 'SUCCESS');
 
-    const state = payoutsReducer(current, PayoutsActions.processPayoutSuccess({ payout: processing }));
+    const state = payoutsReducer(current, PayoutsActions.retryPayoutSuccess({ payout: paid }));
 
-    expect(state.payouts[0].status).toBe('PROCESSING');
-    expect(state.selectedPayout).toEqual(processing);
+    expect(state.payouts[0].status).toBe('SUCCESS');
+    expect(state.selectedPayout).toEqual(paid);
   });
 
   it('sets isSaving for payout actions and clears it on failure', () => {

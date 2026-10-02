@@ -46,9 +46,6 @@ describe('PayoutService', () => {
   });
 
   it.each([
-    ['processPayout', API_ENDPOINTS.financial.payoutProcess(1)],
-    ['markSuccess', API_ENDPOINTS.financial.payoutSuccess(1)],
-    ['markFail', API_ENDPOINTS.financial.payoutFail(1)],
     ['retryPayout', API_ENDPOINTS.financial.payoutRetry(1)],
   ] as const)('%s sends a PUT with the action body', (method, url) => {
     service[method](1, action).subscribe();
