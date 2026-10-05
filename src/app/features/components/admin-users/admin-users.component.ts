@@ -130,7 +130,11 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
 
     const confirmed = await this.dialog.confirm({
       title: `Change ${user.fullName}'s status?`,
-      message: `Their profile will be marked as ${humanizeStatus(status)}.`,
+      message:
+        status === 'ACTIVE'
+          ? `Their profile will be marked as ${humanizeStatus(status)} and they can sign in again.`
+          : `Their profile will be marked as ${humanizeStatus(status)}. They will be signed out and ` +
+            `cannot sign in until an admin makes them active again.`,
       confirmLabel: 'Change status',
       danger: status !== 'ACTIVE',
     });

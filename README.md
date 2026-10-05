@@ -1,209 +1,71 @@
-# Insurance Platform - Backend Services
+# ClimateSure — Frontend (Angular)
 
-A microservices-based insurance platform with comprehensive notification and financial management capabilities.
+The web app for **ClimateSure / CityShield**, a parametric insurance platform. Customers buy weather cover. When a measured value (rainfall, river level, temperature, wind, humidity, soil moisture) crosses their policy's threshold, a claim opens automatically. Once a claims officer approves it, the payout is paid automatically.
 
-## Services Overview
+The backend (Spring Boot microservices behind an API gateway) lives in the **ParametricInsurance** repository.
 
-### Notification Service (`notificationservice/`)
-- **Real-time WebSocket/SSE notifications** via STOMP over SockJS
-- **Multi-channel delivery**: In-app, Email, SMS
-- **Notification templates** with variable substitution
-- **Delivery retry mechanism** with configurable max retries
-- **Batch notification sending** for admin users
-- **Notification preferences** per user/type/channel
-- **Audit event logging**
-- **Scheduled cleanup** of old notifications
-- **Default templates** for all notification types
+## Documentation
 
-### Financial Service (`financialservice/`)
-- **Payment management**: Create, succeed, fail, refund, retry
-- **Payout management**: Create, process, succeed, fail, retry
-- **Quote management**: Create, accept, cancel, consume, validate
-- **Pricing rules**: CRUD operations with activation/deactivation
-- **Financial transactions** recording for audit trail
-- **Reconciliation** daily automated reconciliation with notifications
-- **Premium due/overdue scheduler** with automated notifications
-- **Comprehensive notifications** for all financial events
+| Document | What it contains |
+|---|---|
+| `ParametricInsurance/docs/FEATURES.md` | Every feature, frontend and backend, explained simply with an example |
+| `docs/CityShield_Project_Documentation.docx` | Architecture, end-to-end journeys, formulas, demo script, reviewer Q&A |
 
-### Claims Service (`claimsservice/`)
-- **Claim lifecycle**: Submit, review, approve, reject, settle, cancel
-- **Trigger eligibility validation** via Trigger Service
-- **Duplicate claim prevention**
-- **Claim timeline** tracking
-- **Notifications** for all claim events
+## Tech stack
 
-### Product Service (`productservice/`)
-- **Product management**: Create, update, status changes
-- **Policy management**: Create, approve, reject, cancel, expiry
-- **Trigger snapshots** for parametric policies
-- **Policy status history** tracking
-- **Notifications** for all policy events
+- Angular 21 (standalone components, lazy-loaded routes, signals, new control flow)
+- NgRx Store + Effects for state
+- Tailwind CSS 4 for styling
+- Leaflet for the zone map
+- Vitest for unit tests
 
-### Trigger Service (`triggerservice/`)
-- **Trigger definitions** with peril, metric, threshold configuration
-- **Trigger events** detection, validation, verification, processing
-- **Observations** recording and validation
-- **Perils** and **Location zones** management
-- **Policy trigger eligibility** checking
-- **Idempotency** for event processing
-- **Notifications** for all trigger events
+## Run it
 
-### Common Module (`common/`)
-- **Shared DTOs**: NotificationRequest, AuditEventRequest, MessageResponse, InternalNotificationRequest, InternalAuditEventRequest
-
-## Key Features
-
-### Dynamic Notifications
-- Real-time WebSocket delivery to connected clients
-- Multi-channel support (In-app, Email, SMS)
-- Template-based with variable substitution
-- User preferences per notification type and channel
-- Retry mechanism for failed deliveries
-- Batch sending for admin announcements
-
-### Financial Operations
-- Complete payment and payout lifecycle
-- Quote generation and management
-- Automated reconciliation with discrepancy detection
-- Premium due/overdue scheduling
-- Pricing rule management
-
-### Event-Driven Architecture
-- All services publish audit events
-- Cross-service notifications via Notification Service
-- Internal API communication with gateway authentication
-- Idempotent event processing
-
-## Technology Stack
-- **Java 21** / Spring Boot 3.x
-- **Spring WebFlux** (Reactive)
-- **Spring Data R2DBC** (PostgreSQL)
-- **Spring WebSocket** (STOMP/SockJS)
-- **Spring Mail** (Email delivery)
-- **Spring Scheduling** (Cron jobs)
-- **Project Lombok** (Boilerplate reduction)
-- **Maven** (Build management)
-
-## Getting Started
-
-### Prerequisites
-- Java 21+
-- Maven 3.9+
-- PostgreSQL 15+
-- Redis (for session/caching)
-
-### Configuration
-Each service has `application.yaml` with:
-- Database connection
-- Service URLs (for inter-service communication)
-- Gateway internal key
-- Email/SMS provider settings
-- Notification settings
-
-### Building
 ```bash
-mvn clean install -DskipTests
+npm install
+npm start            # http://localhost:4200
 ```
 
-### Running Services
+The app calls the API gateway at `http://localhost:8080` (see `src/environments/`). Start the backend first: Eureka, then the services, then the gateway.
+
 ```bash
-# Start each service
-java -jar notificationservice/target/notificationservice-*.jar
-java -jar financialservice/target/financialservice-*.jar
-java -jar claimsservice/target/claimsservice-*.jar
-java -jar productservice/target/productservice-*.jar
-java -jar triggerservice/target/triggerservice-*.jar
+npm run build                      # production build into dist/
+npx ng test --watch=false          # run all unit tests once
 ```
 
-## Notification Types
+## Who uses it
 
-### Policy
-- POLICY_SUBMITTED, POLICY_APPROVED, POLICY_REJECTED, POLICY_CANCELLED, POLICY_EXPIRED, POLICY_RENEWAL_DUE
+| Role | Main screens |
+|---|---|
+| Visitor | Landing page, product catalogue, product details, register, login |
+| Customer | Dashboard, quotes, buy a policy (or a custom policy), my policies (renew, auto-renew, certificate PDF), payments & payouts (checkout, receipts), claims (manual claim with evidence files), notifications, zone map, activity |
+| Underwriter | Dashboard, pending applications, approve / reject, review history |
+| Claims officer | Dashboard, claims queue, start review / approve / reject, review history |
+| Admin | Products, product thresholds, trigger simulator, trigger events, zones (weather alert, exposure cap), zone exposure, perils, pricing rules, policies, claims, payments (refunds), payouts (automatic, history), users (active / inactive / suspended), notifications, audit log |
 
-### Claim
-- CLAIM_SUBMITTED, CLAIM_UNDER_REVIEW, CLAIM_APPROVED, CLAIM_REJECTED, CLAIM_SETTLED, CLAIM_CANCELLED
-- CLAIM_DOCUMENT_REQUESTED, CLAIM_REMINDER, CLAIM_ESCALATED, CLAIM_PAYMENT_INITIATED
+Everyone who is logged in can open the **Measurement details & thresholds** panel from the gauge icon in the header. Admins can **Update value** there.
 
-### Trigger
-- TRIGGER_DETECTED, TRIGGER_VERIFIED, TRIGGER_REJECTED, TRIGGER_PROCESSED
-- OBSERVATION_CREATED, PERIL_CREATED, TRIGGER_DEFINITION_CREATED, LOCATION_ZONE_CREATED
+## Folder structure
 
-### Financial
-- PAYMENT_SUCCESS, PAYMENT_FAILED, PAYMENT_PENDING, PAYMENT_RETRY, PAYMENT_REFUNDED
-- PAYOUT_PROCESSED, PAYOUT_FAILED, PAYOUT_PENDING, PAYOUT_RETRY
-- QUOTE_CREATED, QUOTE_EXPIRED, QUOTE_CONSUMED
-- PREMIUM_DUE, PREMIUM_OVERDUE
-- REFUND_PROCESSED, REFUND_FAILED
-- RECONCILIATION_COMPLETED, RECONCILIATION_DISCREPANCY
-- PRICING_RULE_CREATED, PRICING_RULE_UPDATED
+```
+src/app/
+├── app.routes.ts        all routes (lazy-loaded, guarded, each with a page title)
+├── app.config.ts        router, HTTP interceptors, NgRx store/effects, en-IN locale
+├── core/                api endpoints, guards, interceptors, JWT and token services, page-title strategy
+├── features/
+│   ├── components/      one folder per screen (customer-*, underwriter-*, claims-officer-*, admin-*)
+│   ├── dtos/            TypeScript types matching the backend
+│   ├── services/        HTTP services
+│   ├── state/           NgRx actions / reducers / effects / selectors per feature
+│   └── utils/           plain-English trigger sentences, file helpers
+├── layouts/             public, auth and app layouts, header
+└── shared/              status badge, stat card, dialogs, toasts, zone map, measurement panel, illustration …
+```
 
-## API Endpoints
+## Good to know
 
-### Notification Service
-- `POST /internal/notifications` - Create notification (internal)
-- `POST /internal/audit-events` - Create audit event (internal)
-- `GET /api/notifications/me` - Get user notifications
-- `GET /api/notifications/me/unread` - Get unread notifications
-- `GET /api/notifications/me/unread-count` - Get unread count
-- `PUT /api/notifications/{id}/read` - Mark as read
-- `PUT /api/notifications/me/read-all` - Mark all as read
-- `DELETE /api/notifications/{id}` - Delete notification
-- `GET /api/notifications/me/preferences` - Get preferences
-- `PUT /api/notifications/me/preferences` - Update preferences
-- `POST /api/notifications/from-template` - Create from template
-- `POST /api/notifications/admin/batch` - Send batch (admin)
-- `GET /api/notifications/admin/templates` - List templates (admin)
-- `POST /api/notifications/admin/templates` - Create template (admin)
-- `WS /ws/notifications` - WebSocket endpoint
-
-### Financial Service
-- `POST /api/quotes` - Create quote
-- `GET /api/quotes/me` - Get user quotes
-- `POST /api/quotes/{id}/accept` - Accept quote
-- `POST /api/quotes/{id}/cancel` - Cancel quote
-- `POST /api/payments` - Create payment
-- `GET /api/payments/me` - Get user payments
-- `POST /api/payments/{id}/success` - Mark payment success
-- `POST /api/payments/{id}/fail` - Mark payment failed
-- `POST /api/payments/{id}/refund` - Refund payment
-- `POST /api/payments/{id}/retry` - Retry payment
-- `POST /api/payouts` - Create payout (admin)
-- `GET /api/payouts/me` - Get user payouts
-- `POST /api/payouts/{id}/process` - Process payout
-- `POST /api/payouts/{id}/success` - Mark payout success
-- `POST /api/payouts/{id}/fail` - Mark payout failed
-- `POST /api/payouts/{id}/retry` - Retry payout
-
-### Claims Service
-- `POST /api/claims` - Create claim
-- `GET /api/claims/me` - Get user claims
-- `GET /api/claims/me/{id}` - Get user claim details
-- `POST /api/claims/{id}/cancel` - Cancel claim
-- `GET /api/claims/admin/submitted` - Get submitted claims (admin)
-- `POST /api/claims/admin/{id}/review` - Start review
-- `POST /api/claims/admin/{id}/approve` - Approve claim
-- `POST /api/claims/admin/{id}/reject` - Reject claim
-- `POST /api/claims/admin/{id}/settle` - Settle claim
-
-### Product Service
-- `POST /api/products` - Create product (admin)
-- `GET /api/products` - List products
-- `PUT /api/products/{id}/status` - Update product status (admin)
-- `POST /api/policies` - Create policy
-- `GET /api/policies/me` - Get user policies
-- `POST /api/policies/{id}/cancel` - Cancel policy
-- `GET /api/policies/admin/pending` - Get pending policies (admin)
-- `POST /api/policies/admin/{id}/approve` - Approve policy
-- `POST /api/policies/admin/{id}/reject` - Reject policy
-
-### Trigger Service
-- `POST /api/triggers/definitions` - Create trigger definition
-- `GET /api/triggers/definitions` - List trigger definitions
-- `POST /api/triggers/events` - Create trigger event
-- `GET /api/triggers/events` - List trigger events
-- `POST /api/triggers/events/{id}/validate` - Start validation
-- `POST /api/triggers/events/{id}/verify` - Verify event
-- `POST /api/triggers/events/{id}/reject` - Reject event
-- `POST /api/triggers/events/{id}/process` - Process event
-- `POST /api/perils` - Create peril
-- `POST /api/zones` - Create location zone
+- **Login:** tokens are stored in local storage, sent by the auth interceptor, and refreshed silently when they expire. Suspended or inactive accounts are refused at login and signed out.
+- **Live updates:** notifications arrive over Server-Sent Events and show in the header bell.
+- **Confirmations:** all confirmations use in-app dialogs (`DialogService`), not browser pop-ups.
+- **Formatting:** money and dates use the Indian format (`en-IN`), e.g. ₹1,50,000.
+- **Test mode checkout:** use card `4242 4242 4242 4242`. `4000 0000 0000 0002` simulates a decline. No real money moves.

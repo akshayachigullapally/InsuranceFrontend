@@ -84,6 +84,10 @@ describe('AdminUsersComponent', () => {
     await page.onUserStatusChange(user, cancelled);
     expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: updateUserStatus.type }));
 
+    expect(confirm).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining('cannot sign in') }),
+    );
+
     confirm.mockResolvedValue(true);
     await page.onUserStatusChange(user, selectEvent('SUSPENDED'));
     expect(store.dispatch).toHaveBeenCalledWith(updateUserStatus({ userId: 4, status: 'SUSPENDED' }));
