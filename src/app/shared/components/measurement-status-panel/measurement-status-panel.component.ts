@@ -221,8 +221,12 @@ export class MeasurementStatusPanelComponent
     if (this.editingValue === null || this.editingValue === undefined || Number.isNaN(this.editingValue)) {
       return false;
     }
-    // Only temperature can go below zero.
-    return this.editingType === 'TEMPERATURE' || this.editingValue >= 0;
+    // Only temperature can go below zero, and percentages stop at 100.
+    if (this.editingType !== 'TEMPERATURE' && this.editingValue < 0) {
+      return false;
+    }
+    const percentage = this.editingType === 'HUMIDITY' || this.editingType === 'SOIL_MOISTURE';
+    return !percentage || this.editingValue <= 100;
   }
 
   protected onSave(card: MeasurementCard): void {
