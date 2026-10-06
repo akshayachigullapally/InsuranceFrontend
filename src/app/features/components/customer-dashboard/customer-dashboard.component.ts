@@ -6,7 +6,8 @@ import { Observable, Subject, interval, startWith, takeUntil } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
 import { loadMyPayments } from '../../state/payments/payments.actions';
 import {
-  selectPaidPolicyIds,
+  paidPolicyKey,
+  selectPaidPolicyKeys,
   selectPaymentsLoaded,
   selectTotalPremiumsPaid,
 } from '../../state/payments/payments.selectors';
@@ -55,7 +56,7 @@ export class CustomerDashboardComponent implements OnInit, OnDestroy {
   readonly unreadCount$: Observable<number>;
   readonly premiumsPaid$: Observable<number>;
   readonly payoutsReceived$: Observable<number>;
-  readonly paidPolicyIds$: Observable<Set<number>>;
+  readonly paidPolicyKeys$: Observable<Set<string>>;
   readonly paymentsLoaded$: Observable<boolean>;
   private readonly destroy$ = new Subject<void>();
 
@@ -121,7 +122,7 @@ export class CustomerDashboardComponent implements OnInit, OnDestroy {
     this.unreadCount$ = this.store.select(selectUnreadCount);
     this.premiumsPaid$ = this.store.select(selectTotalPremiumsPaid);
     this.payoutsReceived$ = this.store.select(selectTotalPayoutsReceived);
-    this.paidPolicyIds$ = this.store.select(selectPaidPolicyIds);
+    this.paidPolicyKeys$ = this.store.select(selectPaidPolicyKeys);
     this.paymentsLoaded$ = this.store.select(selectPaymentsLoaded);
   }
 
@@ -141,6 +142,10 @@ export class CustomerDashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  isPaid(paidKeys: Set<string> | null, policy: { id: number; policyNumber: string }): boolean {
+    return !!paidKeys?.has(paidPolicyKey(policy));
   }
 
   incidentLabel(incidentType: string | null | undefined): string {

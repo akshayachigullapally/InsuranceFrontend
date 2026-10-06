@@ -74,7 +74,11 @@ describe('CustomerDashboardComponent', () => {
         payments: {
           ...root.payments,
           loaded: true,
-          payments: [{ id: 5, policyId: 1, status: 'SUCCESS' }],
+          payments: [
+            { id: 5, policyId: 1, policyNumber: 'POL-1', status: 'SUCCESS' },
+            // An old payment for a previous policy that had id 3: must not count as paid.
+            { id: 6, policyId: 3, policyNumber: 'POL-OLD', status: 'SUCCESS' },
+          ],
         },
       }),
     );

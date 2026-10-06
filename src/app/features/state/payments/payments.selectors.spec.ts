@@ -2,6 +2,8 @@ import { PaymentResponse } from '../../dtos/financial/payment-response.dto';
 import {
   selectFailedPaymentCount,
   selectFilteredPayments,
+  paidPolicyKey,
+  selectPaidPolicyKeys,
   selectPendingPaymentCount,
   selectSuccessfulPaymentCount,
 } from './payments.selectors';
@@ -29,5 +31,18 @@ describe('payments selectors', () => {
     expect(selectPendingPaymentCount.projector(payments)).toBe(1);
     expect(selectSuccessfulPaymentCount.projector(payments)).toBe(2);
     expect(selectFailedPaymentCount.projector(payments)).toBe(1);
+  });
+
+  it('marks a policy paid only when both its id and policy number match a successful payment', () => {
+    const paid = selectPaidPolicyKeys.projector([
+      { ...payment(11, 'SUCCESS', 'POL-NEW'), policyId: 1 },
+      { ...payment(12, 'SUCCESS', 'POL-OLD'), policyId: 2 },
+      { ...payment(13, 'FAILED', 'POL-3'), policyId: 3 },
+    ]);
+
+    expect(paid.has(paidPolicyKey({ id: 1, policyNumber: 'POL-NEW' }))).toBe(true);
+    // Policy id 2 was reused by a new policy after the database was recreated.
+    expect(paid.has(paidPolicyKey({ id: 2, policyNumber: 'POL-NEW-2' }))).toBe(false);
+    expect(paid.has(paidPolicyKey({ id: 3, policyNumber: 'POL-3' }))).toBe(false);
   });
 });

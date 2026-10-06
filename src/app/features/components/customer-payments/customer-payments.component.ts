@@ -21,7 +21,8 @@ import {
   selectPayments,
   selectPaymentsError,
   selectPaymentsLoading,
-  selectPaidPolicyIds,
+  paidPolicyKey,
+  selectPaidPolicyKeys,
   selectPaymentsLoaded,
   selectPaymentsSaving,
   selectPaymentOutcome,
@@ -98,13 +99,13 @@ export class CustomerPaymentsComponent implements OnInit, OnDestroy {
     this.error$ = this.store.select(selectPaymentsError);
     this.payablePolicies$ = combineLatest([
       this.store.select(selectMyPolicies),
-      this.store.select(selectPaidPolicyIds),
+      this.store.select(selectPaidPolicyKeys),
       this.store.select(selectPaymentsLoaded),
     ]).pipe(
       // Until payments have loaded we cannot tell paid from unpaid: offer nothing.
       map(([policies, paid, loaded]) =>
         loaded
-          ? policies.filter((policy) => policy.status === 'ACTIVE' && !paid.has(policy.id))
+          ? policies.filter((policy) => policy.status === 'ACTIVE' && !paid.has(paidPolicyKey(policy)))
           : [],
       ),
     );

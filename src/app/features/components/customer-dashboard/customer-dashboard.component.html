@@ -60,7 +60,7 @@
       </div>
       <div class="p-6">
         @if ((policies$ | async)?.length) {
-          @let paidIds = paidPolicyIds$ | async;
+          @let paidKeys = paidPolicyKeys$ | async;
           @let paymentsLoaded = paymentsLoaded$ | async;
           <ul class="divide-y divide-brand-50">
             @for (policy of policies$ | async; track policy.id) {
@@ -74,7 +74,7 @@
                 <span class="flex shrink-0 flex-col items-end gap-1">
                   <app-status-badge [status]="policy.status" />
                   @if (policy.status === 'ACTIVE' && paymentsLoaded) {
-                    @if (paidIds?.has(policy.id)) {
+                    @if (isPaid(paidKeys, policy)) {
                       <span class="inline-flex items-center gap-1 rounded-full bg-success-50 px-2 py-0.5 text-xs font-semibold text-success-700">
                         ✓ Premium paid
                       </span>
