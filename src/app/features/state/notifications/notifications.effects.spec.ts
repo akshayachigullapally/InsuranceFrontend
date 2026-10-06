@@ -149,51 +149,38 @@ describe('NotificationsEffects', () => {
     vi.useRealTimers();
   });
 
-  it('performs a full load the first time and an incremental load afterwards', () => {
+  it('reloads the whole inbox on every poll and pops up only the new items', () => {
     const existing = makeNotification(1, '2026-09-01T00:00:00Z');
-    const serviceNotifications = [
-      makeNotification(2, '2026-09-03T00:00:00Z'),
-      existing,
-    ];
-    vi.mocked(service.getMyNotifications).mockReturnValue(of([existing]));
-    vi.mocked(service.getMyNotificationsCreatedAfter).mockReturnValue(
-      of(serviceNotifications),
-    );
+    const newer = makeNotification(2, '2026-09-03T00:00:00Z');
+    vi.mocked(service.getMyNotifications).mockReturnValueOnce(of([existing]));
 
     const store = TestBed.inject(Store);
     const results: Action[] = [];
     const sub = effects.loadNotifications$.subscribe((action) => results.push(action));
 
     actions$.next(NotificationsActions.notificationPollTick());
-    expect(service.getMyNotifications).toHaveBeenCalledTimes(1);
-    expect(service.getMyNotificationsCreatedAfter).not.toHaveBeenCalled();
-    expect(results[0]).toEqual(
+    expect(results).toEqual([
       NotificationsActions.loadNotificationsSuccess({ notifications: [existing] }),
-    );
-
+    ]);
     store.dispatch(
       NotificationsActions.loadNotificationsSuccess({ notifications: [existing] }),
     );
 
     results.length = 0;
+    vi.mocked(service.getMyNotifications).mockReturnValueOnce(of([newer, existing]));
     actions$.next(NotificationsActions.notificationPollTick());
-    expect(service.getMyNotificationsCreatedAfter).toHaveBeenCalledTimes(1);
-    expect(service.getMyNotificationsCreatedAfter).toHaveBeenCalledWith(
-      expect.any(String),
-    );
-    const incremental = results[0] as ReturnType<
-      typeof NotificationsActions.mergeNewNotifications
-    >;
-    expect(incremental.type).toBe(NotificationsActions.mergeNewNotifications.type);
-    expect(incremental.notifications.map((n) => n.id)).toEqual([2]);
+    expect(service.getMyNotifications).toHaveBeenCalledTimes(2);
+    expect(results).toEqual([
+      NotificationsActions.mergeNewNotifications({ notifications: [newer] }),
+      NotificationsActions.loadNotificationsSuccess({ notifications: [newer, existing] }),
+    ]);
 
     sub.unsubscribe();
   });
 
-  it('emits nothing for an incremental poll that has no new notifications', () => {
+  it('always finishes a refresh, even when nothing is new', () => {
     const existing = makeNotification(1, '2026-09-01T00:00:00Z');
     vi.mocked(service.getMyNotifications).mockReturnValue(of([existing]));
-    vi.mocked(service.getMyNotificationsCreatedAfter).mockReturnValue(of([existing]));
 
     const store = TestBed.inject(Store);
     store.dispatch(
@@ -203,9 +190,31 @@ describe('NotificationsEffects', () => {
     const results: Action[] = [];
     const sub = effects.loadNotifications$.subscribe((action) => results.push(action));
 
-    actions$.next(NotificationsActions.notificationPollTick());
-    expect(results).toEqual([]);
+    actions$.next(NotificationsActions.refreshNotifications());
+    expect(results).toEqual([
+      NotificationsActions.loadNotificationsSuccess({ notifications: [existing] }),
+    ]);
 
+    sub.unsubscribe();
+  });
+
+  it('restarts the load when Refresh is clicked while a poll is still running', () => {
+    const existing = makeNotification(1, '2026-09-01T00:00:00Z');
+    const slowPoll = new Subject<NotificationResponse[]>();
+    vi.mocked(service.getMyNotifications)
+      .mockReturnValueOnce(slowPoll)
+      .mockReturnValueOnce(of([existing]));
+
+    const results: Action[] = [];
+    const sub = effects.loadNotifications$.subscribe((action) => results.push(action));
+
+    actions$.next(NotificationsActions.notificationPollTick());
+    actions$.next(NotificationsActions.refreshNotifications());
+    slowPoll.next([]);
+
+    expect(results).toEqual([
+      NotificationsActions.loadNotificationsSuccess({ notifications: [existing] }),
+    ]);
     sub.unsubscribe();
   });
 

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { Observable, of, timer, EMPTY } from 'rxjs';
+import { of, timer } from 'rxjs';
 import {
   catchError,
   exhaustMap,
@@ -22,6 +22,10 @@ import * as NotificationsSelectors from './notifications.selectors';
 import { NotificationPushService } from '../../services/notification-push.service';
 
 const NOTIFICATION_POLL_INTERVAL_MS = 30000;
+
+function notificationKey(n: NotificationResponse): string {
+  return n.id !== undefined && n.id !== null ? `id:${n.id}` : `ref:${n.notificationReference}`;
+}
 
 @Injectable()
 export class NotificationsEffects {
@@ -109,6 +113,14 @@ export class NotificationsEffects {
     { dispatch: false },
   );
 
+  /**
+   * Loads the whole inbox on the first load, on Refresh and on every poll tick, so the
+   * list always matches the server (a missed live event, a read or a delete elsewhere
+   * is picked up within one poll). Items not seen before are also emitted as
+   * mergeNewNotifications so the bell pops them up. switchMap: a Refresh clicked while a
+   * poll is in flight restarts the load instead of being dropped, and every load ends in
+   * a success or failure action, so "Refreshing…" can never get stuck.
+   */
   loadNotifications$ = createEffect(() =>
     this.actions$.pipe(
       ofType(
@@ -116,48 +128,28 @@ export class NotificationsEffects {
         NotificationsActions.refreshNotifications,
         NotificationsActions.notificationPollTick,
       ),
-      withLatestFrom(
-        this.store.select(NotificationsSelectors.selectNotificationsLoaded),
-        this.store.select(NotificationsSelectors.selectLastSeenNotificationCreatedAt),
-        this.store.select(NotificationsSelectors.selectNotifications),
-      ),
-      exhaustMap(([, loaded, lastSeen, existing]) => {
-        const incremental = loaded && !!lastSeen;
-        const source$: Observable<NotificationResponse[]> = incremental
-          ? this.notificationService.getMyNotificationsCreatedAfter(lastSeen)
-          : this.notificationService.getMyNotifications();
-        return source$.pipe(
-          mergeMap((notifications) => {
-            if (incremental) {
-              const existingKeys = new Set(
-                existing.map((n) =>
-                  n.id !== undefined && n.id !== null
-                    ? `id:${n.id}`
-                    : `ref:${n.notificationReference}`,
-                ),
-              );
-              const trulyNew = notifications.filter(
-                (n) =>
-                  !existingKeys.has(
-                    n.id !== undefined && n.id !== null
-                      ? `id:${n.id}`
-                      : `ref:${n.notificationReference}`,
-                  ),
-              );
-              if (trulyNew.length === 0) {
-                return EMPTY;
-              }
-              return of(
-                NotificationsActions.mergeNewNotifications({
-                  notifications: trulyNew,
-                }),
-              );
+      switchMap((action) =>
+        this.notificationService.getMyNotifications().pipe(
+          withLatestFrom(
+            this.store.select(NotificationsSelectors.selectNotificationsLoaded),
+            this.store.select(NotificationsSelectors.selectNotifications),
+          ),
+          mergeMap(([notifications, loaded, existing]) => {
+            const done = NotificationsActions.loadNotificationsSuccess({ notifications });
+            if (!loaded) {
+              return of(done);
             }
-            return of(NotificationsActions.loadNotificationsSuccess({ notifications }));
+            const known = new Set(existing.map(notificationKey));
+            const fresh = notifications.filter((n) => !known.has(notificationKey(n)));
+            return fresh.length
+              ? of(NotificationsActions.mergeNewNotifications({ notifications: fresh }), done)
+              : of(done);
           }),
-          catchError((error) => of(this.handleInboxError(error, incremental))),
-        );
-      }),
+          catchError((error) =>
+            of(this.handleInboxError(error, action.type === NotificationsActions.notificationPollTick.type)),
+          ),
+        ),
+      ),
     ),
   );
 

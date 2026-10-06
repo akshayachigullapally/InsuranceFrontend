@@ -264,6 +264,8 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.notificationsMenuOpen = true;
     this.focusAfterOpen = true;
     this.focusTarget = 'notifications';
+    // Always show the latest inbox when the bell is opened.
+    this.store.dispatch(refreshNotifications());
   }
   protected toggleMoreMenu(): void {
     if (this.moreMenuOpen) {
