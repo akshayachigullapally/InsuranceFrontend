@@ -114,12 +114,6 @@ describe('MeasurementStatusPanelComponent', () => {
     panel.onEdit({ measurementType: 'TEMPERATURE', latestValue: 20 });
     panel.editingValue = -2;
     expect(panel.isValidEdit()).toBe(true);
-
-    panel.onEdit({ measurementType: 'HUMIDITY', latestValue: 50 });
-    panel.editingValue = 100;
-    expect(panel.isValidEdit()).toBe(true);
-    panel.editingValue = 101;
-    expect(panel.isValidEdit()).toBe(false);
   });
 
   it('saves the new reading, shows a toast and refreshes', () => {

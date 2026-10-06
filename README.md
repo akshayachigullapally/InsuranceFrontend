@@ -9,7 +9,6 @@ The backend (Spring Boot microservices behind an API gateway) lives in the **Par
 | Document | What it contains |
 |---|---|
 | `ParametricInsurance/docs/FEATURES.md` | Every feature, frontend and backend, explained simply with an example |
-| `ParametricInsurance/docs/VALIDATIONS.md` | Every validation rule, backend and frontend, side by side |
 | `docs/CityShield_Project_Documentation.docx` | Architecture, end-to-end journeys, formulas, demo script, reviewer Q&A |
 
 ## Tech stack
