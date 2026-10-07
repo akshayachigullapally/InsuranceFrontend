@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
 import {
-  AuditEventResponse,
   BatchNotificationRequest,
   CreateNotificationTemplateRequest,
   DeliveryAttemptResponse,
@@ -151,14 +150,6 @@ export class NotificationService {
       `${API_ENDPOINTS.notifications.myNotifications.replace('/me', '')}/internal`,
       request,
     );
-  }
-
-  getAuditEvents(): Observable<AuditEventResponse[]> {
-    return this.http.get<AuditEventResponse[]>(API_ENDPOINTS.notifications.adminAudit);
-  }
-
-  getMyAuditEvents(): Observable<AuditEventResponse[]> {
-    return this.http.get<AuditEventResponse[]>(API_ENDPOINTS.notifications.myAudit);
   }
 
   /** Admin: mark any notification as read. */

@@ -8,7 +8,6 @@ import { RefreshTokenRequest } from '../dtos/auth/refresh-token-request.dto';
 import { AuthResponse } from '../dtos/auth/auth-response.dto';
 import { MessageResponse } from '../dtos/auth/message-response.dto';
 import { UserResponse } from '../dtos/auth/user-response.dto';
-import { SessionResponse } from '../dtos/auth/session-response.dto';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -32,13 +31,5 @@ export class AuthService {
 
   me(): Observable<UserResponse> {
     return this.http.get<UserResponse>(API_ENDPOINTS.auth.me);
-  }
-
-  getSessions(): Observable<SessionResponse[]> {
-    return this.http.get<SessionResponse[]>(API_ENDPOINTS.auth.sessions);
-  }
-
-  revokeSession(sessionId: number): Observable<MessageResponse> {
-    return this.http.delete<MessageResponse>(API_ENDPOINTS.auth.revokeSession(sessionId));
   }
 }

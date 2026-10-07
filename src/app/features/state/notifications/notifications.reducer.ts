@@ -319,21 +319,6 @@ export const notificationsReducer = createReducer(
     isSaving: false,
     error,
   })),
-  on(NotificationsActions.loadAuditEvents, NotificationsActions.loadMyAuditEvents, (state) => ({
-    ...state,
-    auditEvents: [],
-    isLoading: true,
-  })),
-  on(NotificationsActions.loadAuditEventsSuccess, (state, { events }) => ({
-    ...state,
-    auditEvents: events,
-    isLoading: false,
-  })),
-  on(NotificationsActions.loadAuditEventsFailure, (state, { error }) => ({
-    ...state,
-    isLoading: false,
-    error,
-  })),
   on(NotificationsActions.clearNotificationsError, (state) => ({
     ...state,
     error: null,

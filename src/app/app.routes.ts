@@ -170,15 +170,6 @@ export const routes: Routes = [
         pathMatch: 'full',
         redirectTo: '/customer/payments?tab=payouts',
       },
-      {
-        path: 'activity',
-        title: 'Activity',
-        data: { auditScope: 'MINE' },
-        loadComponent: () =>
-          import('./features/components/audit-history/audit-history.component').then(
-            (m) => m.AuditHistoryComponent,
-          ),
-      },
     ],
   },
   {
@@ -217,15 +208,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/components/staff-notifications/staff-notifications.component').then(
             (m) => m.StaffNotificationsComponent,
-          ),
-      },
-      {
-        path: 'activity',
-        title: 'Activity',
-        data: { auditScope: 'MINE' },
-        loadComponent: () =>
-          import('./features/components/audit-history/audit-history.component').then(
-            (m) => m.AuditHistoryComponent,
           ),
       },
       {
@@ -274,15 +256,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/components/staff-notifications/staff-notifications.component').then(
             (m) => m.StaffNotificationsComponent,
-          ),
-      },
-      {
-        path: 'activity',
-        title: 'Activity',
-        data: { auditScope: 'MINE' },
-        loadComponent: () =>
-          import('./features/components/audit-history/audit-history.component').then(
-            (m) => m.AuditHistoryComponent,
           ),
       },
       {
@@ -476,24 +449,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/components/admin-notifications/admin-notifications.component').then(
             (m) => m.AdminNotificationsComponent,
-          ),
-      },
-      {
-        path: 'audit',
-        title: 'Audit log',
-        data: { auditScope: 'ALL' },
-        loadComponent: () =>
-          import('./features/components/audit-history/audit-history.component').then(
-            (m) => m.AuditHistoryComponent,
-          ),
-      },
-      {
-        path: 'activity',
-        title: 'Activity',
-        data: { auditScope: 'MINE' },
-        loadComponent: () =>
-          import('./features/components/audit-history/audit-history.component').then(
-            (m) => m.AuditHistoryComponent,
           ),
       },
     ],

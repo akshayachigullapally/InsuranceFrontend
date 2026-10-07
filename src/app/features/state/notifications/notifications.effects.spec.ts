@@ -59,7 +59,6 @@ const SERVICE_METHODS = [
   'createTemplate',
   'updateTemplate',
   'deactivateTemplate',
-  'getAuditEvents',
 ] as const;
 
 describe('NotificationsEffects', () => {

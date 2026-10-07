@@ -52,15 +52,4 @@ describe('AuthService', () => {
     req.flush(authResponse);
   });
 
-  it('lists and revokes sessions', () => {
-    service.getSessions().subscribe((sessions) => {
-      expect(sessions.length).toBe(1);
-    });
-    httpMock.expectOne({ url: API_ENDPOINTS.auth.sessions, method: 'GET' }).flush([{ id: 7 }]);
-
-    service.revokeSession(7).subscribe();
-    httpMock
-      .expectOne({ url: API_ENDPOINTS.auth.revokeSession(7), method: 'DELETE' })
-      .flush({ message: 'Revoked' });
-  });
 });

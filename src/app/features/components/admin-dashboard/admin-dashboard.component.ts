@@ -136,13 +136,6 @@ export class AdminDashboardComponent implements OnInit {
       routerLink: '/admin/notifications',
       color: 'bg-slate-100',
     },
-    {
-      icon: '📝',
-      label: 'Audit Log',
-      description: 'System activity trail',
-      routerLink: '/admin/audit',
-      color: 'bg-gray-100',
-    },
   ];
 
   constructor(private readonly store: Store) {

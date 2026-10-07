@@ -213,20 +213,3 @@ export interface UnreadCountResponse {
 export interface MessageResponse {
   message: string;
 }
-
-export interface AuditEventResponse {
-  id: number;
-  eventReference?: string | null;
-  eventType: string;
-  actorUserId?: number | null;
-  actorRole?: string | null;
-  entityType: string;
-  entityId: number;
-  description?: string | null;
-  correlationId?: string | null;
-  /** Value before the change, e.g. "Threshold: 150 mm"; absent for events that change nothing. */
-  oldValue?: string | null;
-  /** Value after the change, e.g. "Threshold: 200 mm". */
-  newValue?: string | null;
-  createdAt: string;
-}

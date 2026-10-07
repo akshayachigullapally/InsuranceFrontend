@@ -9,8 +9,6 @@ export const API_ENDPOINTS = {
     refresh: `${BASE}/api/auth/refresh`,
     logout: `${BASE}/api/auth/logout`,
     me: `${BASE}/api/auth/me`,
-    sessions: `${BASE}/api/auth/sessions`,
-    revokeSession: (sessionId: number) => `${BASE}/api/auth/sessions/${sessionId}`,
   },
   users: {
     me: `${BASE}/api/users/me`,
@@ -113,8 +111,6 @@ export const API_ENDPOINTS = {
       `${BASE}/api/notifications/admin/${notificationId}/read`,
     adminDelete: (notificationId: number) => `${BASE}/api/notifications/admin/${notificationId}`,
     adminFailed: `${BASE}/api/notifications/admin/failed`,
-    adminAudit: `${BASE}/api/notifications/admin/audit`,
-    myAudit: `${BASE}/api/notifications/audit/me`,
     myPreferences: `${BASE}/api/notifications/me/preferences`,
     upsertPreferences: `${BASE}/api/notifications/me/preferences`,
     fromTemplate: `${BASE}/api/notifications/from-template`,

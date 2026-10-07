@@ -2,7 +2,6 @@ import { NotificationResponse } from '../../dtos/notifications/notification-resp
 import { NotificationPreferenceResponse } from '../../dtos/notifications/notification-response.dto';
 import { NotificationTemplateResponse } from '../../dtos/notifications/notification-response.dto';
 import { DeliveryAttemptResponse } from '../../dtos/notifications/notification-response.dto';
-import { AuditEventResponse } from '../../dtos/notifications/notification-response.dto';
 
 export interface NotificationsState {
   notifications: NotificationResponse[];
@@ -24,7 +23,6 @@ export interface NotificationsState {
   adminLoading: boolean;
   adminError: string | null;
   adminMessage: string | null;
-  auditEvents: AuditEventResponse[];
   selectedNotificationId: number | null;
   filters: {
     type?: string;
@@ -58,7 +56,6 @@ export const initialNotificationsState: NotificationsState = {
   adminLoading: false,
   adminError: null,
   adminMessage: null,
-  auditEvents: [],
   selectedNotificationId: null,
   filters: {
     unreadOnly: false,

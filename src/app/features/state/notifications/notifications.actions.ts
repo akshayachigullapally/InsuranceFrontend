@@ -6,7 +6,6 @@ import {
   DeliveryAttemptResponse,
   TemplateNotificationRequest,
   BatchNotificationRequest,
-  AuditEventResponse,
   UpsertNotificationPreferenceRequest,
   CreateNotificationTemplateRequest,
 } from '../../dtos/notifications/notification-response.dto';
@@ -253,20 +252,6 @@ export const deactivateTemplateSuccess = createAction(
 
 export const deactivateTemplateFailure = createAction(
   '[Notifications] Deactivate Template Failure',
-  props<{ error: string }>(),
-);
-
-export const loadAuditEvents = createAction('[Notifications] Load Audit Events');
-
-export const loadMyAuditEvents = createAction('[Notifications] Load My Audit Events');
-
-export const loadAuditEventsSuccess = createAction(
-  '[Notifications] Load Audit Events Success',
-  props<{ events: AuditEventResponse[] }>(),
-);
-
-export const loadAuditEventsFailure = createAction(
-  '[Notifications] Load Audit Events Failure',
   props<{ error: string }>(),
 );
 

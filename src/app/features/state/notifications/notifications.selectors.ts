@@ -39,11 +39,6 @@ export const selectPreferences = createSelector(
   (state: NotificationsState) => state.preferences,
 );
 
-export const selectAuditEvents = createSelector(
-  selectNotificationsState,
-  (state: NotificationsState) => state.auditEvents,
-);
-
 export const selectLatestNotifications = createSelector(
   selectNotifications,
   (notifications: NotificationResponse[]) => notifications.slice(0, 5),

@@ -410,34 +410,6 @@ export class NotificationsEffects {
     ),
   );
 
-  loadAuditEvents$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(NotificationsActions.loadAuditEvents),
-      mergeMap(() =>
-        this.notificationService.getAuditEvents().pipe(
-          map((events) => NotificationsActions.loadAuditEventsSuccess({ events })),
-          catchError((error) =>
-            of(NotificationsActions.loadAuditEventsFailure({ error: this.errorMessage(error) })),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  loadMyAuditEvents$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(NotificationsActions.loadMyAuditEvents),
-      mergeMap(() =>
-        this.notificationService.getMyAuditEvents().pipe(
-          map((events) => NotificationsActions.loadAuditEventsSuccess({ events })),
-          catchError((error) =>
-            of(NotificationsActions.loadAuditEventsFailure({ error: this.errorMessage(error) })),
-          ),
-        ),
-      ),
-    ),
-  );
-
   private handleInboxError(
     error: unknown,
     _background: boolean,
