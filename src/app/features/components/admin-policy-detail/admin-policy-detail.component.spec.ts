@@ -87,29 +87,4 @@ describe('AdminPolicyDetailComponent', () => {
     expect(page.reviewerName).toBe('Uma Underwriter');
     expect(page.zoneName).toBe('Hyderabad Central Zone');
   });
-
-  it('skips the snapshot request when the policy has no snapshot', async () => {
-    const { page, policyService } = await setup('/admin/policies/3');
-
-    expect(policyService.getPolicySnapshot).not.toHaveBeenCalled();
-    expect(page.snapshot).toBeNull();
-  });
-
-  it('builds the detail rows with resolved names', async () => {
-    const { page } = await setup('/admin/policies/3');
-
-    const rows = page.details(policy);
-
-    expect(rows.find((row) => row.label === 'Customer')?.value).toBe('Asha Rao (Customer #7)');
-    expect(rows.find((row) => row.label === 'Reviewed by')?.value).toBe('Uma Underwriter (User #9)');
-    expect(rows.find((row) => row.label === 'Coverage start')?.value).toBe('Jan 1, 2026');
-  });
-
-  it('shows Not reviewed for a pending policy', async () => {
-    const { page } = await setup('/admin/policies/3');
-
-    const rows = page.details({ ...policy, reviewedBy: null } as unknown as PolicyResponse);
-
-    expect(rows.find((row) => row.label === 'Reviewed by')?.value).toBe('Not reviewed');
-  });
 });

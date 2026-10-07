@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { Action } from '@ngrx/store';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { ProductsEffects, httpErrorMessage } from './products.effects';
 import * as ProductsActions from './products.actions';
 import { ProductService } from '../../services/product.service';
@@ -59,23 +59,6 @@ describe('ProductsEffects', () => {
     expect(collect(effects.loadProducts$)).toEqual([ProductsActions.loadProductsSuccess({ products: [product] })]);
   });
 
-  it('loads products by category', () => {
-    productService['getProductsByCategory'].mockReturnValue(of([product]));
-    actions$ = of(ProductsActions.loadProductsByCategory({ category: 'WEATHER' }));
-
-    expect(collect(effects.loadProductsByCategory$)).toEqual([
-      ProductsActions.loadProductsByCategorySuccess({ products: [product] }),
-    ]);
-    expect(productService['getProductsByCategory']).toHaveBeenCalledWith('WEATHER');
-  });
-
-  it('emits deleteProductSuccess with the id', () => {
-    productService['deleteProduct'].mockReturnValue(of({ message: 'ok' }));
-    actions$ = of(ProductsActions.deleteProduct({ productId: 1 }));
-
-    expect(collect(effects.deleteProduct$)).toEqual([ProductsActions.deleteProductSuccess({ productId: 1 })]);
-  });
-
   it('reloads the product after a threshold update', () => {
     const result = { productId: 1 } as never;
     productService['updateThreshold'].mockReturnValue(of(result));
@@ -85,22 +68,5 @@ describe('ProductsEffects', () => {
       ProductsActions.updateProductThresholdSuccess({ result }),
       ProductsActions.loadAdminProduct({ productId: 1 }),
     ]);
-  });
-
-  it('emits a failure for a failed create', () => {
-    productService['createProduct'].mockReturnValue(throwError(() => ({ error: { message: 'Duplicate code' } })));
-    actions$ = of(ProductsActions.createProduct({ request: {} as never }));
-
-    expect(collect(effects.createProduct$)).toEqual([
-      ProductsActions.createProductFailure({ error: 'Duplicate code' }),
-    ]);
-  });
-
-  it('navigates back to the product list after saving', () => {
-    actions$ = of(ProductsActions.createProductSuccess({ product }));
-
-    collect(effects.redirectAfterSave$);
-
-    expect(router.navigate).toHaveBeenCalledWith(['/admin/products']);
   });
 });

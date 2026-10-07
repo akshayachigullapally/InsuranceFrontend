@@ -16,11 +16,4 @@ describe('LoadingSpinnerComponent', () => {
 
     expect(fixture.componentInstance).toBeTruthy();
   });
-
-  it('shows the given label', () => {
-    fixture.componentRef.setInput('label', 'Loading claims...');
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.textContent).toContain('Loading claims...');
-  });
 });

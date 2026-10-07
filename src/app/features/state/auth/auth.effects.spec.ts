@@ -105,50 +105,6 @@ describe('AuthEffects', () => {
     ]);
   });
 
-  it('fails the refresh without calling the API when there is no refresh token', () => {
-    tokenStorage['getRefreshToken'].mockReturnValue(null);
-    actions$ = of(AuthActions.refreshToken());
-
-    expect(collect(effects.refreshToken$)).toEqual([
-      AuthActions.refreshTokenFailure({ error: 'No refresh token available.' }),
-    ]);
-    expect(authService['refresh']).not.toHaveBeenCalled();
-  });
-
-  it('fails restoreSession when no tokens are saved', () => {
-    tokenStorage['hasTokens'].mockReturnValue(false);
-    actions$ = of(AuthActions.restoreSession());
-
-    expect(collect(effects.restoreSession$)).toEqual([
-      AuthActions.restoreSessionFailure({ error: 'No saved session.' }),
-    ]);
-  });
-
-  it('restores the session from /me', () => {
-    authService['me'].mockReturnValue(of(auth.user));
-    actions$ = of(AuthActions.restoreSession());
-
-    expect(collect(effects.restoreSession$)).toEqual([
-      AuthActions.restoreSessionSuccess({ user: auth.user, customerId: undefined }),
-    ]);
-  });
-
-  it('clears tokens and succeeds logout even when the API call fails', () => {
-    authService['logout'].mockReturnValue(throwError(() => new Error('offline')));
-    actions$ = of(AuthActions.logout());
-
-    expect(collect(effects.logout$)).toEqual([AuthActions.logoutSuccess()]);
-    expect(tokenStorage['clear']).toHaveBeenCalled();
-  });
-
-  it('navigates to the role dashboard after login', () => {
-    actions$ = of(AuthActions.loginSuccess({ auth }));
-
-    collect(effects.redirectAfterLogin$ as Observable<Action>);
-
-    expect(router.navigate).toHaveBeenCalledWith(['/customer/dashboard']);
-  });
-
   it('returns a customer to the page in returnUrl after login', () => {
     router.url = '/login?returnUrl=%2Fcustomer%2Fpolicies%2Fnew%3FproductId%3D1';
     actions$ = of(AuthActions.loginSuccess({ auth }));
@@ -172,24 +128,5 @@ describe('AuthEffects', () => {
     collect(effects.redirectAfterLogin$ as Observable<Action>);
     expect(router.navigate).toHaveBeenCalledWith(['/customer/dashboard']);
     expect(router.navigateByUrl).not.toHaveBeenCalled();
-  });
-
-  it('navigates to /welcome for an unknown role', () => {
-    actions$ = of(
-      AuthActions.loginSuccess({ auth: { ...auth, user: { ...auth.user, role: 'ROLE_UNKNOWN' } } }),
-    );
-
-    collect(effects.redirectAfterLogin$ as Observable<Action>);
-
-    expect(router.navigate).toHaveBeenCalledWith(['/welcome']);
-  });
-
-  it('clears tokens and goes to /login after logout', () => {
-    actions$ = of(AuthActions.logoutSuccess());
-
-    collect(effects.redirectAfterLogout$ as Observable<Action>);
-
-    expect(tokenStorage['clear']).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });
 });

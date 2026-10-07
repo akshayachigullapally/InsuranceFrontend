@@ -29,21 +29,6 @@ export const selectNotificationsLoaded = createSelector(
   (state: NotificationsState) => state.loaded,
 );
 
-export const selectPollingActive = createSelector(
-  selectNotificationsState,
-  (state: NotificationsState) => state.polling,
-);
-
-export const selectLastLoadedAt = createSelector(
-  selectNotificationsState,
-  (state: NotificationsState) => state.lastLoadedAt,
-);
-
-export const selectLastSeenNotificationCreatedAt = createSelector(
-  selectNotificationsState,
-  (state: NotificationsState) => state.lastSeenNotificationCreatedAt,
-);
-
 export const selectNotificationsError = createSelector(
   selectNotificationsState,
   (state: NotificationsState) => state.error,
@@ -59,71 +44,9 @@ export const selectAuditEvents = createSelector(
   (state: NotificationsState) => state.auditEvents,
 );
 
-const selectFilters = createSelector(
-  selectNotificationsState,
-  (state: NotificationsState) => state.filters,
-);
-
-const selectPagination = createSelector(
-  selectNotificationsState,
-  (state: NotificationsState) => state.pagination,
-);
-
-export const selectUnreadNotifications = createSelector(
-  selectNotifications,
-  (notifications: NotificationResponse[]) => notifications.filter((n) => !n.read),
-);
-
-export const selectReadNotifications = createSelector(
-  selectNotifications,
-  (notifications: NotificationResponse[]) => notifications.filter((n) => n.read),
-);
-
 export const selectLatestNotifications = createSelector(
   selectNotifications,
   (notifications: NotificationResponse[]) => notifications.slice(0, 5),
-);
-
-export const selectFilteredNotifications = createSelector(
-  selectNotifications,
-  selectFilters,
-  (notifications: NotificationResponse[], filters) => {
-    let filtered = [...notifications];
-
-    if (filters.unreadOnly) {
-      filtered = filtered.filter((n) => !n.read);
-    }
-
-    if (filters.type) {
-      filtered = filtered.filter((n) => n.type === filters.type);
-    }
-
-    if (filters.status) {
-      filtered = filtered.filter((n) => n.deliveryStatus === filters.status);
-    }
-
-    if (filters.dateFrom) {
-      const from = new Date(filters.dateFrom).getTime();
-      filtered = filtered.filter((n) => new Date(n.createdAt).getTime() >= from);
-    }
-
-    if (filters.dateTo) {
-      const to = new Date(filters.dateTo).getTime();
-      filtered = filtered.filter((n) => new Date(n.createdAt).getTime() <= to);
-    }
-
-    return filtered;
-  },
-);
-
-export const selectPaginatedNotifications = createSelector(
-  selectFilteredNotifications,
-  selectPagination,
-  (notifications: NotificationResponse[], pagination) => {
-    const start = pagination.page * pagination.size;
-    const end = start + pagination.size;
-    return notifications.slice(start, end);
-  },
 );
 
 export const selectAdminNotifications = createSelector(

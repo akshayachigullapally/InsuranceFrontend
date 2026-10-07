@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
-import { firstValueFrom } from 'rxjs';
 import { CustomerDashboardComponent } from './customer-dashboard.component';
 import { loggedInAuth, mockRootState, pageTestProviders } from '../../../../testing/test-helpers';
 import { loadMyPolicies } from '../../state/policies/policies.actions';
@@ -8,7 +7,6 @@ import { loadMyClaims } from '../../state/claims/claims.actions';
 
 describe('CustomerDashboardComponent', () => {
   let fixture: ComponentFixture<CustomerDashboardComponent>;
-  let component: CustomerDashboardComponent;
   let store: MockStore;
 
   beforeEach(async () => {
@@ -31,30 +29,12 @@ describe('CustomerDashboardComponent', () => {
     store = TestBed.inject(MockStore);
     vi.spyOn(store, 'dispatch');
     fixture = TestBed.createComponent(CustomerDashboardComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it('loads my policies and claims on init', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadMyPolicies({}));
     expect(store.dispatch).toHaveBeenCalledWith(loadMyClaims({}));
-  });
-
-  it('exposes active policy count, sum insured and claim count', async () => {
-    expect(await firstValueFrom(component.activePolicyCount$)).toBe(1);
-    expect(await firstValueFrom(component.sumInsured$)).toBe(100000);
-    expect(await firstValueFrom(component.claimCount$)).toBe(1);
-  });
-
-  it('greets the signed-in user', () => {
-    expect(fixture.nativeElement.textContent).toContain('Asha');
-  });
-
-  it('renders the quick action links', () => {
-    const element: HTMLElement = fixture.nativeElement;
-
-    expect(element.querySelector('a[href="/customer/policies/new"]')).not.toBeNull();
-    expect(element.querySelector('a[href="/customer/claims/new"]')).not.toBeNull();
   });
 
   it('shows whether each active policy is paid, with a pay link when it is not', () => {

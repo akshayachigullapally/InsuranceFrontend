@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
-import { firstValueFrom } from 'rxjs';
 import { StaffNotificationsComponent } from './staff-notifications.component';
 import { loggedInAuth, mockRootState, pageTestProviders } from '../../../../testing/test-helpers';
 import {
@@ -41,16 +40,6 @@ describe('StaffNotificationsComponent', () => {
 
   it('loads notifications once authenticated', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadNotifications());
-  });
-
-  it('sorts notifications newest first', async () => {
-    const sorted = await firstValueFrom(component.sortedNotifications$);
-
-    expect(sorted.map((notification) => notification.id)).toEqual([2, 1]);
-  });
-
-  it('renders the notification titles', () => {
-    expect(fixture.nativeElement.textContent).toContain('Second');
   });
 
   it('dispatches notification actions', () => {

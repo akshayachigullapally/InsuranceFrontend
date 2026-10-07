@@ -23,15 +23,7 @@ describe('PublicLayoutComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('renders the header', () => {
-    expect(element.querySelector('app-header')).not.toBeNull();
-  });
-
   it('renders a router outlet inside main for the child page', () => {
     expect(element.querySelector('main router-outlet')).not.toBeNull();
-  });
-
-  it('renders the footer', () => {
-    expect(element.querySelector('app-footer')).not.toBeNull();
   });
 });

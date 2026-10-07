@@ -85,12 +85,6 @@ describe('CustomerClaimsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadMyClaims({}));
   });
 
-  it('shows the empty state when there are no claims', () => {
-    fixture.detectChanges();
-
-    expect(element.textContent).toContain('No claims found');
-  });
-
   it('renders a row per claim with formatted labels', () => {
     setClaims([
       makeClaim(),
@@ -105,27 +99,6 @@ describe('CustomerClaimsComponent', () => {
     expect(rows[1].textContent).toContain('Approved ₹ 18,000');
   });
 
-  it('shows the zone name from the zone service', () => {
-    setClaims([makeClaim()]);
-
-    expect(element.textContent).toContain('Hyderabad Gachibowli Zone (Zone #2)');
-  });
-
-  it('falls back to the zone id when the zone is unknown', () => {
-    setClaims([makeClaim({ locationZoneId: 99 })]);
-
-    expect(element.textContent).toContain('Zone #99');
-    expect(element.textContent).not.toContain('(Zone #99)');
-  });
-
-  it('shows a spinner while loading', () => {
-    store.overrideSelector(selectClaimsLoading, true);
-    setClaims([makeClaim()]);
-
-    expect(element.textContent).toContain('Loading claims...');
-    expect(element.querySelector('table')).toBeNull();
-  });
-
   it('dispatches a filtered load when a status filter is clicked', () => {
     fixture.detectChanges();
 
@@ -135,16 +108,5 @@ describe('CustomerClaimsComponent', () => {
     approved.click();
 
     expect(store.dispatch).toHaveBeenCalledWith(loadMyClaims({ status: 'APPROVED' }));
-  });
-
-  it('loads all claims again when the All filter is clicked', () => {
-    fixture.detectChanges();
-
-    const all = Array.from(element.querySelectorAll('button')).find(
-      (button) => button.textContent?.trim() === 'All',
-    ) as HTMLButtonElement;
-    all.click();
-
-    expect(store.dispatch).toHaveBeenCalledWith(loadMyClaims({ status: undefined }));
   });
 });

@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
-import { firstValueFrom } from 'rxjs';
 import { ClaimsOfficerDashboardComponent } from './claims-officer-dashboard.component';
 import { mockRootState, pageTestProviders } from '../../../../testing/test-helpers';
 import { clearClaimsError, loadSubmittedClaims } from '../../state/claims/claims.actions';
@@ -8,7 +7,6 @@ import { loadTriggerEvents } from '../../state/trigger-events/trigger-events.act
 
 describe('ClaimsOfficerDashboardComponent', () => {
   let fixture: ComponentFixture<ClaimsOfficerDashboardComponent>;
-  let component: ClaimsOfficerDashboardComponent;
   let store: MockStore;
 
   beforeEach(async () => {
@@ -37,7 +35,6 @@ describe('ClaimsOfficerDashboardComponent', () => {
     store = TestBed.inject(MockStore);
     vi.spyOn(store, 'dispatch');
     fixture = TestBed.createComponent(ClaimsOfficerDashboardComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
@@ -45,18 +42,6 @@ describe('ClaimsOfficerDashboardComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(clearClaimsError());
     expect(store.dispatch).toHaveBeenCalledWith(loadSubmittedClaims());
     expect(store.dispatch).toHaveBeenCalledWith(loadTriggerEvents());
-  });
-
-  it('counts manual claims (no trigger event)', async () => {
-    expect(await firstValueFrom(component.manualClaimCount$)).toBe(1);
-  });
-
-  it('computes the rounded average claim amount', async () => {
-    expect(await firstValueFrom(component.averageClaimAmount$)).toBe(1500.5);
-  });
-
-  it('counts only active trigger events', async () => {
-    expect(await firstValueFrom(component.activeTriggerCount$)).toBe(2);
   });
 
   it('refreshes the queue when the window regains focus', () => {

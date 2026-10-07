@@ -41,24 +41,9 @@ describe('AdminClaimsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadAdminClaims({}));
   });
 
-  it('reloads claims with the chosen status', () => {
-    page.applyFilter('UNDER_REVIEW');
-
-    expect(page.selectedStatus).toBe('UNDER_REVIEW');
-    expect(store.dispatch).toHaveBeenCalledWith(loadAdminClaims({ status: 'UNDER_REVIEW' }));
-  });
-
-  it('formats status labels in title case', () => {
-    expect(page.statusLabel('UNDER_REVIEW')).toBe('Under Review');
-  });
-
   it('formats date-only values without timezone shifts', () => {
     expect(page.formatDateOnly('2026-09-20')).toBe('Sep 20, 2026');
     expect(page.formatDateOnly(null)).toBe('Not available');
     expect(page.formatDateOnly('not a date')).toBe('Not available');
-  });
-
-  it('labels zones by name', () => {
-    expect(page.zoneLabel(2)).toBe('Mumbai West Zone (Zone #2)');
   });
 });

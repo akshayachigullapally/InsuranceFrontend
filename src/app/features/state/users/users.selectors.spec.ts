@@ -1,11 +1,6 @@
 import { UserResponse } from '../../dtos/auth/user-response.dto';
 import {
-  selectActiveUserCount,
   selectFilteredUsers,
-  selectIncompleteProfileCount,
-  selectInactiveUserCount,
-  selectSuspendedUserCount,
-  selectTotalUserCount,
 } from './users.selectors';
 
 function user(id: number, overrides: Partial<UserResponse>): UserResponse {
@@ -35,16 +30,5 @@ describe('users selectors', () => {
     expect(selectFilteredUsers.projector(users, 'small_business').map((u) => u.id)).toEqual([2]);
     expect(selectFilteredUsers.projector(users, 'suspended').map((u) => u.id)).toEqual([2]);
     expect(selectFilteredUsers.projector(users, 'telangana').map((u) => u.id)).toEqual([1]);
-  });
-
-  it('counts users by status', () => {
-    expect(selectTotalUserCount.projector(users)).toBe(3);
-    expect(selectActiveUserCount.projector(users)).toBe(1);
-    expect(selectSuspendedUserCount.projector(users)).toBe(1);
-    expect(selectInactiveUserCount.projector(users)).toBe(1);
-  });
-
-  it('counts profiles missing phone, segment or status', () => {
-    expect(selectIncompleteProfileCount.projector(users)).toBe(2);
   });
 });

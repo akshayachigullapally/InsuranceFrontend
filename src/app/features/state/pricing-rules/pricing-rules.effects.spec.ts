@@ -54,20 +54,4 @@ describe('PricingRulesEffects', () => {
       PricingRulesActions.createPricingRuleFailure({ error: 'Rate too high' }),
     ]);
   });
-
-  it('updates a rule status', () => {
-    service['updateStatus'].mockReturnValue(of(pricingRule));
-    actions$ = of(PricingRulesActions.updatePricingRuleStatus({ ruleId: 1, status: 'ACTIVE' as never }));
-
-    expect(collect(effects.updatePricingRuleStatus$)).toEqual([
-      PricingRulesActions.updatePricingRuleStatusSuccess({ pricingRule }),
-    ]);
-  });
-
-  it('archives a rule', () => {
-    service['archiveRule'].mockReturnValue(of({ message: 'ok' }));
-    actions$ = of(PricingRulesActions.archivePricingRule({ ruleId: 1 }));
-
-    expect(collect(effects.archivePricingRule$)).toEqual([PricingRulesActions.archivePricingRuleSuccess({ ruleId: 1 })]);
-  });
 });

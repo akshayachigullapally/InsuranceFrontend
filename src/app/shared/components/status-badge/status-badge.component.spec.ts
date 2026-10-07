@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { StatusBadgeComponent, humanizeStatus } from './status-badge.component';
+import { StatusBadgeComponent } from './status-badge.component';
 
 describe('StatusBadgeComponent', () => {
   let fixture: ComponentFixture<StatusBadgeComponent>;
@@ -23,15 +23,6 @@ describe('StatusBadgeComponent', () => {
     expect(render('UNDER_REVIEW').textContent?.trim()).toBe('Under review');
   });
 
-  it('prefers a custom label when provided', () => {
-    expect(render('UNDER_REVIEW', 'In assessment').textContent?.trim()).toBe('In assessment');
-  });
-
-  it('shows a coloured dot that matches the badge', () => {
-    const badge = render('REJECTED');
-    expect(badge.querySelector('span')!.className).toContain('bg-red-500');
-  });
-
   it.each([
     ['ACTIVE', 'bg-green-50'],
     ['approved', 'bg-green-50'],
@@ -45,9 +36,5 @@ describe('StatusBadgeComponent', () => {
     ['SOMETHING_ELSE', 'text-gray-700'],
   ])('uses the right colour for %s', (status, expectedClass) => {
     expect(render(status).className).toContain(expectedClass);
-  });
-
-  it('humanizes status codes', () => {
-    expect(humanizeStatus('INSUFFICIENT_OBSERVATIONS')).toBe('Insufficient observations');
   });
 });

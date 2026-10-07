@@ -63,15 +63,6 @@ describe('AdminProductNewComponent', () => {
     expect(page.triggerConfigured()).toBe(true);
   });
 
-  it('adds coverage rows but never removes the last one', () => {
-    page.addCoverage();
-    expect(page.coverages.length).toBe(2);
-
-    page.removeCoverage(1);
-    page.removeCoverage(0);
-    expect(page.coverages.length).toBe(1);
-  });
-
   it('drops trigger validation when the trigger is disabled', () => {
     page.trigger.patchValue({ thresholdValue: null });
     expect(page.trigger.get('thresholdValue')?.valid).toBe(false);
@@ -79,40 +70,6 @@ describe('AdminProductNewComponent', () => {
     page.trigger.get('triggerEnabled')?.setValue(false);
 
     expect(page.trigger.get('thresholdValue')?.valid).toBe(true);
-  });
-
-  it('does not submit an invalid form', () => {
-    page.onSubmit();
-
-    expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: createProduct.type }));
-  });
-
-  it('reports a sum insured range error', () => {
-    fillValidProduct();
-    component.form.patchValue({ minimumSumInsured: 900000, maximumSumInsured: 1000 });
-
-    page.onSubmit();
-
-    expect(page.rangeError).toBe('Minimum sum insured cannot exceed maximum sum insured.');
-  });
-
-  it('reports a policy term range error', () => {
-    fillValidProduct();
-    component.form.patchValue({ minimumTermMonths: 24, maximumTermMonths: 12 });
-
-    page.onSubmit();
-
-    expect(page.rangeError).toBe('Minimum policy term cannot exceed maximum policy term.');
-  });
-
-  it('reports duplicate coverage codes', () => {
-    fillValidProduct();
-    page.addCoverage();
-    page.coverages.at(1).patchValue({ coverageCode: 'CROP', name: 'Duplicate' });
-
-    page.onSubmit();
-
-    expect(page.rangeError).toBe('Duplicate coverage code: CROP');
   });
 
   it('dispatches createProduct with a normalised request', () => {

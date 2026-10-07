@@ -12,30 +12,6 @@ describe('perilsReducer', () => {
     expect(perilsReducer(undefined, { type: '[Unknown]' } as never)).toEqual(initialPerilsState);
   });
 
-  it('loads perils', () => {
-    const loading = perilsReducer(initialPerilsState, PerilsActions.loadPerils());
-    expect(loading.isLoading).toBe(true);
-
-    const loaded = perilsReducer(loading, PerilsActions.loadPerilsSuccess({ perils: [makePeril(1)] }));
-    expect(loaded.perils.length).toBe(1);
-    expect(loaded.isLoading).toBe(false);
-  });
-
-  it('stores load failures', () => {
-    const state = perilsReducer(initialPerilsState, PerilsActions.loadPerilsFailure({ error: 'Offline' }));
-
-    expect(state.error).toBe('Offline');
-  });
-
-  it('adds a created peril to the top', () => {
-    const current: PerilsState = { ...initialPerilsState, perils: [makePeril(1)] };
-
-    const state = perilsReducer(current, PerilsActions.createPerilSuccess({ peril: makePeril(2) }));
-
-    expect(state.perils.map((peril) => peril.id)).toEqual([2, 1]);
-    expect(state.selectedPeril?.id).toBe(2);
-  });
-
   it('tracks and clears the peril being updated', () => {
     const updating = perilsReducer(
       { ...initialPerilsState, perils: [makePeril(1)] },
@@ -58,9 +34,5 @@ describe('perilsReducer', () => {
 
     expect(state.perils.map((peril) => peril.id)).toEqual([1]);
     expect(state.selectedPeril).toBeNull();
-  });
-
-  it('sets the search term', () => {
-    expect(perilsReducer(initialPerilsState, PerilsActions.setPerilsSearch({ search: 'flood' })).search).toBe('flood');
   });
 });

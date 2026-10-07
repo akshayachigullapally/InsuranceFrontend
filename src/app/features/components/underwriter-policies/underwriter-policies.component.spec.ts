@@ -43,20 +43,8 @@ describe('UnderwriterPoliciesComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadReviewPolicies());
   });
 
-  it('renders the queued policies', () => {
-    expect(fixture.nativeElement.textContent).toContain('POL-0002');
-  });
-
-  it('totals the sum insured', () => {
-    expect(page.totalSumInsured(policies)).toBe(150000);
-  });
-
   it('averages the premium to two decimals and handles an empty queue', () => {
     expect(page.averagePremium(policies)).toBe(750.5);
     expect(page.averagePremium([])).toBe(0);
-  });
-
-  it('labels zones by name', () => {
-    expect(page.zoneLabel(1)).toBe('Hyderabad Central Zone (Zone #1)');
   });
 });

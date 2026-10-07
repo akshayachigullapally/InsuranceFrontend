@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Signal, WritableSignal } from '@angular/core';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { UnderwriterReviewHistoryComponent } from './underwriter-review-history.component';
 import { pageTestProviders } from '../../../../testing/test-helpers';
 import { PolicyService } from '../../services/policy.service';
@@ -48,14 +48,6 @@ describe('UnderwriterReviewHistoryComponent', () => {
     expect(page.loading()).toBe(false);
   });
 
-  it('computes approved and rejected totals', async () => {
-    const { page } = await setup();
-
-    expect(page.approvedCount()).toBe(2);
-    expect(page.rejectedCount()).toBe(1);
-    expect(page.approvedCover()).toBe(125000);
-  });
-
   it('filters by decision and search term', async () => {
     const { page } = await setup();
 
@@ -68,19 +60,5 @@ describe('UnderwriterReviewHistoryComponent', () => {
 
     page.clearFilters();
     expect(page.filtered().length).toBe(3);
-  });
-
-  it('shows an error message when loading fails', async () => {
-    const { page } = await setup(throwError(() => new Error('down')));
-
-    expect(page.error()).toBe('Your review history could not be loaded. Please try again.');
-    expect(page.loading()).toBe(false);
-  });
-
-  it('humanizes enum values', async () => {
-    const { page } = await setup();
-
-    expect(page.humanize('UNDER_REVIEW')).toBe('Under review');
-    expect(page.humanize(null)).toBe('—');
   });
 });

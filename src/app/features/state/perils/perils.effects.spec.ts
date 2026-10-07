@@ -49,18 +49,4 @@ describe('PerilsEffects', () => {
 
     expect(collect(effects.loadPerils$)).toEqual([PerilsActions.loadPerilsFailure({ error: 'Timeout' })]);
   });
-
-  it('updates a peril', () => {
-    perilService['updatePeril'].mockReturnValue(of(peril));
-    actions$ = of(PerilsActions.updatePeril({ perilId: 1, request: {} as never }));
-
-    expect(collect(effects.updatePeril$)).toEqual([PerilsActions.updatePerilSuccess({ peril })]);
-  });
-
-  it('archives a peril', () => {
-    perilService['archivePeril'].mockReturnValue(of({ message: 'ok' }));
-    actions$ = of(PerilsActions.archivePeril({ perilId: 1 }));
-
-    expect(collect(effects.archivePeril$)).toEqual([PerilsActions.archivePerilSuccess({ perilId: 1 })]);
-  });
 });

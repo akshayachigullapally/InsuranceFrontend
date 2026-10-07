@@ -47,22 +47,3 @@ export const selectSubmittedReviewCount = createSelector(
 export const selectSubmittedClaimedAmount = createSelector(selectSubmittedClaims, (claims) =>
   claims.reduce((sum, claim) => sum + claim.claimedAmount, 0),
 );
-
-export const selectAdminSubmittedClaimCount = createSelector(
-  selectAdminClaims,
-  (claims) => claims.filter((claim) => claim.status === 'SUBMITTED').length,
-);
-
-export const selectAdminUnderReviewClaimCount = createSelector(
-  selectAdminClaims,
-  (claims) => claims.filter((claim) => claim.status === 'UNDER_REVIEW').length,
-);
-
-export const selectAdminApprovedClaimCount = createSelector(
-  selectAdminClaims,
-  (claims) => claims.filter((claim) => claim.status === 'APPROVED').length,
-);
-
-export const selectAdminApprovedAmount = createSelector(selectAdminClaims, (claims) =>
-  claims.reduce((sum, claim) => sum + (claim.approvedAmount ?? 0), 0),
-);

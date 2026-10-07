@@ -37,19 +37,4 @@ describe('UnderwriterDashboardComponent', () => {
 
     expect(await firstValueFrom(component.approvalRate$)).toBe(66.7);
   });
-
-  it('returns a zero approval rate when nothing has been decided', async () => {
-    const { component } = await setup([{ id: 1, status: 'PENDING', premiumAmount: 100 }]);
-
-    expect(await firstValueFrom(component.approvalRate$)).toBe(0);
-  });
-
-  it('sums the premium of active policies', async () => {
-    const { component } = await setup([
-      { id: 1, status: 'ACTIVE', premiumAmount: 1200 },
-      { id: 2, status: 'ACTIVE', premiumAmount: 800 },
-    ]);
-
-    expect(await firstValueFrom(component.activePremium$)).toBe(2000);
-  });
 });

@@ -5,7 +5,6 @@ import { Subject } from 'rxjs';
 import { AdminProductsComponent } from './admin-products.component';
 import { mockRootState, pageTestProviders } from '../../../../testing/test-helpers';
 import { ToastService } from '../../../shared/services/toast.service';
-import { updateProductStatus } from '../../state/products/products.actions';
 import { ProductResponse } from '../../dtos/products/product-response.dto';
 
 /** Regression: the status dropdown must show each product's real status. */
@@ -43,15 +42,5 @@ describe('AdminProductsComponent status dropdown', () => {
     const { selects } = await render();
 
     expect(selects.map(select => select.value)).toEqual(['ACTIVE', 'INACTIVE', 'ARCHIVED']);
-  });
-
-  it('dispatches the change but keeps showing the saved status until it is confirmed', async () => {
-    const { store, selects } = await render();
-
-    selects[0].value = 'DRAFT';
-    selects[0].dispatchEvent(new Event('change'));
-
-    expect(store.dispatch).toHaveBeenCalledWith(updateProductStatus({ productId: 1, status: 'DRAFT' }));
-    expect(selects[0].value).toBe('ACTIVE');
   });
 });

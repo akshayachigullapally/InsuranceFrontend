@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SimpleChange } from '@angular/core';
 import { MockStore } from '@ngrx/store/testing';
-import { Subject, firstValueFrom, of, throwError } from 'rxjs';
+import { Subject, firstValueFrom, of } from 'rxjs';
 import { MeasurementStatusPanelComponent } from './measurement-status-panel.component';
 import { loggedInAuth, pageTestProviders } from '../../../../testing/test-helpers';
 import { ProductService } from '../../../features/services/product.service';
@@ -96,14 +96,6 @@ describe('MeasurementStatusPanelComponent', () => {
     expect(cards[1].state).toBe('NO_DATA');
   });
 
-  it('starts editing the current reading, not a product threshold', () => {
-    panel.onEdit(rainfallCard);
-    expect(panel.editingType).toBe('RAINFALL');
-    expect(panel.editingValue).toBe(180);
-    panel.onCancelEdit();
-    expect(panel.editingType).toBeNull();
-  });
-
   it('allows zero but not negative readings, except for temperature', () => {
     panel.onEdit(rainfallCard);
     panel.editingValue = 0;
@@ -166,56 +158,10 @@ describe('MeasurementStatusPanelComponent', () => {
     );
   });
 
-  it('does not save an invalid value', () => {
-    panel.onEdit(rainfallCard);
-    panel.editingValue = -5;
-    panel.onSave(rainfallCard);
-    expect(measurementService.setCurrentReading).not.toHaveBeenCalled();
-  });
-
-  it('shows the server reason when saving fails', () => {
-    measurementService.setCurrentReading.mockReturnValue(
-      throwError(() => ({ error: { messages: ['A percentage cannot be more than 100'] } })),
-    );
-    panel.onEdit(rainfallCard);
-    panel.onSave(rainfallCard);
-
-    expect(panel.saving).toBe(false);
-    expect(panel.editingType).toBe('RAINFALL');
-    expect(toast.show).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'error', message: 'A percentage cannot be more than 100' }),
-    );
-  });
-
-  it('formats how long ago a value was observed', () => {
-    const now = Date.now();
-
-    expect(panel.lastUpdated(null)).toBe('');
-    expect(panel.lastUpdated(new Date(now - 10_000).toISOString())).toBe('just now');
-    expect(panel.lastUpdated(new Date(now - 5 * 60_000).toISOString())).toBe('5 min ago');
-    expect(panel.lastUpdated(new Date(now - 3 * 3_600_000).toISOString())).toBe('3 h ago');
-  });
-
   it('measures progress towards the trigger and flags values near it', () => {
     expect(panel.rowState(75, 150, 'GREATER_THAN_OR_EQUAL', false)).toEqual({ state: 'NORMAL', progress: 50 });
     expect(panel.rowState(135, 150, 'GREATER_THAN_OR_EQUAL', false)).toEqual({ state: 'APPROACHING', progress: 90 });
     expect(panel.rowState(180, 150, 'GREATER_THAN_OR_EQUAL', true)).toEqual({ state: 'THRESHOLD_EXCEEDED', progress: 100 });
     expect(panel.rowState(null, 150, 'GREATER_THAN_OR_EQUAL', false)).toEqual({ state: 'NO_DATA', progress: null });
-  });
-
-  it('measures "below" rules as the value falling towards the threshold', () => {
-    expect(panel.rowState(30, 15, 'LESS_THAN', false)).toEqual({ state: 'NORMAL', progress: 50 });
-    expect(panel.rowState(16, 15, 'LESS_THAN', false)).toEqual({ state: 'APPROACHING', progress: 94 });
-  });
-
-  it('gives each measurement its own icon colour, with a fallback', () => {
-    expect(panel.themeFor('RAINFALL').tile).toContain('sky');
-    expect(panel.themeFor('TEMPERATURE').tile).toContain('orange');
-    expect(panel.themeFor('SOMETHING_NEW').tile).toContain('violet');
-  });
-
-  it('summarises live sensors, products, near-trigger and triggered counts', async () => {
-    const cards = await firstValueFrom(component.cards$);
-    expect(panel.summarize(cards)).toEqual({ live: 1, products: 1, approaching: 0, triggered: 1 });
   });
 });

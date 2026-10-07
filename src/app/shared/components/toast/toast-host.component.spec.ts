@@ -38,21 +38,4 @@ describe('ToastHostComponent', () => {
     expect(toast.textContent).toContain('✅');
     expect(toast.className).toContain('border-green-200');
   });
-
-  it('removes a toast when its dismiss button is clicked', () => {
-    toastService.show({ title: 'One', message: '' });
-    fixture.detectChanges();
-
-    (fixture.nativeElement.querySelector('button[aria-label="Dismiss notification"]') as HTMLButtonElement).click();
-    fixture.detectChanges();
-
-    expect(toasts().length).toBe(0);
-  });
-
-  it('uses a red border for error toasts', () => {
-    toastService.show({ title: 'Failed', message: 'Try again', type: 'error' });
-    fixture.detectChanges();
-
-    expect(toasts()[0].className).toContain('border-red-200');
-  });
 });

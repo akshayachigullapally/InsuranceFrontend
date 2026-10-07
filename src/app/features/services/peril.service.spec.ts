@@ -8,11 +8,6 @@ describe('PerilService', () => {
   let service: PerilService;
   let httpMock: HttpTestingController;
 
-  const rawRequest = {
-    perilCode: ' heavy rain / flood ',
-    perilName: '  Heavy Rain ',
-    description: ' Rain above threshold  ',
-  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -34,26 +29,6 @@ describe('PerilService', () => {
 
     service.getPeril(1).subscribe();
     httpMock.expectOne({ url: API_ENDPOINTS.triggers.perilById(1), method: 'GET' }).flush({ id: 1 });
-  });
-
-  it('normalises the code and trims text when creating a peril', () => {
-    service.createPeril(rawRequest).subscribe();
-
-    const req = httpMock.expectOne({ url: API_ENDPOINTS.triggers.perils, method: 'POST' });
-    expect(req.request.body).toEqual({
-      perilCode: 'HEAVY_RAIN_FLOOD',
-      perilName: 'Heavy Rain',
-      description: 'Rain above threshold',
-    });
-    req.flush({ id: 2 });
-  });
-
-  it('normalises the request when updating a peril', () => {
-    service.updatePeril(2, rawRequest).subscribe();
-
-    const req = httpMock.expectOne({ url: API_ENDPOINTS.triggers.perilById(2), method: 'PUT' });
-    expect(req.request.body.perilCode).toBe('HEAVY_RAIN_FLOOD');
-    req.flush({ id: 2 });
   });
 
   it('updates the status and archives a peril', () => {

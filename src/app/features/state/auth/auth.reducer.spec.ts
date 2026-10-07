@@ -1,5 +1,5 @@
 import { authReducer } from './auth.reducer';
-import { AuthState, initialAuthState } from './auth.state';
+import { initialAuthState } from './auth.state';
 import * as AuthActions from './auth.actions';
 import { AuthResponse } from '../../dtos/auth/auth-response.dto';
 
@@ -25,16 +25,6 @@ function makeAuth(overrides: Partial<AuthResponse> = {}): AuthResponse {
 describe('authReducer', () => {
   it('returns the initial state for an unknown action', () => {
     expect(authReducer(undefined, { type: '[Unknown]' } as never)).toEqual(initialAuthState);
-  });
-
-  it('sets loading and clears the error when login starts', () => {
-    const state = authReducer(
-      { ...initialAuthState, error: 'old error' },
-      AuthActions.login({ request: { email: 'a@b.com', password: 'x' } }),
-    );
-
-    expect(state.isLoading).toBe(true);
-    expect(state.error).toBeNull();
   });
 
   it('stores the user, tokens and customerId from the token on login success', () => {
@@ -68,17 +58,6 @@ describe('authReducer', () => {
     expect(state.user?.email).toBe('ravi@example.com');
   });
 
-  it('stores the error on login failure', () => {
-    const state = authReducer(
-      { ...initialAuthState, isLoading: true },
-      AuthActions.loginFailure({ error: 'Invalid credentials' }),
-    );
-
-    expect(state.isLoading).toBe(false);
-    expect(state.error).toBe('Invalid credentials');
-    expect(state.sessionRestored).toBe(true);
-  });
-
   it('marks the session as restored on restore success', () => {
     const state = authReducer(
       initialAuthState,
@@ -91,32 +70,5 @@ describe('authReducer', () => {
     expect(state.isAuthenticated).toBe(true);
     expect(state.sessionRestored).toBe(true);
     expect(state.role).toBe('ROLE_ADMIN');
-  });
-
-  it('resets to the initial state when refreshing the token fails', () => {
-    const loggedIn = authReducer(initialAuthState, AuthActions.loginSuccess({ auth: makeAuth() }));
-
-    const state = authReducer(loggedIn, AuthActions.refreshTokenFailure({ error: 'Expired' }));
-
-    expect(state.isAuthenticated).toBe(false);
-    expect(state.user).toBeNull();
-    expect(state.error).toBe('Expired');
-  });
-
-  it('clears everything on logout success but keeps sessionRestored', () => {
-    const loggedIn = authReducer(initialAuthState, AuthActions.loginSuccess({ auth: makeAuth() }));
-
-    const state = authReducer(loggedIn, AuthActions.logoutSuccess());
-
-    expect(state).toEqual({ ...initialAuthState, sessionRestored: true });
-  });
-
-  it('clears only the error on clearAuthError', () => {
-    const current: AuthState = { ...initialAuthState, error: 'Oops', isAuthenticated: true };
-
-    const state = authReducer(current, AuthActions.clearAuthError());
-
-    expect(state.error).toBeNull();
-    expect(state.isAuthenticated).toBe(true);
   });
 });

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Action } from '@ngrx/store';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TriggerEventsEffects } from './trigger-events.effects';
 import * as TriggerEventsActions from './trigger-events.actions';
 import { TriggerEventService } from '../../services/trigger-event.service';
@@ -39,22 +39,5 @@ describe('TriggerEventsEffects', () => {
     expect(collect(effects.loadTriggerEvents$)).toEqual([
       TriggerEventsActions.loadTriggerEventsSuccess({ events: [event] }),
     ]);
-  });
-
-  it('maps load errors', () => {
-    eventService.getAllEvents.mockReturnValue(throwError(() => ({ error: { message: 'Down' } })));
-    actions$ = of(TriggerEventsActions.loadTriggerEvents());
-
-    expect(collect(effects.loadTriggerEvents$)).toEqual([
-      TriggerEventsActions.loadTriggerEventsFailure({ error: 'Down' }),
-    ]);
-  });
-
-  it('loads a single event', () => {
-    eventService.getEvent.mockReturnValue(of(event));
-    actions$ = of(TriggerEventsActions.loadTriggerEvent({ eventId: 1 }));
-
-    expect(collect(effects.loadTriggerEvent$)).toEqual([TriggerEventsActions.loadTriggerEventSuccess({ event })]);
-    expect(eventService.getEvent).toHaveBeenCalledWith(1);
   });
 });

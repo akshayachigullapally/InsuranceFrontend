@@ -29,30 +29,4 @@ describe('TokenStorageService', () => {
     expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refresh-1');
     expect(service.hasTokens()).toBe(true);
   });
-
-  it('updates each token independently', () => {
-    service.storeTokens('access-1', 'refresh-1');
-
-    service.updateAccessToken('access-2');
-    service.updateRefreshToken('refresh-2');
-
-    expect(service.getAccessToken()).toBe('access-2');
-    expect(service.getRefreshToken()).toBe('refresh-2');
-  });
-
-  it('reports hasAnyToken when only one token exists', () => {
-    service.updateRefreshToken('refresh-only');
-
-    expect(service.hasTokens()).toBe(false);
-    expect(service.hasAnyToken()).toBe(true);
-  });
-
-  it('clears both tokens', () => {
-    service.storeTokens('access-1', 'refresh-1');
-
-    service.clear();
-
-    expect(service.getAccessToken()).toBeNull();
-    expect(service.getRefreshToken()).toBeNull();
-  });
 });

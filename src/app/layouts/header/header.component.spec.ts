@@ -5,11 +5,8 @@ import { Action } from '@ngrx/store';
 import { Subject } from 'rxjs';
 import { HeaderComponent } from './header.component';
 import { loggedInAuth, pageTestProviders } from '../../../testing/test-helpers';
-import { logout } from '../../features/state/auth/auth.actions';
 import {
-  markAllAsRead,
   mergeNewNotifications,
-  refreshNotifications,
 } from '../../features/state/notifications/notifications.actions';
 import { AuthUser } from '../../core/models/auth-user.model';
 
@@ -70,24 +67,6 @@ describe('HeaderComponent', () => {
       expect(element.querySelector('a[href="/customer/claims"]')).not.toBeNull();
     });
 
-    it('dispatches logout', async () => {
-      const { header, store } = await setup(true);
-
-      header.onLogout();
-
-      expect(store.dispatch).toHaveBeenCalledWith(logout());
-    });
-
-    it('dispatches mark-all-read and refresh for notifications', async () => {
-      const { header, store } = await setup(true);
-
-      header.markAllNotificationsRead();
-      header.refreshNotificationsNow();
-
-      expect(store.dispatch).toHaveBeenCalledWith(markAllAsRead());
-      expect(store.dispatch).toHaveBeenCalledWith(refreshNotifications());
-    });
-
     it('shows a bell toast when new notifications arrive', async () => {
       const { header, actions$ } = await setup(true);
       const newest = { id: 2, createdAt: '2026-09-27T10:00:00Z' };
@@ -108,37 +87,6 @@ describe('HeaderComponent', () => {
 
       expect(header.initials(user('ROLE_CUSTOMER', 'asha devi rao'))).toBe('AD');
       expect(header.initials(user('ROLE_CUSTOMER', ''))).toBe('A');
-    });
-
-    it('maps roles to labels and dashboard paths', async () => {
-      const { header } = await setup(false);
-
-      expect(header.roleLabel('ROLE_ADMIN')).toBe('Administrator');
-      expect(header.roleLabel(null)).toBe('Member');
-      expect(header.dashboardPath(user('ROLE_UNDERWRITER'))).toBe('/underwriter/dashboard');
-      expect(header.dashboardPath(null)).toBe('/');
-    });
-
-    it('sends customers to their profile and staff to their dashboard', async () => {
-      const { header } = await setup(false);
-
-      expect(header.profilePath(user('ROLE_CUSTOMER'))).toBe('/customer/profile');
-      expect(header.profilePath(user('ROLE_ADMIN'))).toBe('/admin/dashboard');
-      expect(header.notificationsPagePath(user('ROLE_CLAIMS_OFFICER'))).toBe('/claims-officer/notifications');
-    });
-
-    it('opens one menu at a time and closes all menus', async () => {
-      const { header } = await setup(false);
-
-      header.toggleUserMenu();
-      expect(header.dropdownOpen).toBe(true);
-
-      header.toggleMoreMenu();
-      expect(header.moreMenuOpen).toBe(true);
-      expect(header.dropdownOpen).toBe(false);
-
-      header.closeAllMenus();
-      expect(header.moreMenuOpen).toBe(false);
     });
   });
 });

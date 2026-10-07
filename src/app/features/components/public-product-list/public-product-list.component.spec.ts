@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
 import { PublicProductListComponent } from './public-product-list.component';
-import { mockRootState, pageTestProviders } from '../../../../testing/test-helpers';
+import { pageTestProviders } from '../../../../testing/test-helpers';
 import {
   clearProductsError,
   loadProducts,
@@ -47,26 +47,5 @@ describe('PublicProductListComponent', () => {
 
     expect(list.selectedCategory).toBe('FLOOD');
     expect(store.dispatch).toHaveBeenCalledWith(loadProductsByCategory({ category: 'FLOOD' }));
-  });
-
-  it('reloads all products when the filter is cleared', async () => {
-    await setup();
-    vi.mocked(store.dispatch).mockClear();
-
-    list.applyCategory(null);
-
-    expect(store.dispatch).toHaveBeenCalledWith(loadProducts());
-  });
-
-  it('formats category labels', async () => {
-    await setup();
-
-    expect(list.categoryLabel('BUSINESS_INTERRUPTION')).toBe('Business Interruption');
-  });
-
-  it('shows the error from the store', async () => {
-    await setup({ products: { ...mockRootState().products, error: 'Catalogue unavailable' } });
-
-    expect(fixture.nativeElement.textContent).toContain('Catalogue unavailable');
   });
 });

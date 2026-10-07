@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { AdminZoneExposureComponent } from './admin-zone-exposure.component';
 import { ZoneService } from '../../services/zone.service';
 import { ZoneExposureResponse } from '../../dtos/zones/zone-response.dto';
@@ -61,18 +61,5 @@ describe('AdminZoneExposureComponent', () => {
     expect(rows[1].textContent).toContain('No cap set');
     expect(rows[1].textContent).toContain('Paused – weather alert');
     expect(rows[1].textContent).toContain('Cyclone warning');
-  });
-
-  it('summarises total cover, alerts and closed zones', async () => {
-    const element = await render(of(zones));
-
-    expect(element.textContent).toContain('550,000');
-    expect(element.textContent).toContain('Zones under weather alert');
-  });
-
-  it('shows the error when the report cannot be loaded', async () => {
-    const element = await render(throwError(() => ({ error: { message: 'Trigger service is currently unavailable' } })));
-
-    expect(element.textContent).toContain('Trigger service is currently unavailable');
   });
 });

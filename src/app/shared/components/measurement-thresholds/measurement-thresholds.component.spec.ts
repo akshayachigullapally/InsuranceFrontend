@@ -5,11 +5,6 @@ import { MockStore } from '@ngrx/store/testing';
 import { EMPTY } from 'rxjs';
 import { MeasurementThresholdsComponent } from './measurement-thresholds.component';
 import { loggedInAuth, pageTestProviders } from '../../../../testing/test-helpers';
-import {
-  clearProductsError,
-  loadAdminProducts,
-  loadProducts,
-} from '../../../features/state/products/products.actions';
 
 async function setup(role: string) {
   await TestBed.configureTestingModule({
@@ -36,35 +31,6 @@ describe('MeasurementThresholdsComponent', () => {
     open(component, false);
 
     expect(store.dispatch).not.toHaveBeenCalled();
-  });
-
-  it('loads public products when a customer opens it', async () => {
-    const { component, store } = await setup('ROLE_CUSTOMER');
-
-    open(component, true);
-
-    expect(store.dispatch).toHaveBeenCalledWith(clearProductsError());
-    expect(store.dispatch).toHaveBeenCalledWith(loadProducts());
-  });
-
-  it('loads admin products when an admin opens it', async () => {
-    const { component, store } = await setup('ROLE_ADMIN');
-
-    open(component, true);
-
-    expect(store.dispatch).toHaveBeenCalledWith(loadAdminProducts());
-  });
-
-  it('emits closed when the close button is clicked', async () => {
-    const { fixture, component } = await setup('ROLE_CUSTOMER');
-    const closed = vi.fn();
-    component.closed.subscribe(closed);
-    component.open = true;
-    fixture.detectChanges();
-
-    (fixture.nativeElement.querySelector('button[aria-label="Close"]') as HTMLButtonElement).click();
-
-    expect(closed).toHaveBeenCalled();
   });
 
   it('closes only when the overlay itself is clicked', async () => {

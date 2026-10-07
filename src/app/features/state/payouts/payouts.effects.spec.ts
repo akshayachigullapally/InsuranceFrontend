@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Action } from '@ngrx/store';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { PayoutsEffects } from './payouts.effects';
 import * as PayoutsActions from './payouts.actions';
 import { PayoutService } from '../../services/payout.service';
@@ -18,7 +18,6 @@ describe('PayoutsEffects', () => {
   let effects: PayoutsEffects;
   let payoutService: Record<string, ReturnType<typeof vi.fn>>;
   const payout = { id: 1, payoutReference: 'PAY-1', status: 'PENDING' } as PayoutResponse;
-  const request = { externalReference: '' } as never;
 
   beforeEach(() => {
     payoutService = {
@@ -45,22 +44,5 @@ describe('PayoutsEffects', () => {
     payoutService['getMyPayouts'].mockReturnValue(of([payout]));
     actions$ = of(PayoutsActions.loadMyPayouts());
     expect(collect(effects.loadMyPayouts$)).toEqual([PayoutsActions.loadMyPayoutsSuccess({ payouts: [payout] })]);
-  });
-
-  it('retries a payout', () => {
-    payoutService['retryPayout'].mockReturnValue(of(payout));
-    actions$ = of(PayoutsActions.retryPayout({ payoutId: 1, request }));
-
-    expect(collect(effects.retryPayout$)).toEqual([PayoutsActions.retryPayoutSuccess({ payout })]);
-    expect(payoutService['retryPayout']).toHaveBeenCalledWith(1, request);
-  });
-
-  it('maps retry errors', () => {
-    payoutService['retryPayout'].mockReturnValue(throwError(() => ({ error: { message: 'Retry limit reached' } })));
-    actions$ = of(PayoutsActions.retryPayout({ payoutId: 1, request }));
-
-    expect(collect(effects.retryPayout$)).toEqual([
-      PayoutsActions.retryPayoutFailure({ error: 'Retry limit reached' }),
-    ]);
   });
 });

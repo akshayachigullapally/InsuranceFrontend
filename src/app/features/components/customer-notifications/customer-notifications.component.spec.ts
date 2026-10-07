@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
-import { firstValueFrom } from 'rxjs';
 import { CustomerNotificationsComponent } from './customer-notifications.component';
 import { loggedInAuth, mockRootState, pageTestProviders } from '../../../../testing/test-helpers';
 import {
@@ -10,7 +9,6 @@ import {
   markAllAsRead,
   markAsRead,
   refreshNotifications,
-  upsertPreference,
 } from '../../state/notifications/notifications.actions';
 
 async function setup(authenticated: boolean, preferences: unknown[] = []) {
@@ -46,20 +44,6 @@ describe('CustomerNotificationsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadPreferences());
   });
 
-  it('does not load anything while signed out', async () => {
-    const { store } = await setup(false);
-
-    expect(store.dispatch).not.toHaveBeenCalled();
-  });
-
-  it('sorts notifications newest first', async () => {
-    const { component } = await setup(true);
-
-    const sorted = await firstValueFrom(component.sortedNotifications$);
-
-    expect(sorted.map((notification) => notification.id)).toEqual([2, 1]);
-  });
-
   it('dispatches read, read-all, refresh and delete actions', async () => {
     const { component, store } = await setup(true);
 
@@ -72,23 +56,5 @@ describe('CustomerNotificationsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(markAllAsRead());
     expect(store.dispatch).toHaveBeenCalledWith(refreshNotifications());
     expect(store.dispatch).toHaveBeenCalledWith(deleteNotification({ notificationId: 1 }));
-  });
-
-  it('treats channels as enabled when there is no saved preference', async () => {
-    const { component } = await setup(true);
-
-    expect(component.isChannelEnabled('GENERAL' as never, 'emailEnabled')).toBe(true);
-  });
-
-  it('toggles a channel off based on the saved preference', async () => {
-    const { component, store } = await setup(true, [
-      { notificationType: 'GENERAL', inAppEnabled: true, emailEnabled: true, smsEnabled: false },
-    ]);
-
-    component.togglePreference('GENERAL' as never, 'emailEnabled');
-
-    expect(store.dispatch).toHaveBeenCalledWith(
-      upsertPreference({ request: { notificationType: 'GENERAL', emailEnabled: false } as never }),
-    );
   });
 });

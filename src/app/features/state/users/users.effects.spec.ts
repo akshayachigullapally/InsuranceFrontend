@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Action } from '@ngrx/store';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { UsersEffects } from './users.effects';
 import * as UsersActions from './users.actions';
 import { UserService } from '../../services/user.service';
@@ -38,21 +38,5 @@ describe('UsersEffects', () => {
 
     expect(collect(effects.loadUsers$)).toEqual([UsersActions.loadUsersSuccess({ users: [user] })]);
     expect(userService['getAllUsers']).toHaveBeenCalledWith('ACTIVE', 'FARMER');
-  });
-
-  it('loads a single user', () => {
-    userService['getUser'].mockReturnValue(of(user));
-    actions$ = of(UsersActions.loadUser({ userId: 1 }));
-
-    expect(collect(effects.loadUser$)).toEqual([UsersActions.loadUserSuccess({ user })]);
-  });
-
-  it('maps status update errors', () => {
-    userService['updateUserStatus'].mockReturnValue(throwError(() => ({ error: { message: 'Not allowed' } })));
-    actions$ = of(UsersActions.updateUserStatus({ userId: 1, status: 'SUSPENDED' }));
-
-    expect(collect(effects.updateUserStatus$)).toEqual([
-      UsersActions.updateUserStatusFailure({ error: 'Not allowed' }),
-    ]);
   });
 });

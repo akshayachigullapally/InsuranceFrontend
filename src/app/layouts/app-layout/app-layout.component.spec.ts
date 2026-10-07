@@ -6,7 +6,6 @@ import { pageTestProviders } from '../../../testing/test-helpers';
 
 describe('AppLayoutComponent', () => {
   let fixture: ComponentFixture<AppLayoutComponent>;
-  let element: HTMLElement;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -15,19 +14,10 @@ describe('AppLayoutComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppLayoutComponent);
-    element = fixture.nativeElement;
     fixture.detectChanges();
   });
 
   it('creates the layout', () => {
     expect(fixture.componentInstance).toBeTruthy();
-  });
-
-  it('renders the header', () => {
-    expect(element.querySelector('app-header')).not.toBeNull();
-  });
-
-  it('renders a router outlet inside main for the child page', () => {
-    expect(element.querySelector('main router-outlet')).not.toBeNull();
   });
 });

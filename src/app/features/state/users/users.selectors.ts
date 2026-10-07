@@ -57,25 +57,3 @@ export const selectFilteredUsers = createSelector(
 );
 
 export const selectTotalUserCount = createSelector(selectUsers, (users) => users.length);
-
-export const selectActiveUserCount = createSelector(
-  selectUsers,
-  (users) => users.filter((user) => user.profileStatus === 'ACTIVE').length,
-);
-
-export const selectSuspendedUserCount = createSelector(
-  selectUsers,
-  (users) => users.filter((user) => user.profileStatus === 'SUSPENDED').length,
-);
-
-export const selectInactiveUserCount = createSelector(
-  selectUsers,
-  (users) => users.filter((user) => user.profileStatus === 'INACTIVE').length,
-);
-
-export const selectIncompleteProfileCount = createSelector(
-  selectUsers,
-  (users) =>
-    users.filter((user) => !user.phoneNumber || !user.customerSegment || !user.profileStatus)
-      .length,
-);

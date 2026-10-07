@@ -38,16 +38,6 @@ export const selectFilteredZones = createSelector(
   },
 );
 
-export const selectActiveZoneCount = createSelector(
-  selectZones,
-  (zones) => zones.filter((zone) => zone.status === 'ACTIVE').length,
-);
-
-export const selectInactiveZoneCount = createSelector(
-  selectZones,
-  (zones) => zones.filter((zone) => zone.status === 'INACTIVE').length,
-);
-
 export const selectDistinctStates = createSelector(selectZones, (zones) =>
   [...new Set(zones.map((zone) => zone.state))].sort((first, second) =>
     first.localeCompare(second),

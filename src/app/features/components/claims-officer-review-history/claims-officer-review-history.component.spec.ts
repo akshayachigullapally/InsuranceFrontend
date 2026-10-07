@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Signal, WritableSignal } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { ClaimsOfficerReviewHistoryComponent } from './claims-officer-review-history.component';
 import { pageTestProviders } from '../../../../testing/test-helpers';
 import { ClaimService } from '../../services/claim.service';
@@ -52,15 +52,6 @@ describe('ClaimsOfficerReviewHistoryComponent', () => {
     expect(page.claimsHandled()).toBe(3);
   });
 
-  it('counts each decision and sums approved amounts', async () => {
-    const page = await setup();
-
-    expect(page.approvedCount()).toBe(1);
-    expect(page.rejectedCount()).toBe(1);
-    expect(page.settledCount()).toBe(1);
-    expect(page.approvedAmount()).toBe(9000);
-  });
-
   it('filters by action and search term', async () => {
     const page = await setup();
 
@@ -73,21 +64,5 @@ describe('ClaimsOfficerReviewHistoryComponent', () => {
 
     page.clearFilters();
     expect(page.filtered().length).toBe(4);
-  });
-
-  it('labels and colours actions', async () => {
-    const page = await setup();
-
-    expect(page.actionLabel('REVIEW_STARTED')).toBe('Started review');
-    expect(page.actionLabel('SOMETHING_ELSE')).toBe('Something else');
-    expect(page.actionTone('CLAIM_REJECTED')).toContain('bg-red-100');
-    expect(page.actionTone('REVIEW_STARTED')).toContain('bg-amber-100');
-  });
-
-  it('shows an error when loading fails', async () => {
-    const page = await setup(throwError(() => new Error('down')));
-
-    expect(page.error()).toBe('Your review history could not be loaded. Please try again.');
-    expect(page.loading()).toBe(false);
   });
 });

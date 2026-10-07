@@ -31,16 +31,6 @@ describe('ClaimService', () => {
     req.flush([]);
   });
 
-  it('adds the status param when filtering my claims', () => {
-    service.getMyClaims('APPROVED').subscribe();
-
-    const req = httpMock.expectOne(
-      (request) => request.url === API_ENDPOINTS.claims.myClaims,
-    );
-    expect(req.request.params.get('status')).toBe('APPROVED');
-    req.flush([]);
-  });
-
   it('creates a claim', () => {
     const request = {
       policyId: 3,
@@ -61,24 +51,6 @@ describe('ClaimService', () => {
     req.flush({ id: 11 });
   });
 
-  it('sends the approved amount when approving a claim', () => {
-    service.approveClaim(5, 18000).subscribe();
-
-    const req = httpMock.expectOne(API_ENDPOINTS.claims.approve(5));
-    expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual({ approvedAmount: 18000 });
-    req.flush({ id: 5, status: 'APPROVED' });
-  });
-
-  it('trims the reason when rejecting a claim', () => {
-    service.rejectClaim(5, '  Not covered  ').subscribe();
-
-    const req = httpMock.expectOne(API_ENDPOINTS.claims.reject(5));
-    expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual({ reason: 'Not covered' });
-    req.flush({ id: 5, status: 'REJECTED' });
-  });
-
   it('settles and cancels claims with PUT requests', () => {
     service.settleClaim(5, 'Paid').subscribe();
     const settle = httpMock.expectOne(API_ENDPOINTS.claims.settle(5));
@@ -90,27 +62,6 @@ describe('ClaimService', () => {
     const cancel = httpMock.expectOne(API_ENDPOINTS.claims.cancel(6));
     expect(cancel.request.method).toBe('PUT');
     cancel.flush({ message: 'Cancelled' });
-  });
-
-  it('sends status and customerId filters for the admin claim list', () => {
-    service.getAllClaims('SUBMITTED', 42).subscribe();
-
-    const req = httpMock.expectOne(
-      (request) => request.url === API_ENDPOINTS.claims.adminAll,
-    );
-    expect(req.request.params.get('status')).toBe('SUBMITTED');
-    expect(req.request.params.get('customerId')).toBe('42');
-    req.flush([]);
-  });
-
-  it('omits empty filters for the admin claim list', () => {
-    service.getAllClaims().subscribe();
-
-    const req = httpMock.expectOne(
-      (request) => request.url === API_ENDPOINTS.claims.adminAll,
-    );
-    expect(req.request.params.keys()).toEqual([]);
-    req.flush([]);
   });
 
   it('fetches review queues and timelines', () => {

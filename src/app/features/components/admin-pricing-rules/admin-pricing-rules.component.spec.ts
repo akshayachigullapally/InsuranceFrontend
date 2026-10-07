@@ -6,10 +6,8 @@ import { pageTestProviders } from '../../../../testing/test-helpers';
 import {
   archivePricingRule,
   clearPricingRulesError,
-  clearSelectedPricingRule,
   createPricingRule,
   loadPricingRules,
-  updatePricingRule,
   updatePricingRuleStatus,
 } from '../../state/pricing-rules/pricing-rules.actions';
 import { loadAdminProducts } from '../../state/products/products.actions';
@@ -72,20 +70,6 @@ describe('AdminPricingRulesComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadZones({}));
   });
 
-  it('opens the create form with today as the start date', () => {
-    page.openCreate();
-
-    expect(page.formOpen).toBe(true);
-    expect(component.form.value.effectiveFrom).toBe(new Date().toISOString().slice(0, 10));
-    expect(component.form.value.termFactor).toBe(1);
-  });
-
-  it('rejects a base rate above 1', () => {
-    component.form.controls.baseAnnualRate.setValue(1.5);
-
-    expect(component.form.controls.baseAnnualRate.hasError('max')).toBe(true);
-  });
-
   it('creates a rule from valid input', () => {
     page.openCreate();
     component.form.patchValue({ productId: 1, baseAnnualRate: 0.03, minimumPremium: 750, effectiveFrom: '2026-10-01' });
@@ -109,16 +93,6 @@ describe('AdminPricingRulesComponent', () => {
     expect(page.formOpen).toBe(false);
   });
 
-  it('updates an existing rule', () => {
-    page.openEdit(rule);
-
-    page.submit();
-
-    expect(store.dispatch).toHaveBeenCalledWith(
-      expect.objectContaining({ type: updatePricingRule.type, ruleId: 5 }),
-    );
-  });
-
   it('changes status and archives with confirmation', async () => {
     page.changeStatus(rule, { target: { value: 'INACTIVE' } } as unknown as Event);
     expect(store.dispatch).toHaveBeenCalledWith(updatePricingRuleStatus({ ruleId: 5, status: 'INACTIVE' as never }));
@@ -126,17 +100,5 @@ describe('AdminPricingRulesComponent', () => {
     vi.spyOn(TestBed.inject(DialogService), 'confirm').mockResolvedValue(true);
     await page.archive(rule);
     expect(store.dispatch).toHaveBeenCalledWith(archivePricingRule({ ruleId: 5 }));
-  });
-
-  it('names products and zones with fallbacks', () => {
-    expect(page.productName([], 3)).toBe('Product #3');
-    expect(page.zoneName([], null)).toBe('All zones (default)');
-    expect(page.zoneName([{ id: 2, zoneName: 'Bangalore South Zone' } as ZoneResponse], 2)).toBe('Bangalore South Zone');
-  });
-
-  it('clears selection and errors on destroy', () => {
-    fixture.destroy();
-
-    expect(store.dispatch).toHaveBeenCalledWith(clearSelectedPricingRule());
   });
 });

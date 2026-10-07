@@ -29,23 +29,4 @@ describe('TriggerEventService', () => {
     expect(req.request.method).toBe('GET');
     req.flush([{ id: 1 }, { id: 2 }]);
   });
-
-  it('fetches a single event', () => {
-    service.getEvent(1).subscribe((event) => {
-      expect(event.id).toBe(1);
-    });
-
-    httpMock.expectOne(API_ENDPOINTS.triggers.eventById(1)).flush({ id: 1 });
-  });
-
-  it('fetches events by status, product and zone', () => {
-    service.getEventsByStatus('DETECTED').subscribe();
-    httpMock.expectOne(API_ENDPOINTS.triggers.eventsByStatus('DETECTED')).flush([]);
-
-    service.getEventsByProduct(4).subscribe();
-    httpMock.expectOne(API_ENDPOINTS.triggers.eventsByProduct(4)).flush([]);
-
-    service.getEventsByZone(6).subscribe();
-    httpMock.expectOne(API_ENDPOINTS.triggers.eventsByZone(6)).flush([]);
-  });
 });

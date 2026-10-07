@@ -50,11 +50,6 @@ export const selectPendingReviewCount = createSelector(
   (policies) => policies.filter((policy) => policy.status === 'PENDING').length,
 );
 
-export const selectAdminPendingPolicyCount = createSelector(
-  selectAdminPolicies,
-  (policies) => policies.filter((policy) => policy.status === 'PENDING').length,
-);
-
 export const selectAdminActivePolicyCount = createSelector(
   selectAdminPolicies,
   (policies) => policies.filter((policy) => policy.status === 'ACTIVE').length,

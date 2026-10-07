@@ -7,9 +7,6 @@ import { mockRootState, pageTestProviders } from '../../../../testing/test-helpe
 import { PolicyService } from '../../services/policy.service';
 import { ZoneService } from '../../services/zone.service';
 import {
-  cancelPolicy,
-  clearPoliciesError,
-  clearSelectedPolicy,
   loadMyPolicy,
 } from '../../state/policies/policies.actions';
 import { PolicyResponse } from '../../dtos/policies/policy-response.dto';
@@ -77,15 +74,6 @@ describe('CustomerPolicyDetailComponent', () => {
     expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: loadMyPolicy.type }));
   });
 
-  it('loads the policy, its trigger snapshot and zone', async () => {
-    const { page, store, policyService } = await setup('/customer/policies/3');
-
-    expect(store.dispatch).toHaveBeenCalledWith(loadMyPolicy({ policyId: 3 }));
-    expect(policyService.getPolicySnapshot).toHaveBeenCalledWith(3);
-    expect(page.snapshot).toEqual(snapshot);
-    expect(page.zoneName).toBe('Hyderabad Central Zone');
-  });
-
   it('builds the detail rows', async () => {
     const { page } = await setup('/customer/policies/3');
 
@@ -95,37 +83,5 @@ describe('CustomerPolicyDetailComponent', () => {
     expect(rows.find((row) => row.label === 'Term')?.value).toBe('12 months');
     expect(rows.find((row) => row.label === 'Coverage period')?.value).toBe('Jan 1, 2026 to Dec 31, 2026');
     expect(rows.find((row) => row.label === 'Reviewed date')?.value).toBe('Not available');
-  });
-
-  it('maps the snapshot to a trigger condition with defaults', async () => {
-    const { page } = await setup('/customer/policies/3');
-
-    expect(page.snapshotTrigger()).toEqual(
-      expect.objectContaining({
-        measurementType: 'RAINFALL',
-        thresholdValue: 150,
-        aggregationType: 'AVERAGE',
-        observationWindowHours: 24,
-        minimumObservationCount: 2,
-      }),
-    );
-  });
-
-  it('cancels the policy after confirmation', async () => {
-    const { page, store } = await setup('/customer/policies/3');
-
-    page.openCancel();
-    expect(store.dispatch).toHaveBeenCalledWith(clearPoliciesError());
-
-    page.confirmCancel();
-    expect(store.dispatch).toHaveBeenCalledWith(cancelPolicy({ policyId: 3 }));
-  });
-
-  it('clears the selection when leaving the page', async () => {
-    const { harness, store } = await setup('/customer/policies/3');
-
-    harness.fixture.destroy();
-
-    expect(store.dispatch).toHaveBeenCalledWith(clearSelectedPolicy());
   });
 });

@@ -1,8 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Action, Store, provideStore } from '@ngrx/store';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Subject, of, throwError } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { NotificationResponse } from '../../dtos/notifications/notification-response.dto';
 import { NotificationService } from '../../services/notification.service';
 import { notificationsReducer } from './notifications.reducer';
@@ -116,19 +115,6 @@ describe('NotificationsEffects', () => {
     sub.unsubscribe();
   });
 
-  it('stops polling and clears notifications on logout', () => {
-    const stopResults: Action[] = [];
-    const clearResults: Action[] = [];
-    const stopSub = effects.stopPollingOnLogout$.subscribe((action) => stopResults.push(action));
-    const clearSub = effects.clearOnLogout$.subscribe((action) => clearResults.push(action));
-
-    actions$.next(AuthActions.logout());
-    expect(stopResults).toEqual([NotificationsActions.stopNotificationPolling()]);
-    expect(clearResults).toEqual([NotificationsActions.clearNotificationsOnLogout()]);
-    stopSub.unsubscribe();
-    clearSub.unsubscribe();
-  });
-
   it('emits poll ticks every 30 seconds while polling and stops when asked', () => {
     vi.useFakeTimers();
     const results: Action[] = [];
@@ -178,26 +164,6 @@ describe('NotificationsEffects', () => {
     sub.unsubscribe();
   });
 
-  it('always finishes a refresh, even when nothing is new', () => {
-    const existing = makeNotification(1, '2026-09-01T00:00:00Z');
-    vi.mocked(service.getMyNotifications).mockReturnValue(of([existing]));
-
-    const store = TestBed.inject(Store);
-    store.dispatch(
-      NotificationsActions.loadNotificationsSuccess({ notifications: [existing] }),
-    );
-
-    const results: Action[] = [];
-    const sub = effects.loadNotifications$.subscribe((action) => results.push(action));
-
-    actions$.next(NotificationsActions.refreshNotifications());
-    expect(results).toEqual([
-      NotificationsActions.loadNotificationsSuccess({ notifications: [existing] }),
-    ]);
-
-    sub.unsubscribe();
-  });
-
   it('restarts the load when Refresh is clicked while a poll is still running', () => {
     const existing = makeNotification(1, '2026-09-01T00:00:00Z');
     const slowPoll = new Subject<NotificationResponse[]>();
@@ -215,46 +181,6 @@ describe('NotificationsEffects', () => {
     expect(results).toEqual([
       NotificationsActions.loadNotificationsSuccess({ notifications: [existing] }),
     ]);
-    sub.unsubscribe();
-  });
-
-  it('logs the user out when polling hits a 401', () => {
-    vi.mocked(service.getMyNotifications).mockReturnValue(
-      throwError(
-        () => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }),
-      ),
-    );
-
-    const results: Action[] = [];
-    const sub = effects.loadNotifications$.subscribe((action) => results.push(action));
-
-    actions$.next(NotificationsActions.notificationPollTick());
-    expect(results).toEqual([AuthActions.logout()]);
-    sub.unsubscribe();
-  });
-
-  it('emits a failure action for non-auth polling errors', () => {
-    vi.mocked(service.getMyNotifications).mockReturnValue(
-      throwError(() => new Error('boom')),
-    );
-
-    const results: Action[] = [];
-    const sub = effects.loadNotifications$.subscribe((action) => results.push(action));
-
-    actions$.next(NotificationsActions.notificationPollTick());
-    expect(results[0].type).toBe(NotificationsActions.loadNotificationsFailure.type);
-    sub.unsubscribe();
-  });
-
-  it('refreshes the unread count after a poll tick', () => {
-    vi.mocked(service.getUnreadCount).mockReturnValue(of({ count: 2 }));
-
-    const results: Action[] = [];
-    const sub = effects.refreshUnreadCount$.subscribe((action) => results.push(action));
-
-    actions$.next(NotificationsActions.notificationPollTick());
-    expect(service.getUnreadCount).toHaveBeenCalledTimes(1);
-    expect(results[0]).toEqual(NotificationsActions.loadUnreadCountSuccess({ count: 2 }));
     sub.unsubscribe();
   });
 

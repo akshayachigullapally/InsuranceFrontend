@@ -8,8 +8,6 @@ export const selectPricingRules = createSelector(
   (state) => state.pricingRules,
 );
 
-const selectPricingRulesSearch = createSelector(selectPricingRulesState, (state) => state.search);
-
 export const selectPricingRulesLoading = createSelector(
   selectPricingRulesState,
   (state) => state.isLoading,
@@ -28,34 +26,4 @@ export const selectUpdatingRuleId = createSelector(
 export const selectPricingRulesError = createSelector(
   selectPricingRulesState,
   (state) => state.error,
-);
-
-export const selectFilteredPricingRules = createSelector(
-  selectPricingRules,
-  selectPricingRulesSearch,
-  (rules, search) => {
-    const value = search.trim().toLowerCase();
-
-    if (!value) return rules;
-
-    return rules.filter(
-      (rule) =>
-        rule.productId.toString().includes(value) || rule.status.toLowerCase().includes(value),
-    );
-  },
-);
-
-export const selectActivePricingRuleCount = createSelector(
-  selectPricingRules,
-  (rules) => rules.filter((rule) => rule.status === 'ACTIVE').length,
-);
-
-export const selectDraftPricingRuleCount = createSelector(
-  selectPricingRules,
-  (rules) => rules.filter((rule) => rule.status === 'DRAFT').length,
-);
-
-export const selectInactivePricingRuleCount = createSelector(
-  selectPricingRules,
-  (rules) => rules.filter((rule) => rule.status === 'INACTIVE').length,
 );

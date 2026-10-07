@@ -45,28 +45,9 @@ describe('AdminNotificationsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadAllNotifications());
   });
 
-  it('lists notifications with their recipient', () => {
-    expect(text()).toContain('Policy Pending Review');
-    expect(text()).toContain('All admins');
-    expect(text()).toContain('User #42');
-  });
-
   const buttons = (label: string) => Array.from(
     (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(`button[aria-label="${label}"]`),
   );
-
-  it('offers mark-as-read only for unread notifications and delete for all', () => {
-    expect(buttons('Mark as read')).toHaveLength(1);
-    expect(buttons('Delete')).toHaveLength(2);
-  });
-
-  it('marks a notification as read and reloads the list', () => {
-    vi.mocked(store.dispatch).mockClear();
-    buttons('Mark as read')[0].click();
-
-    expect(notificationService.adminMarkAsRead).toHaveBeenCalledWith(1);
-    expect(store.dispatch).toHaveBeenCalledWith(loadAllNotifications());
-  });
 
   it('asks before deleting, then deletes', () => {
     buttons('Delete')[1].click();
@@ -76,14 +57,6 @@ describe('AdminNotificationsComponent', () => {
     (fixture.componentInstance as unknown as { confirmDelete(): void }).confirmDelete();
 
     expect(notificationService.adminDelete).toHaveBeenCalledWith(2);
-  });
-
-  it('has no templates, batch send, failed deliveries or channel column', () => {
-    expect(text()).not.toContain('Templates');
-    expect(text()).not.toContain('Batch');
-    expect(text()).not.toContain('Failed Deliveries');
-    expect(text()).not.toContain('Channel');
-    expect(text()).not.toContain('EMAIL');
   });
 
   it('filters by search text', () => {

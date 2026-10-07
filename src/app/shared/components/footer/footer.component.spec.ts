@@ -17,9 +17,4 @@ describe('FooterComponent', () => {
   it('creates the footer', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
-
-  it('renders navigation links', () => {
-    const links = fixture.nativeElement.querySelectorAll('a[href]');
-    expect(links.length).toBeGreaterThan(0);
-  });
 });

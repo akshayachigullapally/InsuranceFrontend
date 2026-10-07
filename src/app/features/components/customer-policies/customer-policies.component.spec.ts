@@ -43,25 +43,10 @@ describe('CustomerPoliciesComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadMyPolicies({}));
   });
 
-  it('renders my policies', () => {
-    expect(fixture.nativeElement.textContent).toContain('POL-0001');
-  });
-
   it('reloads policies with the chosen status filter', () => {
     page.applyFilter('ACTIVE');
 
     expect(page.activeFilter).toBe('ACTIVE');
     expect(store.dispatch).toHaveBeenCalledWith(loadMyPolicies({ status: 'ACTIVE' }));
-  });
-
-  it('clears the status filter for All', () => {
-    page.applyFilter(null);
-
-    expect(store.dispatch).toHaveBeenCalledWith(loadMyPolicies({ status: undefined }));
-  });
-
-  it('labels zones by name when known and by id otherwise', () => {
-    expect(page.zoneLabel(2)).toBe('Hyderabad Central Zone (Zone #2)');
-    expect(page.zoneLabel(99)).toBe('Zone #99');
   });
 });

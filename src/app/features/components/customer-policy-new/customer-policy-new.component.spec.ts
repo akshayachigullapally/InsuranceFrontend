@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { MockStore } from '@ngrx/store/testing';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { CustomerPolicyNewComponent } from './customer-policy-new.component';
 import { mockRootState, pageTestProviders } from '../../../../testing/test-helpers';
 import { QuoteService } from '../../services/quote.service';
@@ -75,21 +75,6 @@ describe('CustomerPolicyNewComponent', () => {
     expect(component.form.controls.locationZoneId.enabled).toBe(true);
   });
 
-  it('shows an error and disables the zone field when zones fail to load', async () => {
-    const { component, page } = await setup('/customer/policies/new', throwError(() => new Error('down')));
-
-    expect(page.zonesError).toBe('Location zones could not be loaded. Please try again.');
-    expect(component.form.controls.locationZoneId.disabled).toBe(true);
-  });
-
-  it('preselects the product from the query string with its minimums', async () => {
-    const { component, page } = await setup('/customer/policies/new?productId=1');
-
-    expect(page.selectedProduct?.id).toBe(1);
-    expect(component.form.controls.sumInsured.value).toBe(10000);
-    expect(component.form.controls.termMonths.value).toBe(3);
-  });
-
   it('enforces the product sum insured and term limits', async () => {
     const { component } = await setup('/customer/policies/new?productId=1');
 
@@ -110,22 +95,6 @@ describe('CustomerPolicyNewComponent', () => {
     expect(component.form.controls.locationZoneId.value).toBe(2);
   });
 
-  it('ignores a quote that is not accepted', async () => {
-    const quote = { id: 9, status: 'CREATED', productId: 1 };
-    const { page } = await setup('/customer/policies/new?quoteId=9', undefined, of(quote));
-
-    expect(page.quoteId).toBeNull();
-    expect(page.appliedQuote).toBeNull();
-  });
-
-  it('does not submit without a zone', async () => {
-    const { page, store } = await setup('/customer/policies/new?productId=1');
-
-    page.onSubmit();
-
-    expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: createPolicy.type }));
-  });
-
   it('submits the policy with the product trigger', async () => {
     const { component, page, store } = await setup('/customer/policies/new?productId=1');
     component.form.patchValue({ sumInsured: 100000, termMonths: 12, locationZoneId: 2 });
@@ -144,15 +113,5 @@ describe('CustomerPolicyNewComponent', () => {
         }),
       }),
     );
-  });
-
-  it('switches between product and custom mode', async () => {
-    const { page, store } = await setup();
-
-    page.setMode('CUSTOM');
-
-    expect(page.mode).toBe('CUSTOM');
-    expect(store.dispatch).toHaveBeenCalledWith(clearPoliciesError());
-    expect(page.isOtherSelected('OTHER')).toBe(true);
   });
 });

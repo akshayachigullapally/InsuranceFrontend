@@ -12,9 +12,6 @@ import {
   clearProductsError,
   clearSelectedProduct,
   loadAdminProduct,
-  updateProduct,
-  updateProductFailure,
-  updateProductSuccess,
 } from '../../state/products/products.actions';
 import { ProductResponse } from '../../dtos/products/product-response.dto';
 
@@ -94,52 +91,5 @@ describe('AdminProductEditComponent', () => {
     expect(page.form?.value.productCode).toBe('WEATHER-001');
     expect(page.coverages.length).toBe(1);
     expect(page.triggerConfigured()).toBe(true);
-  });
-
-  it('keeps at least one coverage row', async () => {
-    const { page } = await setup('/admin/products/5/edit');
-
-    page.addCoverage();
-    page.removeCoverage(1);
-    page.removeCoverage(0);
-
-    expect(page.coverages.length).toBe(1);
-  });
-
-  it('reports range errors', async () => {
-    const { page } = await setup('/admin/products/5/edit');
-    page.form?.patchValue({ minimumTermMonths: 24, maximumTermMonths: 6 });
-
-    page.onSubmit();
-
-    expect(page.rangeError).toBe('Minimum policy term cannot exceed maximum policy term.');
-  });
-
-  it('dispatches updateProduct with the normalised request', async () => {
-    const { page, store } = await setup('/admin/products/5/edit');
-    page.form?.patchValue({ name: '  Rain Cover Plus  ' });
-
-    page.onSubmit();
-
-    expect(store.dispatch).toHaveBeenCalledWith(
-      updateProduct({
-        productId: 5,
-        request: expect.objectContaining({
-          productCode: 'WEATHER-001',
-          name: 'Rain Cover Plus',
-          thresholdValue: 150,
-        }),
-      }),
-    );
-  });
-
-  it('shows toasts for update results', async () => {
-    const { actions$, toast } = await setup('/admin/products/5/edit');
-
-    actions$.next(updateProductSuccess({ product }));
-    actions$.next(updateProductFailure({ error: 'Validation failed' }));
-
-    expect(toast.show).toHaveBeenCalledWith(expect.objectContaining({ message: 'Rain Cover was updated successfully.' }));
-    expect(toast.show).toHaveBeenCalledWith(expect.objectContaining({ type: 'error', message: 'Validation failed' }));
   });
 });

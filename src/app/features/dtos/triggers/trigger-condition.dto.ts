@@ -38,8 +38,6 @@ export const TRIGGER_AGGREGATION_TYPES = ['SUM', 'AVERAGE', 'MIN', 'MAX', 'LATES
 
 export type TriggerAggregationTypeValue = string;
 
-export type TriggerSyncStatusValue = string;
-
 export interface TriggerCondition {
   perilCode?: string | null;
   measurementType?: TriggerMeasurementTypeValue | null;

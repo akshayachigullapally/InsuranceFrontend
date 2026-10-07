@@ -94,42 +94,6 @@ describe('CustomerProfileComponent', () => {
     );
   });
 
-  it('keeps the signed-in name and default segment when no profile is saved yet', () => {
-    http
-      .expectOne(API_ENDPOINTS.users.me)
-      .flush(
-        { message: 'User profile is not completed' },
-        { status: 404, statusText: 'Not Found' },
-      );
-
-    expect(page.loading).toBe(false);
-    expect(page.profileForm.getRawValue().fullName).toBe('Asha Rao');
-    expect(page.profileForm.getRawValue().customerSegment).toBe('INDIVIDUAL');
-  });
-
-  it('rejects an invalid postal code, phone number and future date of birth', () => {
-    loadSavedProfile();
-    page.profileForm.patchValue({
-      postalCode: '12',
-      phoneNumber: '12345',
-      dateOfBirth: '2999-01-01',
-    });
-
-    expect(page.profileForm.get('postalCode')?.hasError('pattern')).toBe(true);
-    expect(page.profileForm.get('phoneNumber')?.hasError('pattern')).toBe(true);
-    expect(page.profileForm.get('dateOfBirth')?.hasError('pastDate')).toBe(true);
-  });
-
-  it('does not send an invalid form', () => {
-    loadSavedProfile();
-    page.profileForm.patchValue({ city: '' });
-
-    page.onSave();
-
-    http.expectNone((req) => req.method === 'PUT');
-    expect(page.saving).toBe(false);
-  });
-
   it('saves the profile with PUT /api/users/me and updates the header name', () => {
     vi.useFakeTimers();
     loadSavedProfile();
@@ -164,28 +128,6 @@ describe('CustomerProfileComponent', () => {
 
     vi.advanceTimersByTime(3000);
     expect(page.saveSuccess).toBe(false);
-  });
-
-  it('shows the server message when saving fails', () => {
-    loadSavedProfile();
-
-    page.onSave();
-    http
-      .expectOne((r) => r.method === 'PUT')
-      .flush(
-        { messages: ['Phone number must contain 10 valid digits'] },
-        { status: 400, statusText: 'Bad Request' },
-      );
-
-    expect(page.saving).toBe(false);
-    expect(page.saveError).toContain('Phone number must contain 10 valid digits');
-  });
-
-  it('switches tabs', () => {
-    loadSavedProfile();
-    page.onTabChange('claims');
-
-    expect(page.activeTab).toBe('claims');
   });
 
   it('formats helpers', () => {

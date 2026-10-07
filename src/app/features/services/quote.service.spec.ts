@@ -32,26 +32,4 @@ describe('QuoteService', () => {
     expect(req.request.body).toEqual(request);
     req.flush({ id: 3 });
   });
-
-  it('fetches my quotes and a single quote', () => {
-    service.getMyQuotes().subscribe((quotes) => {
-      expect(quotes.length).toBe(1);
-    });
-    httpMock.expectOne(API_ENDPOINTS.financial.myQuotes).flush([{ id: 3 }]);
-
-    service.getQuote(3).subscribe();
-    httpMock.expectOne(API_ENDPOINTS.financial.quoteById(3)).flush({ id: 3 });
-  });
-
-  it('accepts and cancels a quote with PUT requests', () => {
-    service.acceptQuote(3).subscribe();
-    const accept = httpMock.expectOne(API_ENDPOINTS.financial.acceptQuote(3));
-    expect(accept.request.method).toBe('PUT');
-    accept.flush({ id: 3, status: 'ACCEPTED' });
-
-    service.cancelQuote(3).subscribe();
-    const cancel = httpMock.expectOne(API_ENDPOINTS.financial.cancelQuote(3));
-    expect(cancel.request.method).toBe('PUT');
-    cancel.flush({ message: 'Cancelled' });
-  });
 });

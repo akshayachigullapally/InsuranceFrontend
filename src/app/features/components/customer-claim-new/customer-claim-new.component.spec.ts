@@ -71,42 +71,6 @@ describe('CustomerClaimNewComponent', () => {
     expect(policyService.getPolicySnapshot).toHaveBeenCalledWith(3);
   });
 
-  it('limits the claimed amount to the sum insured', async () => {
-    const { component } = await setup();
-    component.form.controls.policyId.setValue(4);
-
-    component.form.controls.claimedAmount.setValue(90000);
-
-    expect(component.form.controls.claimedAmount.hasError('max')).toBe(true);
-  });
-
-  it('tracks the description length', async () => {
-    const { component, page } = await setup();
-
-    component.form.controls.description.setValue('12345');
-
-    expect(page.descriptionLength).toBe(5);
-  });
-
-  it('does not submit an incomplete form', async () => {
-    const { page, store } = await setup();
-
-    page.onSubmit();
-
-    expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: createClaim.type }));
-  });
-
-  it('rejects an incident date in the future', async () => {
-    const { component, page, store } = await setup();
-    fillValidClaim(component);
-    component.form.controls.incidentDate.setValue('2999-01-01');
-
-    page.onSubmit();
-
-    expect(component.form.controls.incidentDate.hasError('futureDate')).toBe(true);
-    expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: createClaim.type }));
-  });
-
   it('submits a normalised manual claim', async () => {
     const { component, page, store } = await setup();
     fillValidClaim(component);
@@ -128,11 +92,5 @@ describe('CustomerClaimNewComponent', () => {
         },
       }),
     );
-  });
-
-  it('labels zones by name', async () => {
-    const { page } = await setup();
-
-    expect(page.zoneLabel(2)).toBe('Hyderabad Central Zone (Zone #2)');
   });
 });

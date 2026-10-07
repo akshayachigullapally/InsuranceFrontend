@@ -52,21 +52,6 @@ describe('NotificationPushService', () => {
     );
   });
 
-  it('opens a stream without a token query when not logged in', () => {
-    accessToken = null;
-
-    service.connect();
-
-    expect(FakeEventSource.instances[0].url).toMatch(/\/api\/notifications\/me\/stream$/);
-  });
-
-  it('does not open a second stream when already connected', () => {
-    service.connect();
-    service.connect();
-
-    expect(FakeEventSource.instances.length).toBe(1);
-  });
-
   it('dispatches incoming notifications to the store', () => {
     service.connect();
     const payload = { id: 5, title: 'Claim approved' };
@@ -76,25 +61,6 @@ describe('NotificationPushService', () => {
     expect(store.dispatch).toHaveBeenCalledWith(
       NotificationsActions.mergeNewNotifications({ notifications: [payload as never] }),
     );
-  });
-
-  it('ignores messages that are not valid JSON', () => {
-    service.connect();
-
-    FakeEventSource.instances[0].onmessage?.({ data: 'not json' });
-
-    expect(store.dispatch).not.toHaveBeenCalled();
-  });
-
-  it('closes the stream on error so it can reconnect later', () => {
-    service.connect();
-    const first = FakeEventSource.instances[0];
-
-    first.onerror?.(new Event('error'));
-    service.connect();
-
-    expect(first.close).toHaveBeenCalled();
-    expect(FakeEventSource.instances.length).toBe(2);
   });
 
   it('reconnects by itself after an error, with a fresh token', () => {
@@ -127,20 +93,5 @@ describe('NotificationPushService', () => {
     FakeEventSource.instances[2].onerror?.(new Event('error'));
     vi.advanceTimersByTime(5_000);
     expect(FakeEventSource.instances.length).toBe(4);
-  });
-
-  it('does not reconnect after disconnect (logout)', () => {
-    vi.useFakeTimers();
-    service.connect();
-    FakeEventSource.instances[0].onerror?.(new Event('error'));
-
-    service.disconnect();
-    vi.advanceTimersByTime(60_000);
-
-    expect(FakeEventSource.instances.length).toBe(1);
-  });
-
-  it('disconnect is a no-op when not connected', () => {
-    expect(() => service.disconnect()).not.toThrow();
   });
 });

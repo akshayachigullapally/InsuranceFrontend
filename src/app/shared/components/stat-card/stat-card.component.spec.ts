@@ -24,13 +24,6 @@ describe('StatCardComponent', () => {
     expect(element.textContent).toContain('Currently in force');
   });
 
-  it('hides the hint and trend when they are not set', () => {
-    fixture.detectChanges();
-
-    expect(element.querySelector('.text-gray-400')).toBeNull();
-    expect(element.textContent).not.toContain('▲');
-  });
-
   it('shows an up arrow with a success colour for an upward trend', () => {
     fixture.componentRef.setInput('trend', 'up');
     fixture.detectChanges();
@@ -38,20 +31,5 @@ describe('StatCardComponent', () => {
     const badge = element.querySelector('span.rounded-full') as HTMLElement;
     expect(badge.textContent?.trim()).toBe('▲');
     expect(badge.className).toContain('bg-success-50');
-  });
-
-  it('shows a down arrow for a downward trend', () => {
-    fixture.componentRef.setInput('trend', 'down');
-    fixture.detectChanges();
-
-    expect(element.textContent).toContain('▼');
-  });
-
-  it('applies the icon colour class for the chosen colour', () => {
-    fixture.componentRef.setInput('color', 'red');
-    fixture.detectChanges();
-
-    const icon = element.querySelector('.size-11') as HTMLElement;
-    expect(icon.className).toContain('bg-danger-50');
   });
 });

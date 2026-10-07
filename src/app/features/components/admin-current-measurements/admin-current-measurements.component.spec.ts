@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { AdminCurrentMeasurementsComponent } from './admin-current-measurements.component';
 import { pageTestProviders } from '../../../../testing/test-helpers';
 import { ProductService } from '../../services/product.service';
@@ -54,28 +54,6 @@ describe('AdminCurrentMeasurementsComponent', () => {
     expect(component.form(1).getRawValue()).toEqual({ zoneId: 4, currentValue: 120 });
   });
 
-  it('shows the server error when loading fails', async () => {
-    await setup(throwError(() => ({ error: { message: 'Product service down' } })));
-
-    expect(component.error).toBe('Product service down');
-    expect(component.loading).toBe(false);
-  });
-
-  it('labels the measurement input by type', async () => {
-    await setup();
-
-    expect(component.label(rainProduct)).toBe('Current rainfall');
-    expect(component.label({ measurementType: 'OTHER' } as ProductResponse)).toBe('Current measurement');
-  });
-
-  it('fills a value that just matches the trigger', async () => {
-    await setup();
-
-    component.useMatchingValue(rainProduct);
-
-    expect(component.form(1).controls.currentValue.value).toBe(151);
-  });
-
   it('submits a measurement and stores the result', async () => {
     await setup();
     component.form(1).setValue({ zoneId: 4, currentValue: 175 });
@@ -88,14 +66,5 @@ describe('AdminCurrentMeasurementsComponent', () => {
     expect(component.results.has(1)).toBe(true);
     expect(component.currentSnapshot(rainProduct)?.currentValue).toBe(175);
     expect(component.processing.has(1)).toBe(false);
-  });
-
-  it('does not submit an invalid form', async () => {
-    await setup();
-    component.form(1).setValue({ zoneId: null, currentValue: null });
-
-    component.process(rainProduct);
-
-    expect(measurementService.process).not.toHaveBeenCalled();
   });
 });

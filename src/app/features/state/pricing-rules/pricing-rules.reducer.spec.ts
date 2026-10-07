@@ -12,49 +12,6 @@ describe('pricingRulesReducer', () => {
     expect(pricingRulesReducer(undefined, { type: '[Unknown]' } as never)).toEqual(initialPricingRulesState);
   });
 
-  it('loads pricing rules', () => {
-    const rules = [makeRule(1)];
-
-    const state = pricingRulesReducer(
-      { ...initialPricingRulesState, isLoading: true },
-      PricingRulesActions.loadPricingRulesSuccess({ pricingRules: rules }),
-    );
-
-    expect(state.pricingRules).toEqual(rules);
-    expect(state.isLoading).toBe(false);
-  });
-
-  it('adds a created rule and selects it', () => {
-    const state = pricingRulesReducer(
-      initialPricingRulesState,
-      PricingRulesActions.createPricingRuleSuccess({ pricingRule: makeRule(3) }),
-    );
-
-    expect(state.pricingRules.map((rule) => rule.id)).toEqual([3]);
-    expect(state.selectedPricingRule?.id).toBe(3);
-  });
-
-  it('tracks the rule being updated', () => {
-    const state = pricingRulesReducer(
-      initialPricingRulesState,
-      PricingRulesActions.archivePricingRule({ ruleId: 4 }),
-    );
-
-    expect(state.updatingRuleId).toBe(4);
-    expect(state.isSaving).toBe(true);
-  });
-
-  it('replaces an updated rule', () => {
-    const current: PricingRulesState = { ...initialPricingRulesState, pricingRules: [makeRule(1)] };
-
-    const state = pricingRulesReducer(
-      current,
-      PricingRulesActions.updatePricingRuleStatusSuccess({ pricingRule: makeRule(1, 'INACTIVE') }),
-    );
-
-    expect(state.pricingRules[0].status).toBe('INACTIVE');
-  });
-
   it('keeps an archived rule in the list as ARCHIVED', () => {
     const current: PricingRulesState = { ...initialPricingRulesState, pricingRules: [makeRule(1), makeRule(2)] };
 

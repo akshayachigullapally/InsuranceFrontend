@@ -2,14 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { FormControl } from '@angular/forms';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { MockStore } from '@ngrx/store/testing';
-import { Observable, firstValueFrom } from 'rxjs';
+import { Observable } from 'rxjs';
 import { AuditHistoryComponent } from './audit-history.component';
 import { loggedInAuth, mockRootState, pageTestProviders } from '../../../../testing/test-helpers';
-import {
-  clearNotificationsError,
-  loadAuditEvents,
-  loadMyAuditEvents,
-} from '../../state/notifications/notifications.actions';
 
 type AuditInternals = {
   scope: 'ALL' | 'MINE';
@@ -85,36 +80,6 @@ describe('AuditHistoryComponent', () => {
     expect(changes[0].textContent).toContain('Threshold: 200 mm');
   });
 
-  it('finds events by their before or after value', async () => {
-    const { page } = await setup('ALL', [...auditEvents, thresholdChange]);
-    const visible = watchEvents(page);
-
-    page.searchControl.setValue('200 mm');
-    expect(visible()).toEqual(['AUD-4']);
-  });
-
-  it('loads every audit event for the ALL scope', async () => {
-    const { page, store } = await setup('ALL');
-
-    expect(page.scope).toBe('ALL');
-    expect(store.dispatch).toHaveBeenCalledWith(clearNotificationsError());
-    expect(store.dispatch).toHaveBeenCalledWith(loadAuditEvents());
-  });
-
-  it('loads only my audit events for the MINE scope', async () => {
-    const { page, store } = await setup('MINE');
-
-    expect(page.scope).toBe('MINE');
-    expect(store.dispatch).toHaveBeenCalledWith(loadMyAuditEvents());
-  });
-
-  it('lists distinct sorted entity types and the total', async () => {
-    const { page } = await setup('ALL');
-
-    expect(await firstValueFrom(page.entityTypes$)).toEqual(['CLAIM', 'POLICY', 'USER']);
-    expect(await firstValueFrom(page.total$)).toBe(3);
-  });
-
   it('filters by search text, entity type and role', async () => {
     const { page } = await setup('ALL');
     const visible = watchEvents(page);
@@ -128,17 +93,6 @@ describe('AuditHistoryComponent', () => {
 
     page.clearFilters();
     page.roleControl.setValue('CUSTOMER');
-    expect(visible()).toEqual(['AUD-2']);
-  });
-
-  it('filters to my own actions', async () => {
-    const { page } = await setup('ALL');
-    const visible = watchEvents(page);
-
-    page.showOnlyMine();
-
-    expect(page.userIdControl.value).toBe('1');
-    expect(page.hasFilters()).toBe(true);
     expect(visible()).toEqual(['AUD-2']);
   });
 

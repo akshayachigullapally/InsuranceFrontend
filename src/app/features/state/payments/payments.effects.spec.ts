@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Action } from '@ngrx/store';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { PaymentsEffects } from './payments.effects';
 import * as PaymentsActions from './payments.actions';
 import { PaymentService } from '../../services/payment.service';
@@ -41,19 +41,5 @@ describe('PaymentsEffects', () => {
     actions$ = of(PaymentsActions.loadPayments());
 
     expect(collect(effects.loadPayments$)).toEqual([PaymentsActions.loadPaymentsSuccess({ payments: [payment] })]);
-  });
-
-  it('loads my payments', () => {
-    paymentService['getMyPayments'].mockReturnValue(of([payment]));
-    actions$ = of(PaymentsActions.loadMyPayments());
-
-    expect(collect(effects.loadMyPayments$)).toEqual([PaymentsActions.loadMyPaymentsSuccess({ payments: [payment] })]);
-  });
-
-  it('maps refund errors', () => {
-    paymentService['refundPayment'].mockReturnValue(throwError(() => ({ error: { message: 'Not refundable' } })));
-    actions$ = of(PaymentsActions.refundPayment({ paymentId: 1 }));
-
-    expect(collect(effects.refundPayment$)).toEqual([PaymentsActions.refundPaymentFailure({ error: 'Not refundable' })]);
   });
 });

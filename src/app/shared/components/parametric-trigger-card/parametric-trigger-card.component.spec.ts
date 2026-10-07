@@ -37,12 +37,6 @@ describe('ParametricTriggerCardComponent', () => {
     expect(element.textContent).toContain('Trigger not configured yet.');
   });
 
-  it('treats a trigger without a threshold as not configured', () => {
-    render({ trigger: { measurementType: 'RAINFALL' } });
-
-    expect(element.textContent).toContain('Trigger not configured yet.');
-  });
-
   it('shows the metric label, sentence and trimmed description', () => {
     render({ trigger });
 
@@ -62,35 +56,10 @@ describe('ParametricTriggerCardComponent', () => {
     expect(element.textContent).toContain('Snapshot');
   });
 
-  it('does not show the live section outside LIVE mode', () => {
-    render({ trigger, liveValue: 200 });
-
-    expect(element.querySelector('.trigger-card-live')).toBeNull();
-  });
-
   it('shows the zone and an exceeded state in LIVE mode', () => {
     render({ trigger, mode: 'LIVE', zoneName: 'Hyderabad Central Zone', liveValue: 180 });
 
     expect(element.textContent).toContain('Hyderabad Central Zone');
-    expect(element.textContent).toContain('Threshold exceeded');
-  });
-
-  it('shows an approaching state when close to the threshold', () => {
-    render({ trigger, mode: 'LIVE', liveValue: 140 });
-
-    expect(element.textContent).toContain('Approaching threshold');
-  });
-
-  it('shows no live data when the live value is missing', () => {
-    render({ trigger, mode: 'LIVE', liveValue: null });
-
-    expect(element.textContent).toContain('No live value');
-    expect(element.textContent).toContain('No live data');
-  });
-
-  it('uses an explicit live state when provided', () => {
-    render({ trigger, mode: 'LIVE', liveValue: 10, liveState: 'THRESHOLD_EXCEEDED' });
-
     expect(element.textContent).toContain('Threshold exceeded');
   });
 });

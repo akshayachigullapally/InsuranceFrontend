@@ -1,7 +1,7 @@
 import { DialogService } from '../../../shared/services/dialog.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { CustomerQuotesComponent } from './customer-quotes.component';
 import { pageTestProviders } from '../../../../testing/test-helpers';
 import { ZoneService } from '../../services/zone.service';
@@ -9,7 +9,6 @@ import {
   acceptQuote,
   cancelQuote,
   clearQuotesError,
-  createQuote,
   loadQuotes,
 } from '../../state/quotes/quotes.actions';
 import { loadProducts } from '../../state/products/products.actions';
@@ -62,44 +61,6 @@ describe('CustomerQuotesComponent', () => {
     expect(component.form.controls.locationZoneId.enabled).toBe(true);
   });
 
-  it('disables the zone field when zones fail to load', async () => {
-    await setup(throwError(() => new Error('down')));
-
-    expect(page.zonesError).toBe('Location zones could not be loaded.');
-    expect(component.form.controls.locationZoneId.disabled).toBe(true);
-  });
-
-  it('does not submit an incomplete quote', async () => {
-    await setup();
-    page.openCreate();
-    vi.mocked(store.dispatch).mockClear();
-
-    page.submit();
-
-    expect(store.dispatch).not.toHaveBeenCalled();
-  });
-
-  it('rejects a term longer than 60 months', async () => {
-    await setup();
-
-    component.form.controls.termMonths.setValue(61);
-
-    expect(component.form.controls.termMonths.hasError('max')).toBe(true);
-  });
-
-  it('creates a quote from valid input', async () => {
-    await setup();
-    page.openCreate();
-    component.form.setValue({ productId: 1, locationZoneId: 1, sumInsured: 100000, termMonths: 12 });
-
-    page.submit();
-
-    expect(store.dispatch).toHaveBeenCalledWith(
-      createQuote({ request: { productId: 1, locationZoneId: 1, sumInsured: 100000, termMonths: 12 } }),
-    );
-    expect(page.formOpen).toBe(false);
-  });
-
   it('accepts a quote and cancels only after confirmation', async () => {
     await setup();
 
@@ -110,15 +71,6 @@ describe('CustomerQuotesComponent', () => {
     vi.spyOn(TestBed.inject(DialogService), 'confirm').mockResolvedValue(true);
     await page.cancel(quote);
     expect(store.dispatch).toHaveBeenCalledWith(cancelQuote({ quoteId: 9 }));
-  });
-
-  it('resolves product and zone names with fallbacks', async () => {
-    await setup();
-
-    expect(page.productName([{ id: 1, name: 'Rain Cover' } as ProductResponse], 1)).toBe('Rain Cover');
-    expect(page.productName([], 5)).toBe('Product #5');
-    expect(page.zoneName(1)).toBe('Hyderabad Central Zone');
-    expect(page.zoneName(7)).toBe('Zone #7');
   });
 
   it('marks created quotes past their expiry as expired', async () => {

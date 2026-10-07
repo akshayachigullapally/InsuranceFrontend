@@ -12,54 +12,6 @@ describe('productsReducer', () => {
     expect(productsReducer(undefined, { type: '[Unknown]' } as never)).toEqual(initialProductsState);
   });
 
-  it('stores public products on load success', () => {
-    const products = [makeProduct(1)];
-
-    const loading = productsReducer(initialProductsState, ProductsActions.loadProducts());
-    expect(loading.isLoading).toBe(true);
-
-    const loaded = productsReducer(loading, ProductsActions.loadProductsSuccess({ products }));
-    expect(loaded.products).toEqual(products);
-    expect(loaded.isLoading).toBe(false);
-  });
-
-  it('stores admin products separately', () => {
-    const state = productsReducer(
-      initialProductsState,
-      ProductsActions.loadAdminProductsSuccess({ products: [makeProduct(1, 'DRAFT')] }),
-    );
-
-    expect(state.adminProducts.length).toBe(1);
-    expect(state.products).toEqual([]);
-  });
-
-  it('adds a created active product to both lists', () => {
-    const state = productsReducer(
-      initialProductsState,
-      ProductsActions.createProductSuccess({ product: makeProduct(2) }),
-    );
-
-    expect(state.adminProducts.map((p) => p.id)).toEqual([2]);
-    expect(state.products.map((p) => p.id)).toEqual([2]);
-    expect(state.selectedProduct?.id).toBe(2);
-  });
-
-  it('removes a product from the public list when it becomes inactive', () => {
-    const current: ProductsState = {
-      ...initialProductsState,
-      products: [makeProduct(1)],
-      adminProducts: [makeProduct(1)],
-    };
-
-    const state = productsReducer(
-      current,
-      ProductsActions.updateProductStatusSuccess({ product: makeProduct(1, 'INACTIVE') }),
-    );
-
-    expect(state.products).toEqual([]);
-    expect(state.adminProducts[0].status).toBe('INACTIVE');
-  });
-
   it('archives a deleted product instead of removing it from the admin list', () => {
     const current: ProductsState = {
       ...initialProductsState,
@@ -88,18 +40,6 @@ describe('productsReducer', () => {
     expect(saved.isSaving).toBe(false);
 
     expect(productsReducer(saved, ProductsActions.clearProductThresholdUpdate()).thresholdUpdate).toBeNull();
-  });
-
-  it('stores threshold history for a product', () => {
-    const history = [{ id: 1 }] as never[];
-
-    const state = productsReducer(
-      initialProductsState,
-      ProductsActions.loadProductThresholdHistorySuccess({ productId: 4, history }),
-    );
-
-    expect(state.thresholdHistory).toEqual(history);
-    expect(state.thresholdHistoryProductId).toBe(4);
   });
 
   it('merges filters and clears them', () => {

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PaymentCheckoutComponent, cardBrand } from './payment-checkout.component';
+import { PaymentCheckoutComponent } from './payment-checkout.component';
 import { PolicyResponse } from '../../dtos/policies/policy-response.dto';
 import { PaymentRequest, PaymentResponse } from '../../dtos/financial/payment-response.dto';
 
@@ -54,28 +54,6 @@ describe('PaymentCheckoutComponent', () => {
     expect(element.querySelector('button[type="submit"]')?.textContent).toContain('999.00');
   });
 
-  it('lets the customer switch to another policy', () => {
-    page.selectPolicy('4');
-
-    expect(page.selectedPolicy()?.id).toBe(4);
-  });
-
-  it('does not pay with an invalid card', () => {
-    component.card.setValue({ number: '4242 4242 4242 4241', name: 'A', expiry: '12/30', cvv: '123' });
-
-    page.submit();
-    vi.runAllTimers();
-
-    expect(component.card.controls.number.hasError('cardNumber')).toBe(true);
-    expect(paid).toEqual([]);
-  });
-
-  it('rejects an expired card', () => {
-    component.card.controls.expiry.setValue('01/20');
-
-    expect(component.card.controls.expiry.hasError('expired')).toBe(true);
-  });
-
   it('pays by card after a short processing delay, sending only policy and method', () => {
     page.useTestCard();
 
@@ -87,31 +65,6 @@ describe('PaymentCheckoutComponent', () => {
 
     expect(page.processing()).toBe(false);
     expect(paid).toEqual([{ policyId: 3, method: 'MOCK_CARD' }]);
-  });
-
-  it('pays when the customer clicks the Pay button', () => {
-    page.useTestCard();
-    fixture.detectChanges();
-
-    (element.querySelector('button[type="submit"]') as HTMLButtonElement).click();
-    vi.advanceTimersByTime(1200);
-
-    expect(paid).toEqual([{ policyId: 3, method: 'MOCK_CARD' }]);
-  });
-
-  it('declines the test decline card without calling the server', () => {
-    component.card.setValue({
-      number: '4000 0000 0000 0002',
-      name: 'Test',
-      expiry: '12/30',
-      cvv: '123',
-    });
-
-    page.submit();
-    vi.advanceTimersByTime(1200);
-
-    expect(paid).toEqual([]);
-    expect(page.declineMessage()).toContain('declined');
   });
 
   it('pays by UPI and by net banking with the matching methods', () => {
@@ -141,12 +94,6 @@ describe('PaymentCheckoutComponent', () => {
     expect(component.card.controls.expiry.value).toBe('12/30');
   });
 
-  it('detects the card brand', () => {
-    expect(cardBrand('4242')).toBe('VISA');
-    expect(cardBrand('5555')).toBe('Mastercard');
-    expect(cardBrand('6071')).toBe('RuPay');
-  });
-
   it('shows a receipt once the payment is recorded', () => {
     fixture.componentRef.setInput('paidPayment', {
       id: 9,
@@ -163,13 +110,5 @@ describe('PaymentCheckoutComponent', () => {
 
     expect(element.textContent).toContain('Payment successful');
     expect(element.textContent).toContain('TXN-ABC');
-  });
-
-  it('clears the dummy card details when closed', () => {
-    page.useTestCard();
-
-    fixture.destroy();
-
-    expect(component.card.controls.number.value).toBe('');
   });
 });

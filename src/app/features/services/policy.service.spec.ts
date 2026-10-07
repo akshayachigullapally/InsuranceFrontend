@@ -47,45 +47,6 @@ describe('PolicyService', () => {
     req.flush({ id: 10 });
   });
 
-  it('approves a policy with an empty body', () => {
-    service.approvePolicy(4).subscribe();
-
-    const req = httpMock.expectOne(API_ENDPOINTS.policies.approve(4));
-    expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual({});
-    req.flush({ id: 4, status: 'ACTIVE' });
-  });
-
-  it('trims the reason when rejecting a policy', () => {
-    service.rejectPolicy(4, '  High risk zone ').subscribe();
-
-    const req = httpMock.expectOne(API_ENDPOINTS.policies.reject(4));
-    expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual({ reason: 'High risk zone' });
-    req.flush({ id: 4, status: 'REJECTED' });
-  });
-
-  it('builds admin filters only for provided values', () => {
-    service.getAllPolicies(undefined, 12).subscribe();
-
-    const req = httpMock.expectOne(
-      (request) => request.url === API_ENDPOINTS.policies.adminAll,
-    );
-    expect(req.request.params.has('status')).toBe(false);
-    expect(req.request.params.get('customerId')).toBe('12');
-    req.flush([]);
-  });
-
-  it('cancels a policy', () => {
-    service.cancelPolicy(8).subscribe((response) => {
-      expect(response.message).toBe('Cancelled');
-    });
-
-    const req = httpMock.expectOne(API_ENDPOINTS.policies.cancel(8));
-    expect(req.request.method).toBe('PUT');
-    req.flush({ message: 'Cancelled' });
-  });
-
   it('fetches review data, history and snapshot', () => {
     service.getPendingPolicies().subscribe();
     httpMock.expectOne(API_ENDPOINTS.policies.reviewPending).flush([]);

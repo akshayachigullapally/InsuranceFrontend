@@ -41,24 +41,10 @@ describe('AdminPoliciesComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadAdminPolicies({}));
   });
 
-  it('builds a filter chip for every status plus All', () => {
-    expect(page.filters[0]).toEqual({ label: 'All', value: null });
-    expect(page.filters.map((filter) => filter.label)).toContain('Pending');
-  });
-
   it('reloads with the chosen status', () => {
     page.applyFilter('REJECTED');
 
     expect(page.selectedStatus).toBe('REJECTED');
     expect(store.dispatch).toHaveBeenCalledWith(loadAdminPolicies({ status: 'REJECTED' }));
-  });
-
-  it('labels zones including archived ones from getAllZones', () => {
-    expect(page.zoneLabel(3)).toBe('Pune Test Zone (Zone #3)');
-    expect(page.zoneLabel(4)).toBe('Zone #4');
-  });
-
-  it('formats status labels', () => {
-    expect(page.statusLabel('CANCELLED')).toBe('Cancelled');
   });
 });

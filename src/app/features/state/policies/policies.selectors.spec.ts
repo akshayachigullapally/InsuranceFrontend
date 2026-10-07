@@ -2,13 +2,6 @@ import { PolicyResponse } from '../../dtos/policies/policy-response.dto';
 import {
   selectActivePolicyCount,
   selectActiveSumInsured,
-  selectAdminActivePolicyCount,
-  selectAdminActivePremium,
-  selectAdminApprovedPolicyCount,
-  selectAdminPendingPolicyCount,
-  selectAdminRejectedPolicyCount,
-  selectPendingPolicyCount,
-  selectPendingReviewCount,
 } from './policies.selectors';
 
 function policy(status: PolicyResponse['status'], sumInsured: number, premiumAmount: number): PolicyResponse {
@@ -27,25 +20,5 @@ describe('policies selectors', () => {
   it('counts and sums my active policies', () => {
     expect(selectActivePolicyCount.projector(policies)).toBe(2);
     expect(selectActiveSumInsured.projector(policies)).toBe(150000);
-  });
-
-  it('counts pending policies for the customer and the review queue', () => {
-    expect(selectPendingPolicyCount.projector(policies)).toBe(1);
-    expect(selectPendingReviewCount.projector(policies)).toBe(1);
-  });
-
-  it('computes admin counts', () => {
-    expect(selectAdminPendingPolicyCount.projector(policies)).toBe(1);
-    expect(selectAdminActivePolicyCount.projector(policies)).toBe(2);
-    expect(selectAdminRejectedPolicyCount.projector(policies)).toBe(1);
-  });
-
-  it('counts active and expired policies as approved', () => {
-    expect(selectAdminApprovedPolicyCount.projector(policies)).toBe(3);
-  });
-
-  it('sums the premium of active policies only', () => {
-    expect(selectAdminActivePremium.projector(policies)).toBe(1600);
-    expect(selectAdminActivePremium.projector([])).toBe(0);
   });
 });

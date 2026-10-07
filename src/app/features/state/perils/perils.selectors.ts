@@ -34,13 +34,3 @@ export const selectFilteredPerils = createSelector(
     );
   },
 );
-
-export const selectActivePerilCount = createSelector(
-  selectPerils,
-  (perils) => perils.filter((peril) => peril.status === 'ACTIVE').length,
-);
-
-export const selectInactivePerilCount = createSelector(
-  selectPerils,
-  (perils) => perils.filter((peril) => peril.status === 'INACTIVE').length,
-);

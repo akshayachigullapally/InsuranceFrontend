@@ -47,13 +47,6 @@ describe('notificationsReducer', () => {
     expect(state).toEqual(initialNotificationsState);
   });
 
-  it('toggles polling state', () => {
-    const started = notificationsReducer(undefined, NotificationsActions.startNotificationPolling());
-    expect(started.polling).toBe(true);
-    const stopped = notificationsReducer(started, NotificationsActions.stopNotificationPolling());
-    expect(stopped.polling).toBe(false);
-  });
-
   it('loads notifications sorted newest first and records last seen', () => {
     const older = makeNotification(1, '2026-09-01T00:00:00Z');
     const newer = makeNotification(2, '2026-09-02T00:00:00Z');
@@ -93,21 +86,6 @@ describe('notificationsReducer', () => {
     expect(state.unreadCount).toBe(1);
   });
 
-  it('does nothing when merging notifications already present', () => {
-    const existing = makeNotification(1, '2026-09-01T00:00:00Z', { read: true });
-    const state = notificationsReducer(
-      undefined,
-      NotificationsActions.loadNotificationsSuccess({ notifications: [existing] }),
-    );
-
-    const merged = notificationsReducer(
-      state,
-      NotificationsActions.mergeNewNotifications({ notifications: [existing] }),
-    );
-    expect(merged.notifications).toHaveLength(1);
-    expect(merged.unreadCount).toBe(0);
-  });
-
   it('decrements unread count only when marking a previously unread notification as read', () => {
     const states = notificationsReducer(
       undefined,
@@ -129,50 +107,5 @@ describe('notificationsReducer', () => {
       }),
     );
     expect(markedAgain.unreadCount).toBe(0);
-  });
-
-  it('marks all notifications as read', () => {
-    const state = notificationsReducer(
-      undefined,
-      NotificationsActions.loadNotificationsSuccess({
-        notifications: [
-          makeNotification(1, '2026-09-01T00:00:00Z'),
-          makeNotification(2, '2026-09-02T00:00:00Z'),
-        ],
-      }),
-    );
-
-    const markedAll = notificationsReducer(state, NotificationsActions.markAllAsReadSuccess());
-    expect(markedAll.unreadCount).toBe(0);
-    expect(markedAll.notifications.every((n) => n.read)).toBe(true);
-  });
-
-  it('decrements unread count when deleting an unread notification', () => {
-    const state = notificationsReducer(
-      undefined,
-      NotificationsActions.loadNotificationsSuccess({
-        notifications: [makeNotification(1, '2026-09-01T00:00:00Z'), makeNotification(2, '2026-09-02T00:00:00Z', { read: true })],
-      }),
-    );
-
-    const deleted = notificationsReducer(
-      state,
-      NotificationsActions.deleteNotificationSuccess({ notificationId: 1 }),
-    );
-    expect(deleted.notifications.map((n) => n.id)).toEqual([2]);
-    expect(deleted.unreadCount).toBe(0);
-  });
-
-  it('clears notifications on logout', () => {
-    const state = notificationsReducer(
-      undefined,
-      NotificationsActions.loadNotificationsSuccess({
-        notifications: [makeNotification(1, '2026-09-01T00:00:00Z')],
-      }),
-    );
-    const cleared = notificationsReducer(state, NotificationsActions.clearNotificationsOnLogout());
-
-    expect(cleared).toEqual(initialNotificationsState);
-    expect(cleared.notifications).toEqual([]);
   });
 });

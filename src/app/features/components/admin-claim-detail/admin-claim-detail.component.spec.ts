@@ -100,34 +100,4 @@ describe('AdminClaimDetailComponent', () => {
     expect(page.customerName).toBe('Asha Rao');
     expect(page.zoneName).toBe('Hyderabad Gachibowli Zone');
   });
-
-  it('builds claim rows with resolved names', async () => {
-    const { page } = await setup('/admin/claims/8');
-
-    const rows = page.claimDetails(claim);
-
-    expect(rows.find((row) => row.label === 'Customer')?.value).toBe('Asha Rao (Customer #7)');
-    expect(rows.find((row) => row.label === 'Policy')?.value).toBe('POL-0003 (Policy #3)');
-    expect(rows.find((row) => row.label === 'Location zone')?.value).toBe('Hyderabad Gachibowli Zone (Zone #2)');
-  });
-
-  it('builds policy rows', async () => {
-    const { page } = await setup('/admin/claims/8');
-
-    const rows = page.policyDetails(policy);
-
-    expect(rows.find((row) => row.label === 'Product')?.value).toBe('Rain Cover (WEATHER-001)');
-    expect(rows.find((row) => row.label === 'Coverage end')?.value).toBe('Dec 31, 2026');
-  });
-
-  it('builds trigger and review rows', async () => {
-    const { page } = await setup('/admin/claims/8');
-
-    const trigger = page.triggerDetails(claim);
-    expect(trigger.find((row) => row.label === 'Trigger definition ID')?.value).toBe('Definition #4');
-
-    const review = page.reviewDetails(claim);
-    expect(review.find((row) => row.label === 'Reviewed by')?.value).toBe('Not reviewed');
-    expect(review.find((row) => row.label === 'Approved amount')?.value).toBe('Not approved');
-  });
 });

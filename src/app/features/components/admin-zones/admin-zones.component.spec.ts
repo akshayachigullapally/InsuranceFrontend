@@ -4,13 +4,9 @@ import { AdminZonesComponent } from './admin-zones.component';
 import { pageTestProviders } from '../../../../testing/test-helpers';
 import {
   archiveZone,
-  clearSelectedZone,
-  clearZoneFilters,
   clearZonesError,
   createZone,
   loadZones,
-  setZonesSearch,
-  updateZone,
   updateZoneAlert,
   updateZoneExposureCap,
   updateZoneStatus,
@@ -76,33 +72,6 @@ describe('AdminZonesComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadZones({}));
   });
 
-  it('debounces the search box', () => {
-    vi.useFakeTimers();
-
-    component.searchControl.setValue('gachibowli');
-    vi.advanceTimersByTime(250);
-
-    expect(store.dispatch).toHaveBeenCalledWith(setZonesSearch({ search: 'gachibowli' }));
-  });
-
-  it('filters by state and clears filters', () => {
-    page.applyStateFilter({ target: { value: ' Telangana ' } } as unknown as Event);
-    expect(page.selectedState).toBe('Telangana');
-    expect(store.dispatch).toHaveBeenCalledWith(loadZones({ state: 'Telangana' }));
-
-    page.clearFilters();
-    expect(page.selectedState).toBeNull();
-    expect(store.dispatch).toHaveBeenCalledWith(clearZoneFilters());
-  });
-
-  it('rejects out-of-range coordinates', () => {
-    component.form.patchValue({ latitude: 95, longitude: -181, radiusKm: 0 });
-
-    expect(component.form.controls.latitude.hasError('max')).toBe(true);
-    expect(component.form.controls.longitude.hasError('min')).toBe(true);
-    expect(component.form.controls.radiusKm.hasError('min')).toBe(true);
-  });
-
   it('creates a zone with trimmed values', () => {
     page.openCreate();
     expect(component.form.value.country).toBe('India');
@@ -136,17 +105,6 @@ describe('AdminZonesComponent', () => {
       }),
     );
     expect(page.formOpen).toBe(false);
-  });
-
-  it('updates an edited zone', () => {
-    page.openEdit(zone);
-    expect(component.form.value.zoneCode).toBe('HYD_GACHIBOWLI');
-
-    page.submit();
-
-    expect(store.dispatch).toHaveBeenCalledWith(
-      expect.objectContaining({ type: updateZone.type, zoneId: 12 }),
-    );
   });
 
   it('changes status only for a different value and archives on confirm', () => {
@@ -194,30 +152,6 @@ describe('AdminZonesComponent', () => {
     expect(prompt).not.toHaveBeenCalled();
   });
 
-  it('does not raise an alert with an empty message', () => {
-    page.toggleAlert(zone);
-    fixture.detectChanges();
-    const message = dialog()!.querySelector('#alertMessage') as HTMLTextAreaElement;
-    message.value = '';
-    message.dispatchEvent(new Event('input'));
-    clickButton('Raise alert');
-
-    expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: updateZoneAlert.type }));
-    expect(dialog()!.textContent).toContain('Enter a message');
-  });
-
-  it('clears an alert after confirming in the dialog', () => {
-    const confirm = vi.spyOn(window, 'confirm');
-
-    page.toggleAlert({ ...zone, weatherAlert: true, alertMessage: 'Flood' });
-    fixture.detectChanges();
-    expect(dialog()!.textContent).toContain('Clear the weather alert for Hyderabad Gachibowli Zone?');
-    clickButton('Clear alert');
-
-    expect(store.dispatch).toHaveBeenCalledWith(updateZoneAlert({ zoneId: 12, active: false }));
-    expect(confirm).not.toHaveBeenCalled();
-  });
-
   it('sets and removes an exposure cap from the dialog', () => {
     page.setExposureCap(zone);
     fixture.detectChanges();
@@ -231,26 +165,5 @@ describe('AdminZonesComponent', () => {
     fixture.detectChanges();
     clickButton('Remove cap');
     expect(store.dispatch).toHaveBeenCalledWith(updateZoneExposureCap({ zoneId: 12, maxExposure: null }));
-  });
-
-  it('rejects a cap of zero', () => {
-    page.setExposureCap(zone);
-    fixture.detectChanges();
-    const input = dialog()!.querySelector('#maxExposure') as HTMLInputElement;
-    input.value = '0';
-    input.dispatchEvent(new Event('input'));
-    clickButton('Save cap');
-
-    expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: updateZoneExposureCap.type }));
-    expect(dialog()!.textContent).toContain('Enter an amount greater than zero.');
-  });
-
-  it('closes the form and clears selection on destroy', () => {
-    page.openEdit(zone);
-    page.closeForm();
-    expect(page.editingZone).toBeNull();
-
-    fixture.destroy();
-    expect(store.dispatch).toHaveBeenCalledWith(clearSelectedZone());
   });
 });

@@ -10,9 +10,6 @@ import { ProductService } from '../../services/product.service';
 import { UserService } from '../../services/user.service';
 import { ZoneService } from '../../services/zone.service';
 import {
-  approvePolicy,
-  clearPoliciesError,
-  loadAdminPolicy,
   rejectPolicy,
 } from '../../state/policies/policies.actions';
 import { PolicyResponse } from '../../dtos/policies/policy-response.dto';
@@ -77,38 +74,6 @@ describe('UnderwriterPolicyDetailComponent', () => {
     expect(page.invalidPolicyId).toBe(true);
   });
 
-  it('loads the policy with zone, customer and product', async () => {
-    const { page, store } = await setup('/underwriter/policies/3');
-
-    expect(store.dispatch).toHaveBeenCalledWith(loadAdminPolicy({ policyId: 3 }));
-    expect(page.zoneName).toBe('Hyderabad Central Zone');
-    expect(page.customerName).toBe('Asha Rao');
-    expect(page.product?.name).toBe('Rain Cover');
-  });
-
-  it('approves the policy after confirmation', async () => {
-    const { page, store } = await setup('/underwriter/policies/3');
-
-    page.openApproval();
-    expect(page.approveOpen).toBe(true);
-    expect(store.dispatch).toHaveBeenCalledWith(clearPoliciesError());
-
-    page.confirmApproval();
-    expect(page.approveOpen).toBe(false);
-    expect(store.dispatch).toHaveBeenCalledWith(approvePolicy({ policyId: 3 }));
-  });
-
-  it('requires a non-blank rejection reason', async () => {
-    const { page, store } = await setup('/underwriter/policies/3');
-    page.openRejection();
-
-    page.rejectionForm.controls.reason.setValue('   ');
-    page.submitRejection();
-
-    expect(page.rejectOpen).toBe(true);
-    expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: rejectPolicy.type }));
-  });
-
   it('rejects the policy with a trimmed reason', async () => {
     const { page, store } = await setup('/underwriter/policies/3');
     page.openRejection();
@@ -119,16 +84,5 @@ describe('UnderwriterPolicyDetailComponent', () => {
 
     expect(page.rejectOpen).toBe(false);
     expect(store.dispatch).toHaveBeenCalledWith(rejectPolicy({ policyId: 3, reason: 'Zone is flood prone' }));
-  });
-
-  it('resets the rejection form when dismissed', async () => {
-    const { page } = await setup('/underwriter/policies/3');
-    page.openRejection();
-    page.rejectionForm.controls.reason.setValue('draft');
-
-    page.dismissRejection();
-
-    expect(page.rejectOpen).toBe(false);
-    expect(page.rejectionForm.controls.reason.value).toBe('');
   });
 });

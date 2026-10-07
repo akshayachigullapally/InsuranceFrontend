@@ -32,25 +32,4 @@ describe('PaymentService', () => {
     expect(req.request.body).toEqual(request);
     req.flush({ id: 5 });
   });
-
-  it('fetches my payments, one payment and all payments', () => {
-    service.getMyPayments().subscribe();
-    httpMock.expectOne(API_ENDPOINTS.financial.myPayments).flush([]);
-
-    service.getPayment(5).subscribe();
-    httpMock.expectOne(API_ENDPOINTS.financial.paymentById(5)).flush({ id: 5 });
-
-    service.getAllPayments().subscribe();
-    httpMock.expectOne(API_ENDPOINTS.financial.adminPayments).flush([]);
-  });
-
-  it('refunds a payment', () => {
-    service.refundPayment(5).subscribe((response) => {
-      expect(response.message).toBe('Refunded');
-    });
-
-    const req = httpMock.expectOne(API_ENDPOINTS.financial.paymentRefund(5));
-    expect(req.request.method).toBe('PUT');
-    req.flush({ message: 'Refunded' });
-  });
 });

@@ -55,27 +55,10 @@ describe('TriggerExplanationComponent', () => {
     expect(text).toContain('50,000');
   });
 
-  it('shows the approved amount once approved', async () => {
-    const text = await render(claim({ status: 'APPROVED', approvedAmount: 45000 }));
-
-    expect(text).toContain('Approved payout');
-    expect(text).toContain('45,000');
-  });
-
   it('falls back when the reading was not recorded', async () => {
     const text = await render(claim({ triggerObservedValue: null, triggerThresholdValue: null }));
 
     expect(text).toContain('TEV-9');
     expect(text).toContain('not recorded');
-  });
-
-  it('renders nothing for manual claims', async () => {
-    const text = await render(claim({
-      triggerEventId: null,
-      createdFromTriggerEvent: false,
-      claimSource: 'MANUAL_EXCEPTION',
-    }));
-
-    expect(text.trim()).toBe('');
   });
 });

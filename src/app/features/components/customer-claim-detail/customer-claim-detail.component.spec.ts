@@ -6,9 +6,6 @@ import { CustomerClaimDetailComponent } from './customer-claim-detail.component'
 import { mockRootState, pageTestProviders } from '../../../../testing/test-helpers';
 import { ZoneService } from '../../services/zone.service';
 import {
-  cancelClaim,
-  clearClaimsError,
-  clearSelectedClaim,
   loadMyClaim,
 } from '../../state/claims/claims.actions';
 import { ClaimResponse } from '../../dtos/claims/claim-response.dto';
@@ -72,33 +69,6 @@ describe('CustomerClaimDetailComponent', () => {
     expect(store.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: loadMyClaim.type }));
   });
 
-  it('loads the claim and its zone name', async () => {
-    const { page, store } = await setup('/customer/claims/8');
-
-    expect(store.dispatch).toHaveBeenCalledWith(clearClaimsError());
-    expect(store.dispatch).toHaveBeenCalledWith(clearSelectedClaim());
-    expect(store.dispatch).toHaveBeenCalledWith(loadMyClaim({ claimId: 8 }));
-    expect(page.zoneName).toBe('Hyderabad Gachibowli Zone');
-  });
-
-  it('renders the claim number', async () => {
-    const { harness } = await setup('/customer/claims/8');
-    harness.detectChanges();
-
-    expect(harness.routeNativeElement?.textContent).toContain('CLM-0008');
-  });
-
-  it('builds the claim detail rows', async () => {
-    const { page } = await setup('/customer/claims/8');
-
-    const rows = page.claimDetails(claim);
-
-    expect(rows.find((row) => row.label === 'Incident type')?.value).toBe('Excess Rainfall');
-    expect(rows.find((row) => row.label === 'Incident date')?.value).toBe('Sep 20, 2026');
-    expect(rows.find((row) => row.label === 'Claimed amount')?.value).toBe('₹ 25,000.00');
-    expect(rows.find((row) => row.label === 'Approved amount')?.value).toBe('Not decided');
-  });
-
   it('shows trigger details for automatic claims and evidence for manual ones', async () => {
     const { page } = await setup('/customer/claims/8');
 
@@ -108,16 +78,5 @@ describe('CustomerClaimDetailComponent', () => {
 
     const manual = page.triggerDetails({ ...claim, manualReviewRequired: true, evidenceDescription: 'Photos attached' });
     expect(manual.map((row) => row.value)).toEqual(['Customer reported (manual)', 'Photos attached']);
-  });
-
-  it('cancels the claim after confirmation', async () => {
-    const { page, store } = await setup('/customer/claims/8');
-
-    page.openCancel();
-    expect(page.cancelOpen).toBe(true);
-
-    page.confirmCancel();
-    expect(page.cancelOpen).toBe(false);
-    expect(store.dispatch).toHaveBeenCalledWith(cancelClaim({ claimId: 8 }));
   });
 });

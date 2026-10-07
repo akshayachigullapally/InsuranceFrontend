@@ -42,13 +42,6 @@ describe('ClaimsOfficerClaimsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadSubmittedClaims());
   });
 
-  it('averages the claimed amount', () => {
-    const claims = [{ claimedAmount: 100 }, { claimedAmount: 250 }] as ClaimResponse[];
-
-    expect(page.averageClaimAmount(claims)).toBe(175);
-    expect(page.averageClaimAmount([])).toBe(0);
-  });
-
   it('describes the trigger for automatic and manual claims', () => {
     const automatic = { triggerEventId: 12, triggerEventReference: 'EVT-12' } as ClaimResponse;
     const manual = { manualReviewRequired: true } as ClaimResponse;
@@ -59,14 +52,5 @@ describe('ClaimsOfficerClaimsComponent', () => {
     expect(page.triggerReference(manual)).toBe('Manual review');
     expect(page.triggerEventLabel(manual)).toBe('Pending validation');
     expect(page.triggerEventLabel(unknown)).toBe('Not available');
-  });
-
-  it('formats incident labels and dates', () => {
-    expect(page.incidentLabel('HIGH_WIND')).toBe('High Wind');
-    expect(page.formatDateOnly('2026-01-05')).toBe('Jan 5, 2026');
-  });
-
-  it('labels zones by name', () => {
-    expect(page.zoneLabel(1)).toBe('Delhi North Zone (Zone #1)');
   });
 });

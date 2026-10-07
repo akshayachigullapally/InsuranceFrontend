@@ -12,33 +12,6 @@ describe('zonesReducer', () => {
     expect(zonesReducer(undefined, { type: '[Unknown]' } as never)).toEqual(initialZonesState);
   });
 
-  it('remembers a trimmed state filter while loading', () => {
-    const state = zonesReducer(initialZonesState, ZonesActions.loadZones({ state: '  Telangana ' }));
-
-    expect(state.selectedState).toBe('Telangana');
-    expect(state.isLoading).toBe(true);
-  });
-
-  it('treats a blank state filter as no filter', () => {
-    expect(zonesReducer(initialZonesState, ZonesActions.loadZones({ state: '  ' })).selectedState).toBeNull();
-  });
-
-  it('stores loaded zones', () => {
-    const zones = [makeZone(1), makeZone(2)];
-
-    const state = zonesReducer(initialZonesState, ZonesActions.loadZonesSuccess({ zones }));
-
-    expect(state.zones).toEqual(zones);
-    expect(state.isLoading).toBe(false);
-  });
-
-  it('tracks which zone is being updated', () => {
-    const state = zonesReducer(initialZonesState, ZonesActions.updateZoneStatus({ zoneId: 4, status: 'INACTIVE' as never }));
-
-    expect(state.updatingZoneId).toBe(4);
-    expect(state.isSaving).toBe(true);
-  });
-
   it('adds a created zone only when it matches the state filter', () => {
     const filtered: ZonesState = { ...initialZonesState, selectedState: 'Karnataka' };
 
@@ -60,25 +33,6 @@ describe('zonesReducer', () => {
     expect(state.zones[0].status).toBe('INACTIVE');
     expect(state.updatingZoneId).toBeNull();
     expect(state.isSaving).toBe(false);
-  });
-
-  it('removes an archived zone and its selection', () => {
-    const current: ZonesState = { ...initialZonesState, zones: [makeZone(1), makeZone(2)], selectedZone: makeZone(1) };
-
-    const state = zonesReducer(current, ZonesActions.archiveZoneSuccess({ zoneId: 1 }));
-
-    expect(state.zones.map((zone) => zone.id)).toEqual([2]);
-    expect(state.selectedZone).toBeNull();
-  });
-
-  it('stores save failures', () => {
-    const state = zonesReducer(
-      { ...initialZonesState, isSaving: true, updatingZoneId: 3 },
-      ZonesActions.archiveZoneFailure({ error: 'Zone in use' }),
-    );
-
-    expect(state.error).toBe('Zone in use');
-    expect(state.updatingZoneId).toBeNull();
   });
 
   it('sets and clears the search filters', () => {

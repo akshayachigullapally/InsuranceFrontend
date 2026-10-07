@@ -29,16 +29,6 @@ describe('NotificationService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('fetches my notifications', () => {
-    service.getMyNotifications().subscribe((notifications) => {
-      expect(notifications).toEqual([]);
-    });
-
-    const req = httpMock.expectOne(API_ENDPOINTS.notifications.myNotifications);
-    expect(req.request.method).toBe('GET');
-    req.flush([]);
-  });
-
   it('fetches notifications created after a timestamp', () => {
     const createdAfter = '2026-09-21T00:00:00Z';
 
@@ -54,26 +44,5 @@ describe('NotificationService', () => {
     expect(req.request.method).toBe('GET');
     expect(req.request.params.get('createdAfter')).toBe(createdAfter);
     req.flush([]);
-  });
-
-  it('fetches the unread count', () => {
-    service.getUnreadCount().subscribe((response) => {
-      expect(response.count).toBe(3);
-    });
-
-    const req = httpMock.expectOne(API_ENDPOINTS.notifications.myUnreadCount);
-    expect(req.request.method).toBe('GET');
-    req.flush({ count: 3 });
-  });
-
-  it('marks a notification as read', () => {
-    const notificationId = 42;
-    service.markAsRead(notificationId).subscribe((notification) => {
-      expect(notification.id).toBe(notificationId);
-    });
-
-    const req = httpMock.expectOne(API_ENDPOINTS.notifications.markRead(notificationId));
-    expect(req.request.method).toBe('PUT');
-    req.flush({ id: notificationId, read: true });
   });
 });

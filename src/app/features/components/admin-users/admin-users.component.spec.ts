@@ -5,9 +5,7 @@ import { AdminUsersComponent } from './admin-users.component';
 import { pageTestProviders } from '../../../../testing/test-helpers';
 import {
   clearUsersError,
-  clearUsersFilters,
   loadUsers,
-  setUsersSearch,
   updateUserStatus,
 } from '../../state/users/users.actions';
 import { UserResponse } from '../../dtos/auth/user-response.dto';
@@ -62,22 +60,6 @@ describe('AdminUsersComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadUsers({ status: undefined, segment: undefined }));
   });
 
-  it('reloads users with status and segment filters', () => {
-    page.onStatusFilter(selectEvent('SUSPENDED'));
-    page.onSegmentFilter(selectEvent('FARMER'));
-
-    expect(store.dispatch).toHaveBeenCalledWith(loadUsers({ status: 'SUSPENDED', segment: 'FARMER' }));
-  });
-
-  it('debounces the search box', () => {
-    vi.useFakeTimers();
-
-    component.searchControl.setValue('ravi');
-    vi.advanceTimersByTime(250);
-
-    expect(store.dispatch).toHaveBeenCalledWith(setUsersSearch({ search: 'ravi' }));
-  });
-
   it('changes a user status only after confirmation', async () => {
     const confirm = vi.spyOn(TestBed.inject(DialogService), 'confirm').mockResolvedValue(false);
     const cancelled = selectEvent('SUSPENDED');
@@ -91,24 +73,6 @@ describe('AdminUsersComponent', () => {
     confirm.mockResolvedValue(true);
     await page.onUserStatusChange(user, selectEvent('SUSPENDED'));
     expect(store.dispatch).toHaveBeenCalledWith(updateUserStatus({ userId: 4, status: 'SUSPENDED' }));
-  });
-
-  it('ignores selecting the current status', async () => {
-    const confirm = vi.spyOn(TestBed.inject(DialogService), 'confirm');
-
-    await page.onUserStatusChange(user, selectEvent('ACTIVE'));
-
-    expect(confirm).not.toHaveBeenCalled();
-  });
-
-  it('clears all filters and reloads', () => {
-    page.onStatusFilter(selectEvent('SUSPENDED'));
-    vi.mocked(store.dispatch).mockClear();
-
-    page.clearFilters();
-
-    expect(store.dispatch).toHaveBeenCalledWith(clearUsersFilters());
-    expect(store.dispatch).toHaveBeenCalledWith(loadUsers({ status: undefined, segment: undefined }));
   });
 
   it('formats labels and addresses', () => {

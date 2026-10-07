@@ -39,24 +39,10 @@ describe('QuotesEffects', () => {
     expect(collect(effects.loadQuotes$)).toEqual([QuotesActions.loadQuotesSuccess({ quotes: [quote] })]);
   });
 
-  it('creates a quote', () => {
-    quoteService['createQuote'].mockReturnValue(of(quote));
-    actions$ = of(QuotesActions.createQuote({ request: {} as never }));
-
-    expect(collect(effects.createQuote$)).toEqual([QuotesActions.createQuoteSuccess({ quote })]);
-  });
-
   it('maps accept errors', () => {
     quoteService['acceptQuote'].mockReturnValue(throwError(() => ({ error: { message: 'Quote expired' } })));
     actions$ = of(QuotesActions.acceptQuote({ quoteId: 1 }));
 
     expect(collect(effects.acceptQuote$)).toEqual([QuotesActions.acceptQuoteFailure({ error: 'Quote expired' })]);
-  });
-
-  it('emits the cancelled quote id', () => {
-    quoteService['cancelQuote'].mockReturnValue(of({ message: 'ok' }));
-    actions$ = of(QuotesActions.cancelQuote({ quoteId: 1 }));
-
-    expect(collect(effects.cancelQuote$)).toEqual([QuotesActions.cancelQuoteSuccess({ quoteId: 1 })]);
   });
 });

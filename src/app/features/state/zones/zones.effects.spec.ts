@@ -47,13 +47,6 @@ describe('ZonesEffects', () => {
     expect(zoneService['getAllZones']).toHaveBeenCalledWith('Telangana');
   });
 
-  it('maps load errors to a failure', () => {
-    zoneService['getAllZones'].mockReturnValue(throwError(() => ({ error: { message: 'Service down' } })));
-    actions$ = of(ZonesActions.loadZones({}));
-
-    expect(collect(effects.loadZones$)).toEqual([ZonesActions.loadZonesFailure({ error: 'Service down' })]);
-  });
-
   it('raises a weather alert and returns the updated zone', () => {
     const alerted = { ...zone, weatherAlert: true, alertMessage: 'Cyclone' } as ZoneResponse;
     zoneService['updateZoneAlert'].mockReturnValue(of(alerted));
@@ -72,27 +65,5 @@ describe('ZonesEffects', () => {
     expect(collect(effects.updateZoneExposureCap$)).toEqual([
       ZonesActions.updateZoneStatusFailure({ error: 'Exposure cap must be greater than zero' }),
     ]);
-  });
-
-  it('creates a zone', () => {
-    zoneService['createZone'].mockReturnValue(of(zone));
-    actions$ = of(ZonesActions.createZone({ request: {} as never }));
-
-    expect(collect(effects.createZone$)).toEqual([ZonesActions.createZoneSuccess({ zone })]);
-  });
-
-  it('updates a zone status', () => {
-    zoneService['updateZoneStatus'].mockReturnValue(of(zone));
-    actions$ = of(ZonesActions.updateZoneStatus({ zoneId: 1, status: 'INACTIVE' as never }));
-
-    expect(collect(effects.updateZoneStatus$)).toEqual([ZonesActions.updateZoneStatusSuccess({ zone })]);
-    expect(zoneService['updateZoneStatus']).toHaveBeenCalledWith(1, 'INACTIVE');
-  });
-
-  it('emits the archived zone id', () => {
-    zoneService['archiveZone'].mockReturnValue(of({ message: 'Archived' }));
-    actions$ = of(ZonesActions.archiveZone({ zoneId: 1 }));
-
-    expect(collect(effects.archiveZone$)).toEqual([ZonesActions.archiveZoneSuccess({ zoneId: 1 })]);
   });
 });

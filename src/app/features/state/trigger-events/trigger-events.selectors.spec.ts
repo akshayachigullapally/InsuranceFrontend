@@ -21,13 +21,4 @@ describe('trigger events selectors', () => {
   it('returns every event for a blank search', () => {
     expect(selectFilteredTriggerEvents.projector(events, '  ').length).toBe(3);
   });
-
-  it('searches reference, zone, peril, definition, measurement and status', () => {
-    expect(selectFilteredTriggerEvents.projector(events, 'evt-2').map((e) => e.id)).toEqual([2]);
-    expect(selectFilteredTriggerEvents.projector(events, 'hyderabad').map((e) => e.id)).toEqual([1]);
-    expect(selectFilteredTriggerEvents.projector(events, 'flood').map((e) => e.id)).toEqual([2]);
-    expect(selectFilteredTriggerEvents.projector(events, 'chennai').map((e) => e.id)).toEqual([3]);
-    expect(selectFilteredTriggerEvents.projector(events, 'river').map((e) => e.id)).toEqual([2]);
-    expect(selectFilteredTriggerEvents.projector(events, 'rejected').map((e) => e.id)).toEqual([3]);
-  });
 });

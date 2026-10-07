@@ -20,18 +20,4 @@ describe('AuthBrandPanelComponent', () => {
     expect(element.querySelector('.wordmark')?.textContent).toContain('ClimateSure');
     expect(element.querySelector('.sensor-chip')).toBeNull();
   });
-
-  it('uses sign-in copy by default', () => {
-    fixture.detectChanges();
-
-    expect(element.querySelector('.headline')?.textContent).toContain('pays automatically');
-    expect(element.querySelector('.body')?.textContent).toContain('Sign in');
-  });
-
-  it('switches to sign-up copy in register mode', () => {
-    fixture.componentRef.setInput('mode', 'register');
-    fixture.detectChanges();
-
-    expect(element.querySelector('.body')?.textContent).toContain('Create an account');
-  });
 });

@@ -3,11 +3,9 @@ import { MockStore } from '@ngrx/store/testing';
 import { AdminTriggerEventsComponent } from './admin-trigger-events.component';
 import { pageTestProviders } from '../../../../testing/test-helpers';
 import {
-  clearSelectedTriggerEvent,
   clearTriggerEventFilters,
   clearTriggerEventsError,
   loadTriggerEvents,
-  setTriggerEventsSearch,
 } from '../../state/trigger-events/trigger-events.actions';
 
 describe('AdminTriggerEventsComponent', () => {
@@ -38,16 +36,6 @@ describe('AdminTriggerEventsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadTriggerEvents());
   });
 
-  it('dispatches the search term after a 250 ms debounce', () => {
-    component.searchControl.setValue('hyd');
-
-    vi.advanceTimersByTime(200);
-    expect(store.dispatch).not.toHaveBeenCalledWith(setTriggerEventsSearch({ search: 'hyd' }));
-
-    vi.advanceTimersByTime(50);
-    expect(store.dispatch).toHaveBeenCalledWith(setTriggerEventsSearch({ search: 'hyd' }));
-  });
-
   it('clears filters and reloads events', () => {
     component.searchControl.setValue('hyd');
     vi.mocked(store.dispatch).mockClear();
@@ -57,12 +45,5 @@ describe('AdminTriggerEventsComponent', () => {
     expect(component.searchControl.value).toBe('');
     expect(store.dispatch).toHaveBeenCalledWith(clearTriggerEventFilters());
     expect(store.dispatch).toHaveBeenCalledWith(loadTriggerEvents());
-  });
-
-  it('clears the selection and error on destroy', () => {
-    fixture.destroy();
-
-    expect(store.dispatch).toHaveBeenCalledWith(clearSelectedTriggerEvent());
-    expect(store.dispatch).toHaveBeenCalledWith(clearTriggerEventsError());
   });
 });

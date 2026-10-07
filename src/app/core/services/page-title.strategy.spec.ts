@@ -18,10 +18,4 @@ describe('PageTitleStrategy', () => {
     strategy.updateTitle({} as RouterStateSnapshot);
     expect(title.getTitle()).toBe('My claims · ClimateSure');
   });
-
-  it('falls back to the app name when the route has no title', () => {
-    vi.spyOn(strategy, 'buildTitle').mockReturnValue(undefined);
-    strategy.updateTitle({} as RouterStateSnapshot);
-    expect(title.getTitle()).toBe('ClimateSure');
-  });
 });

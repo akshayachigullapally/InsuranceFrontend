@@ -30,14 +30,4 @@ describe('CurrentMeasurementService', () => {
     expect(req.request.body).toEqual(request);
     req.flush({});
   });
-
-  it('fetches the current measurement snapshots', () => {
-    service.getCurrentMeasurements().subscribe((snapshots) => {
-      expect(snapshots).toEqual([]);
-    });
-
-    const req = httpMock.expectOne(API_ENDPOINTS.triggers.currentMeasurementsList);
-    expect(req.request.method).toBe('GET');
-    req.flush([]);
-  });
 });

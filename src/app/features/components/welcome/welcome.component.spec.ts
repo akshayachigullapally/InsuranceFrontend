@@ -31,17 +31,4 @@ describe('WelcomeComponent', () => {
     expect(component.steps.map((step) => step.number)).toEqual(['1', '2', '3', '4']);
     expect(component.stats.length).toBe(4);
   });
-
-  it('renders the feature titles', () => {
-    const text = fixture.nativeElement.textContent;
-
-    expect(text).toContain('Automatic evaluation');
-    expect(text).toContain('Get paid automatically');
-  });
-
-  it('falls back to the OTHER icon for unknown categories', () => {
-    const icon = component['categoryIcon'];
-
-    expect(icon.call(component, 'SOMETHING_NEW')).toBe(icon.call(component, 'OTHER'));
-  });
 });

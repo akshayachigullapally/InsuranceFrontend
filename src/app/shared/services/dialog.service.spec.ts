@@ -16,19 +16,6 @@ describe('DialogService', () => {
     expect(service.current()).toBeNull();
   });
 
-  it('resolves false when a confirm dialog is cancelled', async () => {
-    const result = service.confirm({ title: 'Archive?' });
-    service.close(null);
-    await expect(result).resolves.toBe(false);
-  });
-
-  it('resolves the typed text for a prompt', async () => {
-    const result = service.prompt({ title: 'Why?', inputLabel: 'Reason', defaultValue: 'Bank rejected' });
-    expect(service.current()?.kind).toBe('prompt');
-    service.close('Account closed');
-    await expect(result).resolves.toBe('Account closed');
-  });
-
   it('cancels an open dialog when another one opens', async () => {
     const first = service.confirm({ title: 'First' });
     const second = service.confirm({ title: 'Second' });

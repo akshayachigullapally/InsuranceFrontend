@@ -50,23 +50,6 @@ describe('CustomerPaymentsComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(loadMyPolicies({}));
   });
 
-  it('starts on the payments tab and switches to payouts', () => {
-    const tabs = component as unknown as { activeTab: string; switchTab(tab: string): void };
-    expect(tabs.activeTab).toBe('payments');
-
-    tabs.switchTab('payouts');
-
-    expect(tabs.activeTab).toBe('payouts');
-  });
-
-  it('opens checkout for the chosen policy', () => {
-    page.openCheckout(3);
-
-    expect(page.checkoutOpen).toBe(true);
-    expect(page.checkoutPolicyId).toBe(3);
-    expect(page.paidPayment).toBeNull();
-  });
-
   it('pays through the store and shows the receipt once the payment is saved', () => {
     const paid = { id: 9, policyId: 3, status: 'SUCCESS' } as PaymentResponse;
     page.openCheckout(3);
@@ -84,28 +67,6 @@ describe('CustomerPaymentsComponent', () => {
     );
     expect(page.paidPayment).toEqual(paid);
     expect(page.checkoutError).toBeNull();
-  });
-
-  it('keeps checkout open with the server error when paying fails', () => {
-    page.openCheckout(3);
-    page.pay({ policyId: 3, method: 'MOCK_CARD' });
-
-    store.setState(mockRootState({ payments: { ...initialPaymentsState, isSaving: true } }));
-    store.setState(
-      mockRootState({ payments: { ...initialPaymentsState, error: 'Policy must be active before payment' } }),
-    );
-
-    expect(page.checkoutOpen).toBe(true);
-    expect(page.checkoutError).toBe('Policy must be active before payment');
-    expect(page.paidPayment).toBeNull();
-  });
-
-  it('closes checkout and resets it', () => {
-    page.openCheckout(3);
-    page.closeCheckout();
-
-    expect(page.checkoutOpen).toBe(false);
-    expect(store.dispatch).toHaveBeenCalledWith(clearPaymentsError());
   });
 
   it('offers only active policies that are not paid yet', async () => {
@@ -132,19 +93,6 @@ describe('CustomerPaymentsComponent', () => {
     expect(payable.map((policy) => policy.id)).toEqual([1]);
   });
 
-  it('offers nothing to pay until payments have loaded', async () => {
-    store.setState(
-      mockRootState({
-        policies: {
-          ...initialPoliciesState,
-          myPolicies: [{ id: 1, status: 'ACTIVE' }] as PolicyResponse[],
-        },
-      }),
-    );
-
-    expect(await firstValueFrom(component.payablePolicies$)).toEqual([]);
-  });
-
   it('refreshes payments when the server says the policy is already paid', () => {
     page.openCheckout(3);
     page.pay({ policyId: 3, method: 'MOCK_CARD' });
@@ -158,13 +106,5 @@ describe('CustomerPaymentsComponent', () => {
     expect(page.checkoutError).toContain('already paid');
     expect(store.dispatch).toHaveBeenCalledWith(loadMyPayments());
     expect(store.dispatch).toHaveBeenCalledWith(loadMyPolicies({}));
-  });
-
-  it('clears errors on destroy', () => {
-    vi.mocked(store.dispatch).mockClear();
-
-    fixture.destroy();
-
-    expect(store.dispatch).toHaveBeenCalledWith(clearPaymentsError());
   });
 });

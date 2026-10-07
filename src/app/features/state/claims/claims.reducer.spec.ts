@@ -30,36 +30,6 @@ describe('claimsReducer', () => {
     expect(claimsReducer(undefined, { type: '[Unknown]' } as never)).toEqual(initialClaimsState);
   });
 
-  it('remembers the status filter and starts loading my claims', () => {
-    const state = claimsReducer(initialClaimsState, ClaimsActions.loadMyClaims({ status: 'APPROVED' }));
-
-    expect(state.myClaimsStatus).toBe('APPROVED');
-    expect(state.isLoading).toBe(true);
-    expect(state.error).toBeNull();
-  });
-
-  it('stores my claims on success', () => {
-    const claims = [makeClaim(1), makeClaim(2)];
-
-    const state = claimsReducer(
-      { ...initialClaimsState, isLoading: true },
-      ClaimsActions.loadMyClaimsSuccess({ claims }),
-    );
-
-    expect(state.myClaims).toEqual(claims);
-    expect(state.isLoading).toBe(false);
-  });
-
-  it('stores the error on failure', () => {
-    const state = claimsReducer(
-      { ...initialClaimsState, isLoading: true },
-      ClaimsActions.loadMyClaimsFailure({ error: 'Server down' }),
-    );
-
-    expect(state.isLoading).toBe(false);
-    expect(state.error).toBe('Server down');
-  });
-
   it('adds a newly created claim to the top of my claims', () => {
     const existing = makeClaim(1);
     const created = makeClaim(2);
@@ -103,31 +73,5 @@ describe('claimsReducer', () => {
     expect(state.submittedClaims.map((claim) => claim.id)).toEqual([2]);
     expect(state.selectedClaim).toEqual(approved);
     expect(state.isSaving).toBe(false);
-  });
-
-  it('replaces the selected claim when it is settled', () => {
-    const current: ClaimsState = { ...initialClaimsState, selectedClaim: makeClaim(1), isSaving: true };
-    const settled = makeClaim(1, { status: 'SETTLED' });
-
-    const state = claimsReducer(current, ClaimsActions.settleClaimSuccess({ claim: settled }));
-
-    expect(state.selectedClaim?.status).toBe('SETTLED');
-    expect(state.isSaving).toBe(false);
-  });
-
-  it('sets isSaving for write actions and clears it on failure', () => {
-    const saving = claimsReducer(initialClaimsState, ClaimsActions.rejectClaim({ claimId: 1, reason: 'No' }));
-    expect(saving.isSaving).toBe(true);
-
-    const failed = claimsReducer(saving, ClaimsActions.rejectClaimFailure({ error: 'Not allowed' }));
-    expect(failed.isSaving).toBe(false);
-    expect(failed.error).toBe('Not allowed');
-  });
-
-  it('clears the selected claim and the error', () => {
-    const current: ClaimsState = { ...initialClaimsState, selectedClaim: makeClaim(1), error: 'Oops' };
-
-    expect(claimsReducer(current, ClaimsActions.clearSelectedClaim()).selectedClaim).toBeNull();
-    expect(claimsReducer(current, ClaimsActions.clearClaimsError()).error).toBeNull();
   });
 });

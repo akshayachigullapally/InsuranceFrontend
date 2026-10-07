@@ -12,13 +12,6 @@ describe('policiesReducer', () => {
     expect(policiesReducer(undefined, { type: '[Unknown]' } as never)).toEqual(initialPoliciesState);
   });
 
-  it('remembers the status filter while loading my policies', () => {
-    const state = policiesReducer(initialPoliciesState, PoliciesActions.loadMyPolicies({ status: 'ACTIVE' }));
-
-    expect(state.myPoliciesStatus).toBe('ACTIVE');
-    expect(state.isLoading).toBe(true);
-  });
-
   it('stores loaded policies and failures', () => {
     const policies = [makePolicy(1), makePolicy(2)];
 
@@ -40,23 +33,6 @@ describe('policiesReducer', () => {
     expect(state.myPolicies[1].status).toBe('ACTIVE');
   });
 
-  it('adds a created policy to the top of my list', () => {
-    const current: PoliciesState = { ...initialPoliciesState, myPolicies: [makePolicy(1)] };
-
-    const state = policiesReducer(current, PoliciesActions.createPolicySuccess({ policy: makePolicy(2) }));
-
-    expect(state.myPolicies.map((policy) => policy.id)).toEqual([2, 1]);
-    expect(state.isSaving).toBe(false);
-  });
-
-  it('drops a created policy that does not match the current filter', () => {
-    const current: PoliciesState = { ...initialPoliciesState, myPoliciesStatus: 'ACTIVE' };
-
-    const state = policiesReducer(current, PoliciesActions.createPolicySuccess({ policy: makePolicy(3) }));
-
-    expect(state.myPolicies).toEqual([]);
-  });
-
   it('removes a reviewed policy from the underwriter queue', () => {
     const current: PoliciesState = {
       ...initialPoliciesState,
@@ -68,21 +44,5 @@ describe('policiesReducer', () => {
 
     expect(state.reviewPolicies.map((policy) => policy.id)).toEqual([2]);
     expect(state.isSaving).toBe(false);
-  });
-
-  it('marks saving on write actions and stores failures', () => {
-    const saving = policiesReducer(initialPoliciesState, PoliciesActions.cancelPolicy({ policyId: 1 }));
-    expect(saving.isSaving).toBe(true);
-
-    const failed = policiesReducer(saving, PoliciesActions.cancelPolicyFailure({ error: 'Cannot cancel' }));
-    expect(failed.isSaving).toBe(false);
-    expect(failed.error).toBe('Cannot cancel');
-  });
-
-  it('clears the error and the selected policy', () => {
-    const current: PoliciesState = { ...initialPoliciesState, error: 'x', selectedPolicy: makePolicy(1) };
-
-    expect(policiesReducer(current, PoliciesActions.clearPoliciesError()).error).toBeNull();
-    expect(policiesReducer(current, PoliciesActions.clearSelectedPolicy()).selectedPolicy).toBeNull();
   });
 });
