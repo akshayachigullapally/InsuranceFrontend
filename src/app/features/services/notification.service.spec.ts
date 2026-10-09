@@ -29,20 +29,13 @@ describe('NotificationService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('fetches notifications created after a timestamp', () => {
-    const createdAfter = '2026-09-21T00:00:00Z';
-
-    service.getMyNotificationsCreatedAfter(createdAfter).subscribe((notifications) => {
-      expect(notifications).toEqual([]);
+  it('marks a notification as read', () => {
+    service.markAsRead(7).subscribe((notification) => {
+      expect(notification.id).toBe(7);
     });
 
-    const req = httpMock.expectOne(
-      (request) =>
-        request.url === API_ENDPOINTS.notifications.myNotifications &&
-        request.params.get('createdAfter') === createdAfter,
-    );
-    expect(req.request.method).toBe('GET');
-    expect(req.request.params.get('createdAfter')).toBe(createdAfter);
-    req.flush([]);
+    const req = httpMock.expectOne(API_ENDPOINTS.notifications.markRead(7));
+    expect(req.request.method).toBe('PUT');
+    req.flush({ id: 7, read: true });
   });
 });

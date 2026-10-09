@@ -28,37 +28,19 @@ function makeNotification(
     relatedEntityId: null,
     read: false,
     readAt: null,
-    deliveryChannel: 'IN_APP',
-    deliveryStatus: 'DELIVERED',
-    retryCount: 0,
-    maxRetries: 3,
-    correlationId: null,
-    idempotencyKey: null,
     createdAt,
-    updatedAt: null,
     ...options,
   };
 }
 
 const SERVICE_METHODS = [
   'getMyNotifications',
-  'getMyNotificationsCreatedAfter',
   'getUnreadCount',
   'getMyUnreadNotifications',
   'markAsRead',
   'markAllAsRead',
   'deleteNotification',
   'getAllNotifications',
-  'getFailedNotifications',
-  'getMyPreferences',
-  'upsertPreference',
-  'createFromTemplate',
-  'sendBatch',
-  'getDeliveryAttempts',
-  'getTemplates',
-  'createTemplate',
-  'updateTemplate',
-  'deactivateTemplate',
 ] as const;
 
 describe('NotificationsEffects', () => {

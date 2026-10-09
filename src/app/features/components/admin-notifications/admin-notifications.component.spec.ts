@@ -9,9 +9,9 @@ import { NotificationResponse } from '../../dtos/notifications/notification-resp
 
 const notifications = [
   { id: 1, title: 'Policy Pending Review', message: 'Policy POL-1 awaits review', type: 'POLICY_SUBMITTED',
-    recipientRole: 'ROLE_ADMIN', read: false, createdAt: '2026-09-27T10:00:00', deliveryChannel: 'IN_APP' },
+    recipientRole: 'ROLE_ADMIN', read: false, createdAt: '2026-09-27T10:00:00' },
   { id: 2, title: 'Claim Approved', message: 'Your claim CLM-9 was approved', type: 'CLAIM_APPROVED',
-    recipientUserId: 42, read: true, createdAt: '2026-09-26T10:00:00', deliveryChannel: 'EMAIL' },
+    recipientUserId: 42, read: true, createdAt: '2026-09-26T10:00:00' },
 ] as unknown as NotificationResponse[];
 
 describe('AdminNotificationsComponent', () => {

@@ -168,17 +168,14 @@ export const notificationsReducer = createReducer(
   })),
   on(
     NotificationsActions.loadAllNotifications,
-    NotificationsActions.loadFailedNotifications,
     (state) => ({
       ...state,
       adminLoading: true,
       adminError: null,
-      adminMessage: null,
     }),
   ),
   on(
     NotificationsActions.loadAllNotificationsSuccess,
-    NotificationsActions.loadFailedNotificationsSuccess,
     (state, { notifications }) => ({
       ...state,
       adminNotifications: mergeNotifications([], notifications),
@@ -187,138 +184,12 @@ export const notificationsReducer = createReducer(
   ),
   on(
     NotificationsActions.loadAllNotificationsFailure,
-    NotificationsActions.loadFailedNotificationsFailure,
     (state, { error }) => ({
       ...state,
       adminLoading: false,
       adminError: error,
     }),
   ),
-  on(NotificationsActions.loadPreferences, (state) => ({
-    ...state,
-    isLoading: true,
-  })),
-  on(NotificationsActions.loadPreferencesSuccess, (state, { preferences }) => ({
-    ...state,
-    preferences,
-    isLoading: false,
-  })),
-  on(NotificationsActions.loadPreferencesFailure, (state, { error }) => ({
-    ...state,
-    isLoading: false,
-    error,
-  })),
-  on(NotificationsActions.upsertPreference, (state) => ({
-    ...state,
-    isSaving: true,
-  })),
-  on(NotificationsActions.upsertPreferenceSuccess, (state, { preference }) => ({
-    ...state,
-    preferences: state.preferences.some((p) => p.id === preference.id)
-      ? state.preferences.map((p) => (p.id === preference.id ? preference : p))
-      : [...state.preferences, preference],
-    isSaving: false,
-  })),
-  on(NotificationsActions.upsertPreferenceFailure, (state, { error }) => ({
-    ...state,
-    isSaving: false,
-    error,
-  })),
-  on(NotificationsActions.createFromTemplate, NotificationsActions.sendBatch, (state) => ({
-    ...state,
-    isSaving: true,
-    adminError: null,
-    adminMessage: null,
-  })),
-  on(
-    NotificationsActions.createFromTemplateSuccess,
-    NotificationsActions.sendBatchSuccess,
-    (state, { notifications }) => ({
-      ...state,
-      adminNotifications: mergeNotifications(state.adminNotifications, notifications),
-      adminMessage: `Sent ${notifications.length} notification${notifications.length === 1 ? '' : 's'}.`,
-      isSaving: false,
-    }),
-  ),
-  on(
-    NotificationsActions.createFromTemplateFailure,
-    NotificationsActions.sendBatchFailure,
-    (state, { error }) => ({
-      ...state,
-      isSaving: false,
-      adminError: error,
-    }),
-  ),
-  on(NotificationsActions.loadDeliveryAttempts, (state) => ({
-    ...state,
-    isLoading: true,
-  })),
-  on(NotificationsActions.loadDeliveryAttemptsSuccess, (state, { attempts }) => ({
-    ...state,
-    deliveryAttempts: attempts,
-    isLoading: false,
-  })),
-  on(NotificationsActions.loadDeliveryAttemptsFailure, (state, { error }) => ({
-    ...state,
-    isLoading: false,
-    error,
-  })),
-  on(NotificationsActions.loadTemplates, (state) => ({
-    ...state,
-    isLoading: true,
-  })),
-  on(NotificationsActions.loadTemplatesSuccess, (state, { templates }) => ({
-    ...state,
-    templates,
-    isLoading: false,
-  })),
-  on(NotificationsActions.loadTemplatesFailure, (state, { error }) => ({
-    ...state,
-    isLoading: false,
-    error,
-  })),
-  on(NotificationsActions.createTemplate, (state) => ({
-    ...state,
-    isSaving: true,
-  })),
-  on(NotificationsActions.createTemplateSuccess, (state, { template }) => ({
-    ...state,
-    templates: [template, ...state.templates],
-    isSaving: false,
-  })),
-  on(NotificationsActions.createTemplateFailure, (state, { error }) => ({
-    ...state,
-    isSaving: false,
-    error,
-  })),
-  on(NotificationsActions.updateTemplate, (state) => ({
-    ...state,
-    isSaving: true,
-  })),
-  on(NotificationsActions.updateTemplateSuccess, (state, { template }) => ({
-    ...state,
-    templates: state.templates.map((t) => (t.id === template.id ? template : t)),
-    isSaving: false,
-  })),
-  on(NotificationsActions.updateTemplateFailure, (state, { error }) => ({
-    ...state,
-    isSaving: false,
-    error,
-  })),
-  on(NotificationsActions.deactivateTemplate, (state) => ({
-    ...state,
-    isSaving: true,
-  })),
-  on(NotificationsActions.deactivateTemplateSuccess, (state, { templateId }) => ({
-    ...state,
-    templates: state.templates.map((t) => (t.id === templateId ? { ...t, active: false } : t)),
-    isSaving: false,
-  })),
-  on(NotificationsActions.deactivateTemplateFailure, (state, { error }) => ({
-    ...state,
-    isSaving: false,
-    error,
-  })),
   on(NotificationsActions.clearNotificationsError, (state) => ({
     ...state,
     error: null,

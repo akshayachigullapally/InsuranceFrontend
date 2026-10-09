@@ -34,11 +34,6 @@ export const selectNotificationsError = createSelector(
   (state: NotificationsState) => state.error,
 );
 
-export const selectPreferences = createSelector(
-  selectNotificationsState,
-  (state: NotificationsState) => state.preferences,
-);
-
 export const selectLatestNotifications = createSelector(
   selectNotifications,
   (notifications: NotificationResponse[]) => notifications.slice(0, 5),

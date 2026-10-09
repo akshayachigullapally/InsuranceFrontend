@@ -5,13 +5,12 @@ import { loggedInAuth, mockRootState, pageTestProviders } from '../../../../test
 import {
   deleteNotification,
   loadNotifications,
-  loadPreferences,
   markAllAsRead,
   markAsRead,
   refreshNotifications,
 } from '../../state/notifications/notifications.actions';
 
-async function setup(authenticated: boolean, preferences: unknown[] = []) {
+async function setup(authenticated: boolean) {
   const root = mockRootState();
   await TestBed.configureTestingModule({
     imports: [CustomerNotificationsComponent],
@@ -23,7 +22,6 @@ async function setup(authenticated: boolean, preferences: unknown[] = []) {
           { id: 1, title: 'Older', type: 'GENERAL', createdAt: '2026-09-01T00:00:00Z', read: true },
           { id: 2, title: 'Newer', type: 'GENERAL', createdAt: '2026-09-02T00:00:00Z', read: false },
         ],
-        preferences,
       },
     }),
   }).compileComponents();
@@ -37,11 +35,10 @@ async function setup(authenticated: boolean, preferences: unknown[] = []) {
 }
 
 describe('CustomerNotificationsComponent', () => {
-  it('loads notifications and preferences once authenticated', async () => {
+  it('loads notifications once authenticated', async () => {
     const { store } = await setup(true);
 
     expect(store.dispatch).toHaveBeenCalledWith(loadNotifications());
-    expect(store.dispatch).toHaveBeenCalledWith(loadPreferences());
   });
 
   it('dispatches read, read-all, refresh and delete actions', async () => {

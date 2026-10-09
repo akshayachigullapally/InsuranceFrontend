@@ -80,14 +80,6 @@ export const RELATED_ENTITY_TYPES = [
 
 export type RelatedEntityType = (typeof RELATED_ENTITY_TYPES)[number];
 
-const DELIVERY_CHANNELS = ['IN_APP', 'EMAIL', 'SMS'] as const;
-
-export type DeliveryChannel = (typeof DELIVERY_CHANNELS)[number];
-
-export const DELIVERY_STATUSES = ['DELIVERED', 'FAILED', 'PENDING', 'SKIPPED'] as const;
-
-export type DeliveryStatus = (typeof DELIVERY_STATUSES)[number];
-
 export interface NotificationResponse {
   id: number;
   notificationReference: string;
@@ -101,96 +93,7 @@ export interface NotificationResponse {
   relatedEntityId?: number | null;
   read: boolean;
   readAt?: string | null;
-  deliveryChannel: DeliveryChannel;
-  deliveryChannels?: DeliveryChannel[];
-  deliveryStatus: DeliveryStatus;
-  retryCount?: number;
-  maxRetries?: number;
-  correlationId?: string | null;
-  idempotencyKey?: string | null;
   createdAt: string;
-  updatedAt?: string | null;
-}
-
-export interface NotificationRequest {
-  recipientUserId?: number | null;
-  recipientCustomerId?: number | null;
-  recipientRole?: string | null;
-  type: NotificationType;
-  title: string;
-  message: string;
-  relatedEntityType?: RelatedEntityType | null;
-  relatedEntityId?: number | null;
-  deliveryChannel?: DeliveryChannel;
-  deliveryChannels?: DeliveryChannel[];
-  maxRetries?: number;
-}
-
-export interface TemplateNotificationRequest {
-  templateCode: string;
-  userId?: number | null;
-  customerId?: number | null;
-  role?: string | null;
-  relatedEntityId?: number | null;
-  templateData?: Record<string, unknown>;
-}
-
-export interface BatchNotificationRequest {
-  userIds: number[];
-  notification: Omit<
-    NotificationRequest,
-    'recipientUserId' | 'recipientCustomerId' | 'recipientRole'
-  >;
-}
-
-export interface NotificationTemplateResponse {
-  id: number;
-  templateCode: string;
-  notificationType: NotificationType;
-  titleTemplate: string;
-  messageTemplate: string;
-  defaultChannel: DeliveryChannel;
-  active: boolean;
-  createdAt: string;
-  updatedAt?: string | null;
-}
-
-export interface CreateNotificationTemplateRequest {
-  templateCode: string;
-  notificationType: NotificationType;
-  titleTemplate: string;
-  messageTemplate: string;
-  defaultChannel?: DeliveryChannel;
-}
-
-export interface NotificationPreferenceResponse {
-  id: number;
-  userId: number;
-  customerId?: number | null;
-  notificationType: NotificationType;
-  inAppEnabled: boolean;
-  emailEnabled: boolean;
-  smsEnabled: boolean;
-  createdAt: string;
-  updatedAt?: string | null;
-}
-
-export interface UpsertNotificationPreferenceRequest {
-  notificationType: NotificationType;
-  inAppEnabled?: boolean;
-  emailEnabled?: boolean;
-  smsEnabled?: boolean;
-}
-
-export interface DeliveryAttemptResponse {
-  id: number;
-  notificationId: number;
-  deliveryChannel: DeliveryChannel;
-  deliveryStatus: DeliveryStatus;
-  attemptNumber: number;
-  errorMessage?: string | null;
-  attemptedAt: string;
-  completedAt?: string | null;
 }
 
 export interface UnreadCountResponse {

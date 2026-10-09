@@ -114,18 +114,6 @@ export const API_ENDPOINTS = {
     adminMarkRead: (notificationId: number) =>
       `${BASE}/api/notifications/admin/${notificationId}/read`,
     adminDelete: (notificationId: number) => `${BASE}/api/notifications/admin/${notificationId}`,
-    adminFailed: `${BASE}/api/notifications/admin/failed`,
-    myPreferences: `${BASE}/api/notifications/me/preferences`,
-    upsertPreferences: `${BASE}/api/notifications/me/preferences`,
-    fromTemplate: `${BASE}/api/notifications/from-template`,
-    adminBatch: `${BASE}/api/notifications/admin/batch`,
-    deliveryAttempts: (notificationId: number) =>
-      `${BASE}/api/notifications/${notificationId}/delivery-attempts`,
-    adminTemplates: `${BASE}/api/notifications/admin/templates`,
-    adminTemplateById: (templateId: number) =>
-      `${BASE}/api/notifications/admin/templates/${templateId}`,
-    adminTemplateDeactivate: (templateId: number) =>
-      `${BASE}/api/notifications/admin/templates/${templateId}/deactivate`,
   },
   financial: {
     pricingRules: `${BASE}/api/financial/pricing-rules`,

@@ -1,18 +1,11 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
 import {
-  BatchNotificationRequest,
-  CreateNotificationTemplateRequest,
-  DeliveryAttemptResponse,
   MessageResponse,
-  NotificationPreferenceResponse,
   NotificationResponse,
-  NotificationTemplateResponse,
-  TemplateNotificationRequest,
   UnreadCountResponse,
-  UpsertNotificationPreferenceRequest,
 } from '../dtos/notifications/notification-response.dto';
 
 @Injectable({ providedIn: 'root' })
@@ -21,12 +14,6 @@ export class NotificationService {
 
   getMyNotifications(): Observable<NotificationResponse[]> {
     return this.http.get<NotificationResponse[]>(API_ENDPOINTS.notifications.myNotifications);
-  }
-
-  getMyNotificationsCreatedAfter(createdAfterIso: string): Observable<NotificationResponse[]> {
-    return this.http.get<NotificationResponse[]>(API_ENDPOINTS.notifications.myNotifications, {
-      params: new HttpParams().set('createdAfter', createdAfterIso),
-    });
   }
 
   getMyUnreadNotifications(): Observable<NotificationResponse[]> {
@@ -54,94 +41,6 @@ export class NotificationService {
 
   getAllNotifications(): Observable<NotificationResponse[]> {
     return this.http.get<NotificationResponse[]>(API_ENDPOINTS.notifications.adminAll);
-  }
-
-  getFailedNotifications(): Observable<NotificationResponse[]> {
-    return this.http.get<NotificationResponse[]>(API_ENDPOINTS.notifications.adminFailed);
-  }
-
-  getMyPreferences(): Observable<NotificationPreferenceResponse[]> {
-    return this.http.get<NotificationPreferenceResponse[]>(
-      API_ENDPOINTS.notifications.myPreferences,
-    );
-  }
-
-  upsertPreference(
-    request: UpsertNotificationPreferenceRequest,
-  ): Observable<NotificationPreferenceResponse> {
-    return this.http.put<NotificationPreferenceResponse>(
-      API_ENDPOINTS.notifications.upsertPreferences,
-      request,
-    );
-  }
-
-  createFromTemplate(request: TemplateNotificationRequest): Observable<NotificationResponse[]> {
-    const variables = request.templateData
-      ? Object.fromEntries(
-          Object.entries(request.templateData).map(([key, value]) => [key, String(value ?? '')]),
-        )
-      : undefined;
-    return this.http.post<NotificationResponse[]>(API_ENDPOINTS.notifications.fromTemplate, {
-      templateCode: request.templateCode,
-      recipientUserId: request.userId ?? null,
-      recipientCustomerId: request.customerId ?? null,
-      recipientRole: request.role ?? null,
-      relatedEntityId: request.relatedEntityId ?? null,
-      variables,
-    });
-  }
-
-  sendBatch(request: BatchNotificationRequest): Observable<NotificationResponse[]> {
-    return this.http.post<NotificationResponse[]>(API_ENDPOINTS.notifications.adminBatch, {
-      notifications: request.userIds.map((recipientUserId) => ({
-        ...request.notification,
-        recipientUserId,
-      })),
-    });
-  }
-
-  getDeliveryAttempts(notificationId: number): Observable<DeliveryAttemptResponse[]> {
-    return this.http.get<DeliveryAttemptResponse[]>(
-      API_ENDPOINTS.notifications.deliveryAttempts(notificationId),
-    );
-  }
-
-  getTemplates(): Observable<NotificationTemplateResponse[]> {
-    return this.http.get<NotificationTemplateResponse[]>(
-      API_ENDPOINTS.notifications.adminTemplates,
-    );
-  }
-
-  getTemplateById(templateId: number): Observable<NotificationTemplateResponse> {
-    return this.http.get<NotificationTemplateResponse>(
-      API_ENDPOINTS.notifications.adminTemplateById(templateId),
-    );
-  }
-
-  createTemplate(
-    request: CreateNotificationTemplateRequest,
-  ): Observable<NotificationTemplateResponse> {
-    return this.http.post<NotificationTemplateResponse>(
-      API_ENDPOINTS.notifications.adminTemplates,
-      request,
-    );
-  }
-
-  updateTemplate(
-    templateId: number,
-    request: CreateNotificationTemplateRequest,
-  ): Observable<NotificationTemplateResponse> {
-    return this.http.put<NotificationTemplateResponse>(
-      API_ENDPOINTS.notifications.adminTemplateById(templateId),
-      request,
-    );
-  }
-
-  deactivateTemplate(templateId: number): Observable<MessageResponse> {
-    return this.http.put<MessageResponse>(
-      API_ENDPOINTS.notifications.adminTemplateDeactivate(templateId),
-      {},
-    );
   }
 
   /** Admin: mark any notification as read. */

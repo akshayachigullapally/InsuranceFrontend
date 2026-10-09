@@ -23,14 +23,7 @@ function makeNotification(
     relatedEntityId: null,
     read: false,
     readAt: null,
-    deliveryChannel: 'IN_APP',
-    deliveryStatus: 'DELIVERED',
-    retryCount: 0,
-    maxRetries: 3,
-    correlationId: null,
-    idempotencyKey: null,
     createdAt,
-    updatedAt: null,
     ...options,
   };
 }
