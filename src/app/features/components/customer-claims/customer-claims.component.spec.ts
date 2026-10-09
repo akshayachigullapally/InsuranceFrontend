@@ -1,7 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
+import { Action } from '@ngrx/store';
+import { provideMockActions } from '@ngrx/effects/testing';
+import { mergeNewNotifications } from '../../state/notifications/notifications.actions';
+import { NotificationResponse } from '../../dtos/notifications/notification-response.dto';
 import { CustomerClaimsComponent } from './customer-claims.component';
 import { ZoneService } from '../../services/zone.service';
 import { ClaimResponse } from '../../dtos/claims/claim-response.dto';
@@ -41,12 +45,15 @@ describe('CustomerClaimsComponent', () => {
   let fixture: ComponentFixture<CustomerClaimsComponent>;
   let store: MockStore;
   let element: HTMLElement;
+  let actions$: Subject<Action>;
 
   beforeEach(async () => {
+    actions$ = new Subject<Action>();
     await TestBed.configureTestingModule({
       imports: [CustomerClaimsComponent],
       providers: [
         provideRouter([]),
+        provideMockActions(() => actions$),
         provideMockStore({
           selectors: [
             { selector: selectMyClaims, value: [] },
@@ -83,6 +90,20 @@ describe('CustomerClaimsComponent', () => {
 
     expect(store.dispatch).toHaveBeenCalledWith(clearClaimsError());
     expect(store.dispatch).toHaveBeenCalledWith(loadMyClaims({}));
+  });
+
+  it('reloads the claims when a live claim notification arrives', () => {
+    fixture.detectChanges();
+    vi.mocked(store.dispatch).mockClear();
+
+    const notify = (relatedEntityType: string) =>
+      actions$.next(mergeNewNotifications({
+        notifications: [{ id: 1, relatedEntityType, relatedEntityId: 5 } as unknown as NotificationResponse],
+      }));
+    notify('POLICY');
+    expect(store.dispatch).not.toHaveBeenCalled();
+    notify('CLAIM');
+    expect(store.dispatch).toHaveBeenCalledWith(loadMyClaims({ status: undefined }));
   });
 
   it('renders a row per claim with formatted labels', () => {

@@ -1,9 +1,11 @@
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Actions, ofType } from '@ngrx/effects';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
+import { mergeNewNotifications } from '../../state/notifications/notifications.actions';
 import { ClaimResponse } from '../../dtos/claims/claim-response.dto';
 import {
   cancelClaim,
@@ -63,6 +65,7 @@ export class CustomerClaimDetailComponent implements OnInit, OnDestroy {
 
   private claimId = 0;
   private readonly destroy$ = new Subject<void>();
+  private readonly actions$ = inject(Actions);
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -93,6 +96,16 @@ export class CustomerClaimDetailComponent implements OnInit, OnDestroy {
     this.uploadWarning =
       (globalThis.history?.state as { uploadError?: string } | undefined)?.uploadError ?? null;
     this.store.dispatch(loadMyClaim({ claimId }));
+    // A live notification about this claim (approved, settled…) reloads it.
+    this.actions$
+      .pipe(
+        ofType(mergeNewNotifications),
+        filter(({ notifications }) =>
+          notifications.some(n => n.relatedEntityType === 'CLAIM' && n.relatedEntityId === claimId),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.store.dispatch(loadMyClaim({ claimId })));
 
     this.claim$
       .pipe(takeUntil(this.destroy$))

@@ -1,10 +1,13 @@
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { cancelClaim } from '../../state/claims/claims.actions';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Actions, ofType } from '@ngrx/effects';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, filter } from 'rxjs';
+import { mergeNewNotifications } from '../../state/notifications/notifications.actions';
 import {
   CLAIM_STATUSES,
   ClaimResponse,
@@ -71,6 +74,8 @@ export class CustomerClaimsComponent implements OnInit {
   protected selectedStatus: ClaimStatus | null = null;
 
   private zoneNamesById: Record<number, string> = {};
+  private readonly actions$ = inject(Actions);
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private readonly store: Store,
@@ -87,6 +92,16 @@ export class CustomerClaimsComponent implements OnInit {
   ngOnInit(): void {
     this.store.dispatch(clearClaimsError());
     this.store.dispatch(loadMyClaims({}));
+    // A live claim notification (created, approved, settled…) reloads the list.
+    this.actions$
+      .pipe(
+        ofType(mergeNewNotifications),
+        filter(({ notifications }) => notifications.some(n => n.relatedEntityType === 'CLAIM')),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() =>
+        this.store.dispatch(loadMyClaims({ status: this.selectedStatus ?? undefined })),
+      );
 
     this.zoneService.getActiveZones().subscribe(zones => {
       this.zoneNamesById = zones.reduce(

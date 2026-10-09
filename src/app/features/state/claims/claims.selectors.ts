@@ -28,14 +28,17 @@ export const selectMySubmittedClaimCount = createSelector(
   (claims) => claims.filter((claim) => claim.status === 'SUBMITTED').length,
 );
 
+// A settled claim was approved and then paid, so it counts as approved too.
+const isApproved = (status: string) => status === 'APPROVED' || status === 'SETTLED';
+
 export const selectMyApprovedClaimCount = createSelector(
   selectMyClaims,
-  (claims) => claims.filter((claim) => claim.status === 'APPROVED').length,
+  (claims) => claims.filter((claim) => isApproved(claim.status)).length,
 );
 
 export const selectMyApprovedAmount = createSelector(selectMyClaims, (claims) =>
   claims
-    .filter((claim) => claim.status === 'APPROVED')
+    .filter((claim) => isApproved(claim.status))
     .reduce((sum, claim) => sum + (claim.approvedAmount ?? 0), 0),
 );
 
