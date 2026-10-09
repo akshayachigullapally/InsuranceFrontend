@@ -328,7 +328,8 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
   protected profilePath(user: AuthUser | null): string {
     if (!user?.role) return '/';
     if (user.role === ROLES.CUSTOMER) return '/customer/profile';
-    return this.dashboardPath(user);
+    // Staff have their own read-only profile page next to their dashboard.
+    return this.dashboardPath(user).replace(/\/dashboard$/, '/profile');
   }
   protected initials(user: AuthUser): string {
     if (!user?.fullName) {

@@ -187,6 +187,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'profile',
+        title: 'My profile',
+        loadComponent: () =>
+          import('./features/components/staff-profile/staff-profile.component').then(
+            (m) => m.StaffProfileComponent,
+          ),
+      },
+      {
         path: 'policies',
         title: 'Policies to review',
         loadComponent: () =>
@@ -235,6 +243,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'profile',
+        title: 'My profile',
+        loadComponent: () =>
+          import('./features/components/staff-profile/staff-profile.component').then(
+            (m) => m.StaffProfileComponent,
+          ),
+      },
+      {
         path: 'claims',
         title: 'Claims queue',
         loadComponent: () =>
@@ -280,6 +296,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/components/admin-dashboard/admin-dashboard.component').then(
             (m) => m.AdminDashboardComponent,
+          ),
+      },
+      {
+        path: 'profile',
+        title: 'My profile',
+        loadComponent: () =>
+          import('./features/components/staff-profile/staff-profile.component').then(
+            (m) => m.StaffProfileComponent,
           ),
       },
       {

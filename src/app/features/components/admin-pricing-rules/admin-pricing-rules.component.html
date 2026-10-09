@@ -88,7 +88,9 @@
 
                         <button
                           type="button"
-                          class="font-semibold text-danger-500 hover:text-danger-700"
+                          class="font-semibold text-danger-500 hover:text-danger-700 disabled:cursor-not-allowed disabled:text-gray-400"
+                          [disabled]="rule.status === 'ACTIVE'"
+                          [title]="rule.status === 'ACTIVE' ? 'Deactivate this rule before archiving it' : 'Archive this rule'"
                           (click)="archive(rule)"
                         >
                           Archive
