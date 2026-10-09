@@ -1,6 +1,6 @@
 # ClimateSure — Frontend (Angular)
 
-The web app for **ClimateSure / CityShield**, a parametric insurance platform. Customers buy weather cover. When a measured value (rainfall, river level, temperature, wind, humidity, soil moisture) crosses their policy's threshold, a claim opens automatically. Once a claims officer approves it, the payout is paid automatically.
+The web app for **ClimateSure**, a parametric insurance platform. Customers buy weather cover. When a measured value (rainfall, river level, temperature, wind, humidity, soil moisture) crosses their policy's threshold, a claim opens automatically. Once a claims officer approves it, the payout is paid automatically.
 
 The backend (Spring Boot microservices behind an API gateway) lives in the **ParametricInsurance** repository.
 
@@ -10,7 +10,7 @@ The backend (Spring Boot microservices behind an API gateway) lives in the **Par
 |---|---|
 | `ParametricInsurance/docs/FEATURES.md` | Every feature, frontend and backend, explained simply with an example |
 | `ParametricInsurance/docs/VALIDATIONS.md` | Every validation rule, backend and frontend, side by side |
-| `docs/CityShield_Project_Documentation.docx` | Architecture, end-to-end journeys, formulas, demo script, reviewer Q&A |
+| `docs/ClimateSure_Project_Documentation.docx` | Architecture, end-to-end journeys, formulas, demo script, reviewer Q&A |
 
 ## Tech stack
 

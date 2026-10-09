@@ -6,7 +6,6 @@ import {
   BatchNotificationRequest,
   CreateNotificationTemplateRequest,
   DeliveryAttemptResponse,
-  InternalNotificationRequest,
   MessageResponse,
   NotificationPreferenceResponse,
   NotificationResponse,
@@ -142,13 +141,6 @@ export class NotificationService {
     return this.http.put<MessageResponse>(
       API_ENDPOINTS.notifications.adminTemplateDeactivate(templateId),
       {},
-    );
-  }
-
-  createInternal(request: InternalNotificationRequest): Observable<NotificationResponse> {
-    return this.http.post<NotificationResponse>(
-      `${API_ENDPOINTS.notifications.myNotifications.replace('/me', '')}/internal`,
-      request,
     );
   }
 

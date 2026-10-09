@@ -126,19 +126,6 @@ export interface NotificationRequest {
   maxRetries?: number;
 }
 
-export interface InternalNotificationRequest {
-  recipientUserId?: number | null;
-  recipientCustomerId?: number | null;
-  recipientRole?: string | null;
-  type: NotificationType;
-  title: string;
-  message: string;
-  relatedEntityType?: RelatedEntityType | null;
-  relatedEntityId?: number | null;
-  deliveryChannels?: DeliveryChannel[];
-  maxRetries?: number;
-}
-
 export interface TemplateNotificationRequest {
   templateCode: string;
   userId?: number | null;
