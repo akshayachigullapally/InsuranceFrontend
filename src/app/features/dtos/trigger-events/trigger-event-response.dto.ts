@@ -12,7 +12,6 @@ export interface TriggerEventResponse {
   id: number;
   eventReference: string;
   triggerDefinitionId: number;
-  triggerEvaluationId: number;
   perilId: number;
   perilCode?: string;
   perilName?: string;

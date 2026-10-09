@@ -23,18 +23,6 @@ export class TriggerEventService {
     return this.http.get<TriggerEventResponse>(API_ENDPOINTS.triggers.eventById(eventId));
   }
 
-  getEventsByStatus(status: string): Observable<TriggerEventResponse[]> {
-    return this.http.get<TriggerEventResponse[]>(API_ENDPOINTS.triggers.eventsByStatus(status));
-  }
-
-  getEventsByProduct(productId: number): Observable<TriggerEventResponse[]> {
-    return this.http.get<TriggerEventResponse[]>(API_ENDPOINTS.triggers.eventsByProduct(productId));
-  }
-
-  getEventsByZone(zoneId: number): Observable<TriggerEventResponse[]> {
-    return this.http.get<TriggerEventResponse[]>(API_ENDPOINTS.triggers.eventsByZone(zoneId));
-  }
-
   getTriggerDefinition(definitionId: number): Observable<TriggerDefinitionSummary> {
     return this.http.get<TriggerDefinitionSummary>(
       API_ENDPOINTS.triggers.definitionById(definitionId),
