@@ -27,6 +27,11 @@ export const authInterceptor: HttpInterceptorFn = (
   }
 
   const accessToken = tokenStorage.getAccessToken();
+  const storedRefreshToken = tokenStorage.getRefreshToken();
+  // An expired token would only get a 401: refresh first, then send the request.
+  if (accessToken && storedRefreshToken && tokenStorage.isAccessTokenExpired()) {
+    return refreshAndRetry(req, next, authService, tokenStorage, storedRefreshToken);
+  }
   const authenticatedRequest = accessToken ? addAuthorizationHeader(req, accessToken) : req;
 
   return next(authenticatedRequest).pipe(
@@ -51,18 +56,16 @@ export const authInterceptor: HttpInterceptorFn = (
   );
 };
 
-function refreshAndRetry(
-  originalRequest: HttpRequest<unknown>,
-  next: HttpHandlerFn,
+/** Refreshes the access token; callers at the same time share one refresh request. */
+export function refreshAccessToken(
   authService: AuthService,
   tokenStorage: TokenStorageService,
   refreshToken: string,
-): Observable<HttpEvent<unknown>> {
+): Observable<AuthResponse> {
   if (!refreshRequest) {
     refreshRequest = authService.refresh({ refreshToken }).pipe(
       switchMap((auth: AuthResponse) => {
         tokenStorage.storeTokens(auth.accessToken, auth.refreshToken);
-
         return [auth];
       }),
       shareReplay({
@@ -74,8 +77,17 @@ function refreshAndRetry(
       }),
     );
   }
+  return refreshRequest;
+}
 
-  return refreshRequest.pipe(
+function refreshAndRetry(
+  originalRequest: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+  authService: AuthService,
+  tokenStorage: TokenStorageService,
+  refreshToken: string,
+): Observable<HttpEvent<unknown>> {
+  return refreshAccessToken(authService, tokenStorage, refreshToken).pipe(
     switchMap((auth: AuthResponse) =>
       next(addAuthorizationHeader(originalRequest, auth.accessToken)),
     ),

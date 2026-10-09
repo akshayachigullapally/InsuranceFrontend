@@ -2,6 +2,8 @@ import { Injectable, NgZone } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { environment } from '../../../environments/environment';
 import { TokenStorageService } from '../../core/services/token-storage.service';
+import { refreshAccessToken } from '../../core/interceptors/auth.interceptor';
+import { AuthService } from './auth.service';
 import * as NotificationsActions from '../state/notifications/notifications.actions';
 
 /** Wait before reconnecting: 5 s, then 10 s, 20 s … up to 60 s between attempts. */
@@ -15,11 +17,13 @@ export class NotificationPushService {
   private failures = 0;
   /** True between connect() and disconnect(); a dropped stream is only reopened while true. */
   private wanted = false;
+  private refreshing = false;
 
   constructor(
     private readonly store: Store,
     private readonly tokenStorage: TokenStorageService,
     private readonly ngZone: NgZone,
+    private readonly authService: AuthService,
   ) {}
 
   connect() {
@@ -35,6 +39,27 @@ export class NotificationPushService {
   }
 
   private open() {
+    if (this.es || this.refreshing || !this.wanted) return;
+    // An expired token would only get a 401: refresh it first.
+    const refreshToken = this.tokenStorage.getRefreshToken();
+    if (refreshToken && this.tokenStorage.isAccessTokenExpired()) {
+      this.refreshing = true;
+      refreshAccessToken(this.authService, this.tokenStorage, refreshToken).subscribe({
+        next: () => {
+          this.refreshing = false;
+          this.openStream();
+        },
+        error: () => {
+          this.refreshing = false;
+          this.scheduleReconnect();
+        },
+      });
+      return;
+    }
+    this.openStream();
+  }
+
+  private openStream() {
     if (this.es || !this.wanted) return;
     // A fresh token every time: the one used by a dropped stream may have expired.
     const token = this.tokenStorage.getAccessToken();

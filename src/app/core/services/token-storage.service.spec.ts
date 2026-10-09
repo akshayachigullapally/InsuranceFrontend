@@ -29,4 +29,15 @@ describe('TokenStorageService', () => {
     expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refresh-1');
     expect(service.hasTokens()).toBe(true);
   });
+
+  it('reports whether the access token has expired', () => {
+    const token = (exp: number) => `h.${btoa(JSON.stringify({ exp }))}.s`;
+    const now = Math.floor(Date.now() / 1000);
+
+    expect(service.isAccessTokenExpired()).toBe(false);
+    service.storeTokens(token(now + 600), 'refresh-1');
+    expect(service.isAccessTokenExpired()).toBe(false);
+    service.storeTokens(token(now - 60), 'refresh-1');
+    expect(service.isAccessTokenExpired()).toBe(true);
+  });
 });

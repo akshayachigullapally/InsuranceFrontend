@@ -304,7 +304,7 @@
                             [routerLink]="path"
                             role="menuitem"
                             class="header-notifications-item"
-                            (click)="onNotificationClick(notification)"
+                            (click)="onNotificationClick(notification, path)"
                           >
                             <span class="header-notifications-item-icon" aria-hidden="true">
                               {{ notificationsIcon(notification.type) }}
@@ -393,7 +393,7 @@
                   <a
                     [routerLink]="toastPath"
                     class="header-bell-toast-body"
-                    (click)="onNotificationClick(toast)"
+                    (click)="onNotificationClick(toast, toastPath)"
                   >
                     <span class="header-notifications-item-icon" aria-hidden="true">
                       {{ notificationsIcon(toast.type) }}

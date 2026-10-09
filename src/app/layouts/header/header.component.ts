@@ -384,8 +384,14 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
   ): string | null {
     return notificationDestinationRoute(notification, user?.role ?? null);
   }
-  protected onNotificationClick(notification: NotificationResponse): void {
+  protected onNotificationClick(notification: NotificationResponse, path?: string): void {
     this.notificationsMenuOpen = false;
+    // A link to the page already open is ignored by the router; reload it so it shows the update.
+    if (path && this.router.url === path) {
+      this.router
+        .navigateByUrl('/', { skipLocationChange: true })
+        .then(() => this.router.navigateByUrl(path));
+    }
     if (this.bellToast && this.bellToast.id === notification.id) {
       this.dismissBellToast();
     }

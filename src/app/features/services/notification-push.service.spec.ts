@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { NotificationPushService } from './notification-push.service';
+import { of } from 'rxjs';
 import { TokenStorageService } from '../../core/services/token-storage.service';
+import { AuthService } from './auth.service';
 import * as NotificationsActions from '../state/notifications/notifications.actions';
 
 class FakeEventSource {
@@ -20,16 +22,29 @@ describe('NotificationPushService', () => {
   let service: NotificationPushService;
   let store: MockStore;
   let accessToken: string | null;
+  let expired: boolean;
+  const refresh = vi.fn();
 
   beforeEach(() => {
     FakeEventSource.instances = [];
     accessToken = 'abc 123';
+    expired = false;
+    refresh.mockReset();
     vi.stubGlobal('EventSource', FakeEventSource);
 
     TestBed.configureTestingModule({
       providers: [
         provideMockStore(),
-        { provide: TokenStorageService, useValue: { getAccessToken: () => accessToken } },
+        {
+          provide: TokenStorageService,
+          useValue: {
+            getAccessToken: () => accessToken,
+            getRefreshToken: () => 'refresh-1',
+            isAccessTokenExpired: () => expired,
+            storeTokens: (access: string) => (accessToken = access),
+          },
+        },
+        { provide: AuthService, useValue: { refresh } },
       ],
     });
     service = TestBed.inject(NotificationPushService);
@@ -93,5 +108,16 @@ describe('NotificationPushService', () => {
     FakeEventSource.instances[2].onerror?.(new Event('error'));
     vi.advanceTimersByTime(5_000);
     expect(FakeEventSource.instances.length).toBe(4);
+  });
+
+  it('refreshes an expired token before opening the stream', () => {
+    expired = true;
+    refresh.mockReturnValue(of({ accessToken: 'fresh', refreshToken: 'refresh-2' }));
+
+    service.connect();
+
+    expect(refresh).toHaveBeenCalledWith({ refreshToken: 'refresh-1' });
+    expect(FakeEventSource.instances.length).toBe(1);
+    expect(FakeEventSource.instances[0].url).toContain('access_token=fresh');
   });
 });
