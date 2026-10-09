@@ -1,0 +1,44 @@
+<div class="card p-4">
+  <button
+    type="button"
+    class="flex w-full items-center justify-between text-left text-sm font-semibold text-gray-700"
+    [attr.aria-expanded]="open"
+    (click)="toggled.emit()"
+  >
+    <span>🗄️ Archived {{ label }}{{ open && !loading ? ' (' + items.length + ')' : '' }}</span>
+    <span class="text-brand-600">{{ open ? 'Hide' : 'Show archived' }}</span>
+  </button>
+
+  @if (open) {
+    <p class="mt-2 text-xs text-gray-500">
+      Restoring brings an item back as <strong>Inactive</strong>; set it to Active when you are ready.
+    </p>
+
+    @if (loading) {
+      <p class="mt-4 text-sm text-gray-500">Loading archived {{ label }}…</p>
+    } @else if (items.length === 0) {
+      <p class="mt-4 text-sm text-gray-500">No archived {{ label }}.</p>
+    } @else {
+      <ul class="mt-4 divide-y divide-gray-100">
+        @for (item of items; track item.id) {
+          <li class="flex items-center justify-between gap-4 py-3">
+            <div>
+              <p class="text-sm font-medium text-gray-900">{{ item.name }}</p>
+              @if (item.detail) {
+                <p class="text-xs text-gray-500">{{ item.detail }}</p>
+              }
+            </div>
+            <button
+              type="button"
+              class="rounded-lg border border-brand-200 px-3 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="restoringId === item.id"
+              (click)="restore.emit(item.id)"
+            >
+              {{ restoringId === item.id ? 'Restoring…' : 'Restore' }}
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>

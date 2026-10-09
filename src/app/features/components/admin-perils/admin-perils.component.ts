@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -17,6 +17,7 @@ import {
 } from '../../dtos/perils/peril-response.dto';
 import {
   archivePeril,
+  archivePerilSuccess,
   clearSelectedPeril,
   clearPerilFilters,
   clearPerilsError,
@@ -45,6 +46,14 @@ interface PerilForm {
   description: FormControl<string>;
 }
 
+import { Actions, ofType } from '@ngrx/effects';
+import { PerilService } from '../../services/peril.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import {
+  ArchivedItem,
+  ArchivedItemsComponent,
+} from '../../../shared/components/archived-items/archived-items.component';
+
 @Component({
   selector: 'app-admin-perils',
   standalone: true,
@@ -55,6 +64,7 @@ interface PerilForm {
     ErrorMessageComponent,
     LoadingSpinnerComponent,
     StatusBadgeComponent,
+    ArchivedItemsComponent,
   ],
   templateUrl: './admin-perils.component.html',
   styleUrl: './admin-perils.component.css',
@@ -99,7 +109,69 @@ export class AdminPerilsComponent implements OnInit, OnDestroy {
     this.error$ = this.store.select(selectPerilsError);
   }
 
+  private readonly archiveService = inject(PerilService);
+  private readonly toast = inject(ToastService);
+  private readonly actions$ = inject(Actions);
+
+  protected readonly archivedOpen = signal(false);
+  protected readonly archivedLoading = signal(false);
+  protected readonly archivedItems = signal<ArchivedItem[]>([]);
+  protected readonly restoringId = signal<number | null>(null);
+
+  protected toggleArchived(): void {
+    this.archivedOpen.update((open) => !open);
+    if (this.archivedOpen()) {
+      this.loadArchived();
+    }
+  }
+
+  protected restoreArchived(id: number): void {
+    this.restoringId.set(id);
+    this.archiveService.restorePeril(id).subscribe({
+      next: (restored) => {
+        this.restoringId.set(null);
+        this.archivedItems.update((items) => items.filter((item) => item.id !== id));
+        this.store.dispatch(loadPerils());
+        this.toast.show({
+          type: 'success',
+          title: 'Peril restored',
+          message: `${((peril: PerilResponse): ArchivedItem => ({ id: peril.id, name: peril.perilName, detail: peril.perilCode }))(restored).name} is back as Inactive. Set it to Active when ready.`,
+        });
+      },
+      error: (error) => {
+        this.restoringId.set(null);
+        this.toast.show({
+          type: 'error',
+          title: 'Restore failed',
+          message: error?.error?.message ?? error?.error?.messages?.[0] ?? 'Please try again.',
+        });
+      },
+    });
+  }
+
+  private loadArchived(): void {
+    this.archivedLoading.set(true);
+    this.archiveService.getArchivedPerils().subscribe({
+      next: (items) => {
+        this.archivedItems.set(items.map((peril: PerilResponse): ArchivedItem => ({ id: peril.id, name: peril.perilName, detail: peril.perilCode })));
+        this.archivedLoading.set(false);
+      },
+      error: () => {
+        this.archivedItems.set([]);
+        this.archivedLoading.set(false);
+      },
+    });
+  }
+
   ngOnInit(): void {
+    // Keep the archived list current when something is archived from the table.
+    this.actions$
+      .pipe(ofType(archivePerilSuccess), takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.archivedOpen()) {
+          this.loadArchived();
+        }
+      });
     this.store.dispatch(clearPerilsError());
     this.store.dispatch(loadPerils());
 

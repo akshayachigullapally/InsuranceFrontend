@@ -238,6 +238,11 @@ export class AdminPricingRulesComponent implements OnInit, OnDestroy {
     );
   }
 
+  /** Brings an archived rule back as INACTIVE; it can be activated afterwards. */
+  protected restore(rule: PricingRuleResponse): void {
+    this.store.dispatch(updatePricingRuleStatus({ ruleId: rule.id, status: 'INACTIVE' }));
+  }
+
   protected async archive(rule: PricingRuleResponse): Promise<void> {
     const confirmed = await this.dialog.confirm({
       title: 'Archive this pricing rule?',

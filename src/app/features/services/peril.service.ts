@@ -55,6 +55,15 @@ export class PerilService {
     );
   }
 
+  getArchivedPerils(): Observable<PerilResponse[]> {
+    return this.http.get<PerilResponse[]>(API_ENDPOINTS.triggers.perilsArchived);
+  }
+
+  /** Brings an archived peril back as INACTIVE. */
+  restorePeril(perilId: number): Observable<PerilResponse> {
+    return this.http.put<PerilResponse>(API_ENDPOINTS.triggers.perilRestore(perilId), {});
+  }
+
   archivePeril(perilId: number): Observable<MessageResponse> {
     return this.http.delete<MessageResponse>(
       API_ENDPOINTS.triggers.perilById(perilId),

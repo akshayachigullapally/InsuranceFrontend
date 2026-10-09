@@ -66,15 +66,15 @@
                   </td>
                   <td class="whitespace-nowrap px-6 py-3 text-right text-sm">
                     <div class="flex items-center justify-end gap-3">
-                      <button
-                        type="button"
-                        class="font-semibold text-brand-600 hover:text-brand-700"
-                        (click)="openEdit(rule)"
-                      >
-                        Edit
-                      </button>
-
                       @if (rule.status !== 'ARCHIVED') {
+                        <button
+                          type="button"
+                          class="font-semibold text-brand-600 hover:text-brand-700"
+                          (click)="openEdit(rule)"
+                        >
+                          Edit
+                        </button>
+
                         <select
                           class="rounded-lg border border-gray-300 px-2 py-1 text-xs disabled:opacity-50"
                           aria-label="Change pricing rule status"
@@ -94,6 +94,16 @@
                           (click)="archive(rule)"
                         >
                           Archive
+                        </button>
+                      } @else {
+                        <button
+                          type="button"
+                          class="rounded-lg border border-brand-200 px-3 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-50"
+                          title="Bring this rule back as Inactive"
+                          [disabled]="isUpdating(rule.id, updatingRuleId$ | async)"
+                          (click)="restore(rule)"
+                        >
+                          Restore
                         </button>
                       }
                     </div>

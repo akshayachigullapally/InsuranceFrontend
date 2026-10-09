@@ -88,6 +88,15 @@ export class ZoneService {
     return this.http.get<ZoneExposureResponse[]>(API_ENDPOINTS.policies.zoneExposure);
   }
 
+  getArchivedZones(): Observable<ZoneResponse[]> {
+    return this.http.get<ZoneResponse[]>(API_ENDPOINTS.triggers.zonesArchived);
+  }
+
+  /** Brings an archived zone back as INACTIVE. */
+  restoreZone(zoneId: number): Observable<ZoneResponse> {
+    return this.http.put<ZoneResponse>(API_ENDPOINTS.triggers.zoneRestore(zoneId), {});
+  }
+
   archiveZone(zoneId: number): Observable<MessageResponse> {
     return this.http.delete<MessageResponse>(
       API_ENDPOINTS.triggers.zoneById(zoneId),

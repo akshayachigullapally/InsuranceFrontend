@@ -1,3 +1,5 @@
+import { provideMockActions } from '@ngrx/effects/testing';
+import { EMPTY } from 'rxjs';
 import { EnvironmentProviders, Provider } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -61,5 +63,6 @@ export function pageTestProviders(
     provideHttpClient(),
     provideHttpClientTesting(),
     provideMockStore({ initialState: mockRootState(stateOverrides) }),
+    provideMockActions(() => EMPTY),
   ];
 }

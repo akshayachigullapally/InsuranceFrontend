@@ -1,5 +1,5 @@
 import { AsyncPipe, DecimalPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
@@ -12,6 +12,7 @@ import {
 } from '../../dtos/zones/zone-response.dto';
 import {
   archiveZone,
+  archiveZoneSuccess,
   clearSelectedZone,
   clearZoneFilters,
   clearZonesError,
@@ -56,6 +57,14 @@ type ZoneAction = {
   zone: ZoneResponse;
 };
 
+import { Actions, ofType } from '@ngrx/effects';
+import { ZoneService } from '../../services/zone.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import {
+  ArchivedItem,
+  ArchivedItemsComponent,
+} from '../../../shared/components/archived-items/archived-items.component';
+
 @Component({
   selector: 'app-admin-zones',
   standalone: true,
@@ -67,6 +76,7 @@ type ZoneAction = {
     ErrorMessageComponent,
     LoadingSpinnerComponent,
     StatusBadgeComponent,
+    ArchivedItemsComponent,
     ConfirmationDialogComponent,
   ],
   templateUrl: './admin-zones.component.html',
@@ -149,7 +159,69 @@ export class AdminZonesComponent implements OnInit, OnDestroy {
     this.error$ = this.store.select(selectZonesError);
   }
 
+  private readonly archiveService = inject(ZoneService);
+  private readonly toast = inject(ToastService);
+  private readonly actions$ = inject(Actions);
+
+  protected readonly archivedOpen = signal(false);
+  protected readonly archivedLoading = signal(false);
+  protected readonly archivedItems = signal<ArchivedItem[]>([]);
+  protected readonly restoringId = signal<number | null>(null);
+
+  protected toggleArchived(): void {
+    this.archivedOpen.update((open) => !open);
+    if (this.archivedOpen()) {
+      this.loadArchived();
+    }
+  }
+
+  protected restoreArchived(id: number): void {
+    this.restoringId.set(id);
+    this.archiveService.restoreZone(id).subscribe({
+      next: (restored) => {
+        this.restoringId.set(null);
+        this.archivedItems.update((items) => items.filter((item) => item.id !== id));
+        this.store.dispatch(loadZones({ state: this.selectedState ?? undefined }));
+        this.toast.show({
+          type: 'success',
+          title: 'Zone restored',
+          message: `${((zone: ZoneResponse): ArchivedItem => ({ id: zone.id, name: zone.zoneName, detail: `${zone.zoneCode} · ${zone.district}, ${zone.state}` }))(restored).name} is back as Inactive. Set it to Active when ready.`,
+        });
+      },
+      error: (error) => {
+        this.restoringId.set(null);
+        this.toast.show({
+          type: 'error',
+          title: 'Restore failed',
+          message: error?.error?.message ?? error?.error?.messages?.[0] ?? 'Please try again.',
+        });
+      },
+    });
+  }
+
+  private loadArchived(): void {
+    this.archivedLoading.set(true);
+    this.archiveService.getArchivedZones().subscribe({
+      next: (items) => {
+        this.archivedItems.set(items.map((zone: ZoneResponse): ArchivedItem => ({ id: zone.id, name: zone.zoneName, detail: `${zone.zoneCode} · ${zone.district}, ${zone.state}` })));
+        this.archivedLoading.set(false);
+      },
+      error: () => {
+        this.archivedItems.set([]);
+        this.archivedLoading.set(false);
+      },
+    });
+  }
+
   ngOnInit(): void {
+    // Keep the archived list current when something is archived from the table.
+    this.actions$
+      .pipe(ofType(archiveZoneSuccess), takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.archivedOpen()) {
+          this.loadArchived();
+        }
+      });
     this.store.dispatch(clearZonesError());
     this.store.dispatch(loadZones({}));
 

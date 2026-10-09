@@ -217,6 +217,16 @@
     }
   }
 
+  <app-archived-items
+    label="zones"
+    [items]="archivedItems()"
+    [open]="archivedOpen()"
+    [loading]="archivedLoading()"
+    [restoringId]="restoringId()"
+    (toggled)="toggleArchived()"
+    (restore)="restoreArchived($event)"
+  />
+
   @if (formOpen) {
     <div
       class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-950/50 p-4"
