@@ -47,7 +47,7 @@
           <option value="">All statuses</option>
 
           @for (status of statuses; track status) {
-            <option [value]="status">
+            <option [value]="status" [selected]="status === selectedStatus">
               {{ status }}
             </option>
           }
@@ -68,7 +68,7 @@
           <option value="">All segments</option>
 
           @for (segment of segments; track segment) {
-            <option [value]="segment">
+            <option [value]="segment" [selected]="segment === selectedSegment">
               {{ segment.replaceAll('_', ' ') }}
             </option>
           }
@@ -182,7 +182,6 @@
                     @if (updatingUserId$ | async; as updatingUserId) {
                       <select
                         class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:opacity-50"
-                        [value]="statusValue(user)"
                         [disabled]="
                           !user.profileStatus ||
                           isUpdating(user.id, updatingUserId)
@@ -191,7 +190,7 @@
                         aria-label="Change user profile status"
                       >
                         @for (status of statuses; track status) {
-                          <option [value]="status">
+                          <option [value]="status" [selected]="status === statusValue(user)">
                             {{ status }}
                           </option>
                         }
@@ -199,13 +198,12 @@
                     } @else {
                       <select
                         class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:opacity-50"
-                        [value]="statusValue(user)"
                         [disabled]="!user.profileStatus"
                         (change)="onUserStatusChange(user, $event)"
                         aria-label="Change user profile status"
                       >
                         @for (status of statuses; track status) {
-                          <option [value]="status">
+                          <option [value]="status" [selected]="status === statusValue(user)">
                             {{ status }}
                           </option>
                         }

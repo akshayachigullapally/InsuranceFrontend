@@ -89,7 +89,7 @@
                 >
                   <option value="" disabled>Select a policy to pay</option>
                   @for (policy of policies(); track policy.id) {
-                    <option [value]="policy.id">{{ policy.policyNumber }} · {{ policy.productName }}</option>
+                    <option [value]="policy.id" [selected]="policy.id === selectedPolicy()?.id">{{ policy.policyNumber }} · {{ policy.productName }}</option>
                   }
                 </select>
               } @else {

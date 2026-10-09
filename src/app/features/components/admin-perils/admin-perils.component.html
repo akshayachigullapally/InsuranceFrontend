@@ -104,7 +104,7 @@
                           (change)="changeStatus(peril, $event)"
                         >
                           @for (status of statuses; track status) {
-                            <option [value]="status">{{ status }}</option>
+                            <option [value]="status" [selected]="status === peril.status">{{ status }}</option>
                           }
                         </select>
                       } @else {
@@ -114,7 +114,7 @@
                           (change)="changeStatus(peril, $event)"
                         >
                           @for (status of statuses; track status) {
-                            <option [value]="status">{{ status }}</option>
+                            <option [value]="status" [selected]="status === peril.status">{{ status }}</option>
                           }
                         </select>
                       }

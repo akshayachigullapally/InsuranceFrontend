@@ -9,6 +9,7 @@ import {
   updateUserStatus,
 } from '../../state/users/users.actions';
 import { UserResponse } from '../../dtos/auth/user-response.dto';
+import { selectFilteredUsers } from '../../state/users/users.selectors';
 
 type UsersInternals = {
   onStatusFilter(event: Event): void;
@@ -73,6 +74,21 @@ describe('AdminUsersComponent', () => {
     confirm.mockResolvedValue(true);
     await page.onUserStatusChange(user, selectEvent('SUSPENDED'));
     expect(store.dispatch).toHaveBeenCalledWith(updateUserStatus({ userId: 4, status: 'SUSPENDED' }));
+  });
+
+  it('shows each user\'s real status in the status dropdown', () => {
+    store.overrideSelector(selectFilteredUsers, [
+      { ...user, id: 1, email: 'a@example.com', profileStatus: 'ACTIVE' },
+      { ...user, id: 2, email: 'b@example.com', profileStatus: 'SUSPENDED' },
+      { ...user, id: 3, email: 'c@example.com', profileStatus: 'INACTIVE' },
+    ] as UserResponse[]);
+    store.refreshState();
+    fixture.detectChanges();
+
+    const selects = Array.from(
+      fixture.nativeElement.querySelectorAll('select[aria-label="Change user profile status"]'),
+    ) as HTMLSelectElement[];
+    expect(selects.map((select) => select.value)).toEqual(['ACTIVE', 'SUSPENDED', 'INACTIVE']);
   });
 
   it('formats labels and addresses', () => {

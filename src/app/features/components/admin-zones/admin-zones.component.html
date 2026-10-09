@@ -44,7 +44,7 @@
         >
           <option value="">All states</option>
           @for (state of states$ | async; track state) {
-            <option [value]="state">{{ state }}</option>
+            <option [value]="state" [selected]="state === selectedState">{{ state }}</option>
           }
         </select>
       </div>
@@ -156,7 +156,7 @@
                           (change)="changeStatus(zone, $event)"
                         >
                           @for (status of statuses; track status) {
-                            <option [value]="status">{{ status }}</option>
+                            <option [value]="status" [selected]="status === zone.status">{{ status }}</option>
                           }
                         </select>
                       } @else {
@@ -166,7 +166,7 @@
                           (change)="changeStatus(zone, $event)"
                         >
                           @for (status of statuses; track status) {
-                            <option [value]="status">{{ status }}</option>
+                            <option [value]="status" [selected]="status === zone.status">{{ status }}</option>
                           }
                         </select>
                       }
