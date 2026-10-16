@@ -104,7 +104,11 @@
                     {{ entry.claimNumber }}
                   </a>
                   <span class="block text-xs text-gray-400">
-                    {{ entry.policyNumber || 'No policy number' }} · Customer #{{ entry.customerId }}
+                    {{ entry.policyNumber || 'No policy number' }} ·
+                    @if (entry.customerId | customerName | async; as name) {
+                      {{ name }} ·
+                    }
+                    Customer #{{ entry.customerId }}
                   </span>
                 </td>
                 <td class="px-6 py-3 text-sm whitespace-nowrap">

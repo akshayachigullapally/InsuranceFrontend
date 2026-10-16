@@ -16,11 +16,13 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
+import { CustomerNamePipe } from '../../../shared/pipes/customer-name.pipe';
 
 @Component({
   selector: 'app-underwriter-policies',
   standalone: true,
   imports: [
+    CustomerNamePipe,
     AsyncPipe,
     DatePipe,
     DecimalPipe,

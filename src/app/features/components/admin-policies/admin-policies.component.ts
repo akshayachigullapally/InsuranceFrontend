@@ -19,6 +19,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { CustomerNamePipe } from '../../../shared/pipes/customer-name.pipe';
 
 interface StatusFilter {
   label: string;
@@ -29,6 +30,7 @@ interface StatusFilter {
   selector: 'app-admin-policies',
   standalone: true,
   imports: [
+    CustomerNamePipe,
     AsyncPipe,
     DatePipe,
     DecimalPipe,

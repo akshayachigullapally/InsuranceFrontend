@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, map, of, shareReplay } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
 import {
   CustomerSegment,
@@ -12,6 +12,9 @@ import { UpdateProfileRequest } from '../dtos/auth/update-profile-request.dto';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
+  // One request per user id, shared by every list row that shows that user's name.
+  private readonly userNames = new Map<number, Observable<string | null>>();
+
   constructor(private readonly http: HttpClient) {}
 
   getMyProfile(): Observable<UserResponse> {
@@ -38,6 +41,19 @@ export class UserService {
 
   getUser(userId: number): Observable<UserResponse> {
     return this.http.get<UserResponse>(API_ENDPOINTS.users.getById(userId));
+  }
+
+  getUserName(userId: number): Observable<string | null> {
+    let name$ = this.userNames.get(userId);
+    if (!name$) {
+      name$ = this.getUser(userId).pipe(
+        map((user) => user.fullName || null),
+        catchError(() => of(null)),
+        shareReplay(1),
+      );
+      this.userNames.set(userId, name$);
+    }
+    return name$;
   }
 
   updateUserStatus(userId: number, status: UserStatus): Observable<UserResponse> {

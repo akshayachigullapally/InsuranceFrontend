@@ -95,6 +95,9 @@
                     </p>
 
                     <p class="text-xs text-gray-400">
+                      @if (claim.customerId | customerName | async; as name) {
+                        {{ name }} ·
+                      }
                       Customer #{{ claim.customerId }}
                     </p>
                   </td>

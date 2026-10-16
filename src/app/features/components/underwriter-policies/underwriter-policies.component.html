@@ -115,7 +115,10 @@
                   </td>
 
                   <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">
-                    Customer #{{ policy.customerId }}
+                    @if (policy.customerId | customerName | async; as name) {
+                      <span class="block font-medium text-gray-900">{{ name }}</span>
+                    }
+                    <span class="block text-xs text-gray-500">Customer #{{ policy.customerId }}</span>
                   </td>
 
                   <td class="whitespace-nowrap px-6 py-3 text-sm text-gray-600">

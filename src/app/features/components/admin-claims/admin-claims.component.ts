@@ -29,11 +29,13 @@ interface StatusFilter {
   value: ClaimStatus | null;
 }
 import { measurementTypeLabel } from '../../utils/trigger-display';
+import { CustomerNamePipe } from '../../../shared/pipes/customer-name.pipe';
 
 @Component({
   selector: 'app-admin-claims',
   standalone: true,
   imports: [
+    CustomerNamePipe,
     AsyncPipe,
     DatePipe,
     DecimalPipe,

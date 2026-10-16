@@ -101,7 +101,12 @@
                   >
                     {{ entry.policyNumber }}
                   </a>
-                  <span class="block text-xs text-gray-400">Customer #{{ entry.customerId }}</span>
+                  <span class="block text-xs text-gray-400">
+                    @if (entry.customerId | customerName | async; as name) {
+                      {{ name }} ·
+                    }
+                    Customer #{{ entry.customerId }}
+                  </span>
                 </td>
                 <td class="px-6 py-3 text-sm text-gray-900">
                   {{ entry.productName || '—' }}

@@ -1,4 +1,4 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -8,6 +8,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { ErrorMessageComponent } from '../../../shared/components/error-message/error-message.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
+import { CustomerNamePipe } from '../../../shared/pipes/customer-name.pipe';
 
 const ACTION_LABELS: Record<string, string> = {
   REVIEW_STARTED: 'Started review',
@@ -21,6 +22,8 @@ const ACTION_LABELS: Record<string, string> = {
   selector: 'app-claims-officer-review-history',
   standalone: true,
   imports: [
+    CustomerNamePipe,
+    AsyncPipe,
     DatePipe,
     DecimalPipe,
     FormsModule,

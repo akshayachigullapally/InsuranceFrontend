@@ -22,11 +22,13 @@ import { ErrorMessageComponent } from '../../../shared/components/error-message/
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { CustomerNamePipe } from '../../../shared/pipes/customer-name.pipe';
 
 @Component({
   selector: 'app-claims-officer-claims',
   standalone: true,
   imports: [
+    CustomerNamePipe,
     AsyncPipe,
     DatePipe,
     DecimalPipe,
