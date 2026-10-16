@@ -51,7 +51,11 @@ export class ClaimsOfficerReviewHistoryComponent implements OnInit {
   );
   protected readonly approvedCount = computed(() => this.count('CLAIM_APPROVED'));
   protected readonly rejectedCount = computed(() => this.count('CLAIM_REJECTED'));
-  protected readonly settledCount = computed(() => this.count('CLAIM_SETTLED'));
+  // Most claims are settled automatically when their payout succeeds, which is not an
+  // officer action, so count the claims this officer handled that are now settled.
+  protected readonly settledCount = computed(
+    () => new Set(this.entries().filter(e => e.currentStatus === 'SETTLED').map(e => e.claimId)).size,
+  );
   protected readonly approvedAmount = computed(() =>
     this.entries()
       .filter(e => e.action === 'CLAIM_APPROVED')

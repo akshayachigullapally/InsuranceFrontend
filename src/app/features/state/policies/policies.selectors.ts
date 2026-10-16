@@ -55,19 +55,3 @@ export const selectAdminActivePolicyCount = createSelector(
   (policies) => policies.filter((policy) => policy.status === 'ACTIVE').length,
 );
 
-export const selectAdminActivePremium = createSelector(selectAdminPolicies, (policies) =>
-  policies
-    .filter((policy) => policy.status === 'ACTIVE')
-    .reduce((sum, policy) => sum + policy.premiumAmount, 0),
-);
-
-export const selectAdminApprovedPolicyCount = createSelector(
-  selectAdminPolicies,
-  (policies) =>
-    policies.filter((policy) => policy.status === 'ACTIVE' || policy.status === 'EXPIRED').length,
-);
-
-export const selectAdminRejectedPolicyCount = createSelector(
-  selectAdminPolicies,
-  (policies) => policies.filter((policy) => policy.status === 'REJECTED').length,
-);

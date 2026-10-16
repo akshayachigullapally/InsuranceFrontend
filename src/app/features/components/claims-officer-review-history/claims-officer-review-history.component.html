@@ -25,7 +25,7 @@
     <app-stat-card label="Claims handled" [value]="claimsHandled()" icon="🗂️" color="navy" hint="Distinct claims" />
     <app-stat-card label="Approved" [value]="approvedCount()" icon="✅" color="green" hint="Claims approved" />
     <app-stat-card label="Rejected" [value]="rejectedCount()" icon="⛔" color="red" hint="Claims declined" />
-    <app-stat-card label="Settled" [value]="settledCount()" icon="🏦" color="blue" hint="Claims closed" />
+    <app-stat-card label="Settled" [value]="settledCount()" icon="🏦" color="blue" hint="Your claims now settled" />
     <app-stat-card
       label="Amount approved"
       [value]="'₹ ' + approvedAmount().toLocaleString('en-IN')"

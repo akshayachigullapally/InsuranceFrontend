@@ -1,15 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore } from '@ngrx/store/testing';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom, of, throwError } from 'rxjs';
 import { UnderwriterDashboardComponent } from './underwriter-dashboard.component';
-import { mockRootState, pageTestProviders } from '../../../../testing/test-helpers';
-import { loadAdminPolicies, loadReviewPolicies } from '../../state/policies/policies.actions';
+import { pageTestProviders } from '../../../../testing/test-helpers';
+import { PolicyService } from '../../services/policy.service';
+import { loadReviewPolicies } from '../../state/policies/policies.actions';
 
-async function setup(adminPolicies: unknown[]) {
-  const root = mockRootState();
+async function setup(history: Observable<unknown> = of([])) {
   await TestBed.configureTestingModule({
     imports: [UnderwriterDashboardComponent],
-    providers: pageTestProviders({ policies: { ...root.policies, adminPolicies } }),
+    providers: [
+      ...pageTestProviders(),
+      { provide: PolicyService, useValue: { getReviewHistory: vi.fn().mockReturnValue(history) } },
+    ],
   }).compileComponents();
 
   const store = TestBed.inject(MockStore);
@@ -21,20 +24,30 @@ async function setup(adminPolicies: unknown[]) {
 }
 
 describe('UnderwriterDashboardComponent', () => {
-  it('loads the review queue and all policies on init', async () => {
-    const { store } = await setup([]);
+  it('loads the review queue on init', async () => {
+    const { store } = await setup();
 
     expect(store.dispatch).toHaveBeenCalledWith(loadReviewPolicies());
-    expect(store.dispatch).toHaveBeenCalledWith(loadAdminPolicies({}));
   });
 
-  it('computes the approval rate to one decimal place', async () => {
-    const { component } = await setup([
-      { id: 1, status: 'ACTIVE', premiumAmount: 100 },
-      { id: 2, status: 'EXPIRED', premiumAmount: 100 },
-      { id: 3, status: 'REJECTED', premiumAmount: 100 },
-    ]);
+  it('computes the decision cards from the underwriter\'s own review history', async () => {
+    const { component } = await setup(
+      of([
+        { decision: 'APPROVED', sumInsured: 100000 },
+        { decision: 'APPROVED', sumInsured: 50000 },
+        { decision: 'REJECTED', sumInsured: 80000 },
+      ]),
+    );
 
+    expect(await firstValueFrom(component.approvedCount$)).toBe(2);
+    expect(await firstValueFrom(component.approvedCover$)).toBe(150000);
     expect(await firstValueFrom(component.approvalRate$)).toBe(66.7);
+  });
+
+  it('shows zeros when the review history cannot be loaded', async () => {
+    const { component } = await setup(throwError(() => new Error('down')));
+
+    expect(await firstValueFrom(component.approvedCount$)).toBe(0);
+    expect(await firstValueFrom(component.approvalRate$)).toBe(0);
   });
 });

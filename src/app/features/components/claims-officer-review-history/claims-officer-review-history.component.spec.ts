@@ -23,10 +23,10 @@ type HistoryInternals = {
 };
 
 const entries = [
-  { timelineId: 1, claimId: 1, claimNumber: 'CLM-1', policyNumber: 'POL-1', action: 'REVIEW_STARTED', customerId: 7 },
-  { timelineId: 2, claimId: 1, claimNumber: 'CLM-1', policyNumber: 'POL-1', action: 'CLAIM_APPROVED', approvedAmount: 9000, customerId: 7 },
-  { timelineId: 3, claimId: 2, claimNumber: 'CLM-2', policyNumber: 'POL-2', action: 'CLAIM_REJECTED', notes: 'Duplicate claim', customerId: 8 },
-  { timelineId: 4, claimId: 3, claimNumber: 'CLM-3', policyNumber: 'POL-3', action: 'CLAIM_SETTLED', customerId: 9 },
+  { timelineId: 1, claimId: 1, claimNumber: 'CLM-1', policyNumber: 'POL-1', action: 'REVIEW_STARTED', customerId: 7, currentStatus: 'SETTLED' },
+  { timelineId: 2, claimId: 1, claimNumber: 'CLM-1', policyNumber: 'POL-1', action: 'CLAIM_APPROVED', approvedAmount: 9000, customerId: 7, currentStatus: 'SETTLED' },
+  { timelineId: 3, claimId: 2, claimNumber: 'CLM-2', policyNumber: 'POL-2', action: 'CLAIM_REJECTED', notes: 'Duplicate claim', customerId: 8, currentStatus: 'REJECTED' },
+  { timelineId: 4, claimId: 3, claimNumber: 'CLM-3', policyNumber: 'POL-3', action: 'CLAIM_SETTLED', customerId: 9, currentStatus: 'SETTLED' },
 ];
 
 async function setup(response: Observable<unknown> = of(entries)) {
@@ -50,6 +50,15 @@ describe('ClaimsOfficerReviewHistoryComponent', () => {
 
     expect(page.entries().length).toBe(4);
     expect(page.claimsHandled()).toBe(3);
+  });
+
+  it('counts handled claims that are now settled, including ones settled by their payout', async () => {
+    const page = await setup();
+
+    // CLM-1 was approved by the officer and settled automatically; CLM-3 was settled manually.
+    expect(page.settledCount()).toBe(2);
+    expect(page.approvedCount()).toBe(1);
+    expect(page.rejectedCount()).toBe(1);
   });
 
   it('filters by action and search term', async () => {

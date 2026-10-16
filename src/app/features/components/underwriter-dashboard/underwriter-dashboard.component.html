@@ -24,9 +24,9 @@
   <!-- KPI cards -->
   <div class="grid animate-fade-in-up gap-5 sm:grid-cols-2 lg:grid-cols-4">
     <app-stat-card label="Pending applications" [value]="(pendingCount$ | async) ?? 0" icon="⏳" color="amber" hint="Awaiting review" />
-    <app-stat-card label="Active policies" [value]="(activePolicyCount$ | async) ?? 0" icon="📄" color="blue" hint="In force today" />
-    <app-stat-card label="Premium in force" [value]="'₹ ' + (((activePremium$ | async) ?? 0) | number: '1.0-2')" icon="💰" color="green" hint="Annual GWP" />
-    <app-stat-card label="Approval rate" [value]="((approvalRate$ | async) ?? 0) + '%'" icon="✅" color="navy" hint="Approved vs rejected" />
+    <app-stat-card label="Approved by you" [value]="(approvedCount$ | async) ?? 0" icon="📄" color="blue" hint="Policies you activated" />
+    <app-stat-card label="Cover approved" [value]="'₹ ' + (((approvedCover$ | async) ?? 0) | number: '1.0-0')" icon="💰" color="green" hint="Total sum insured you approved" />
+    <app-stat-card label="Approval rate" [value]="((approvalRate$ | async) ?? 0) + '%'" icon="✅" color="navy" hint="Your approved vs rejected" />
   </div>
 
   <!-- Review queue -->
